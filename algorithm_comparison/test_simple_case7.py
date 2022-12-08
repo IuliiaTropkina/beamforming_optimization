@@ -161,7 +161,7 @@ def agent(X_shape, Y_shape):
 def create_features_matrix(cir_cache, number_of_samples_in_one_dataset, datasettype="synthetic"):
     if datasettype == "channel":
         cir_cache.get_all_contexts()
-        features = cir_cache.all_contexts[0,:]
+        features = cir_cache.all_contexts
     elif datasettype == "synthetic":
         features = np.linspace(0, number_of_samples_in_one_dataset - 1, number_of_samples_in_one_dataset)
 
@@ -239,14 +239,18 @@ if __name__ == '__main__':
 
 
     ARMS_NUMBER_CIR = len(beam_directions)
+    number_of_outputs = ARMS_NUMBER_CIR
+    number_of_features = 1
+
+
     context_subdevisions = [1,2,3]
     context_sets = []
     for SUBDIVISION_2 in context_subdevisions:
         icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
         context_sets.append(np.array(icosphere_context.vertices))
 
-    number_of_features = 1
-    number_of_outputs = 1
+
+
     number_of_one_dataset_to_be_repeated = 1
     number_of_samples_in_one_dataset = ITER_NUMBER_CIR
     total_number_of_samples = number_of_one_dataset_to_be_repeated * number_of_samples_in_one_dataset
@@ -256,7 +260,6 @@ if __name__ == '__main__':
         folder_name_figures = f"scenario_uturn"
         figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}/DL/"
 
-        feature_length = len(cont_set)
         datasettype = "channel"
 
         RX_locations = []
@@ -276,38 +279,48 @@ if __name__ == '__main__':
 
         features = create_features_matrix(cir_cache, number_of_samples_in_one_dataset, datasettype=datasettype)
         features_normalized = features/max(features)
-        features_for_prediction = np.unique(features)
-        features_for_prediction = features_for_prediction/max(features_for_prediction)
+
         ALL_REWARD = create_reward_matrix(cir_cache, number_of_outputs, number_of_samples_in_one_dataset, datasettype =datasettype)
 
-        Y = [[]]
-        X = [[]]
+        Y = []
+        for _ in range(number_of_outputs):
+            Y.append([])
+
+        X = []
+        for _ in range(number_of_features):
+            X.append([])
 
         model = agent((number_of_features,), number_of_outputs)
         for n in range(number_of_one_dataset_to_be_repeated):
-            Y[0].append(ALL_REWARD[0])
-            # Y[1].append(ALL_REWARD[1])
-            X[0].append(features_normalized)
+            for i in range(number_of_outputs):
+                Y[i].append(ALL_REWARD[i])
+            for ii in range(number_of_features):
+                X[ii].append(features_normalized[ii])
 
         X = np.array(X)
         Y = np.array(Y)
         Y = np.reshape(Y, (number_of_outputs, total_number_of_samples))
-        X = np.reshape(X, (1, total_number_of_samples))
+        X = np.reshape(X, (number_of_features, total_number_of_samples))
         batch_size = 1
         X = np.array(X)
         Y = np.array(Y)
         model.fit(X.transpose(), Y.transpose(), batch_size=batch_size, verbose=0, shuffle=True)
 
-        rewards_predicted = model.predict(features_for_prediction)
+        for i in range(number_of_features):
+            features_for_prediction = np.unique(features[i])
+            features_for_prediction = features_for_prediction/max(features_for_prediction)
 
+            rewards_predicted = model.predict(features_for_prediction)
+
+        test_name = "many_beams"
         pickle.dump(rewards_predicted,
-                    open(f"{figures_path}/rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+                    open(f"{figures_path}/{test_name}_rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
         pickle.dump(ALL_REWARD,
-                    open(f"{figures_path}/rewards_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+                    open(f"{figures_path}/{test_name}_rewards_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
         pickle.dump(features,
-                    open(f"{figures_path}/features_con_num{len(cont_set)}.pickle", 'wb'))
+                    open(f"{figures_path}/{test_name}_features_con_num{len(cont_set)}.pickle", 'wb'))
 
 
 

@@ -732,7 +732,6 @@ if __name__ == '__main__':
                             dpi=700,
                             bbox_inches='tight')
 
-#dfjsfosfjfsffsfsdf
                         fig21 = plt.figure()
                         plt.imshow(states_for_plot[:,0:len(all_actions) - 1:1000], aspect="auto")
                         plt.xlabel("Iteration (every 1000)", fontname="Times New Roman", fontsize="16")
