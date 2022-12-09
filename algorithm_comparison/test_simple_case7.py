@@ -234,8 +234,8 @@ if __name__ == '__main__':
 
     SUBDIVISION = 0
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
-    #beam_directions = np.array(icosphere.vertices)
-    beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
+    beam_directions = np.array(icosphere.vertices)
+    #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
 
 
     ARMS_NUMBER_CIR = len(beam_directions)
@@ -243,7 +243,7 @@ if __name__ == '__main__':
     number_of_features = 1
 
 
-    context_subdevisions = [1,2,3]
+    context_subdevisions = [3]
     context_sets = []
     for SUBDIVISION_2 in context_subdevisions:
         icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
@@ -278,7 +278,10 @@ if __name__ == '__main__':
                               frames_per_data_frame=frames_per_data_frame)
 
         features = create_features_matrix(cir_cache, number_of_samples_in_one_dataset, datasettype=datasettype)
-        features_normalized = features/max(features)
+        features_normalized = np.zeros(np.shape(features))
+        for i in range(number_of_features):
+            features_normalized[i] = features[i] / max(features[i])
+
 
         ALL_REWARD = create_reward_matrix(cir_cache, number_of_outputs, number_of_samples_in_one_dataset, datasettype =datasettype)
 
@@ -290,7 +293,7 @@ if __name__ == '__main__':
         for _ in range(number_of_features):
             X.append([])
 
-        model = agent((number_of_features,), number_of_outputs)
+
         for n in range(number_of_one_dataset_to_be_repeated):
             for i in range(number_of_outputs):
                 Y[i].append(ALL_REWARD[i])
@@ -299,18 +302,22 @@ if __name__ == '__main__':
 
         X = np.array(X)
         Y = np.array(Y)
-        Y = np.reshape(Y, (number_of_outputs, total_number_of_samples))
-        X = np.reshape(X, (number_of_features, total_number_of_samples))
+
+        YY = np.zeros((number_of_outputs, total_number_of_samples))
+        XX = np.zeros((number_of_features, total_number_of_samples))
+        for i in range(number_of_outputs):
+            YY[i] = np.reshape(Y[i], (1, total_number_of_samples))
+        for ii in range(number_of_features):
+            XX[ii] = np.reshape(X[ii], (1, total_number_of_samples))
+
+        rewards_predicted = np.zeros((number_of_outputs, total_number_of_samples))
         batch_size = 1
-        X = np.array(X)
-        Y = np.array(Y)
-        model.fit(X.transpose(), Y.transpose(), batch_size=batch_size, verbose=0, shuffle=True)
+        for out_num in range(number_of_outputs):
+            model = agent((number_of_features, 1), 1)
+            model.fit(XX.transpose(), np.array([YY[out_num]]).transpose(), batch_size=batch_size, verbose=0, shuffle=True)
 
-        for i in range(number_of_features):
-            features_for_prediction = np.unique(features[i])
-            features_for_prediction = features_for_prediction/max(features_for_prediction)
-
-            rewards_predicted = model.predict(features_for_prediction)
+            rew = model.predict(features_normalized.transpose())
+            rewards_predicted[out_num] = rew[:,0,0]
 
         test_name = "many_beams"
         pickle.dump(rewards_predicted,

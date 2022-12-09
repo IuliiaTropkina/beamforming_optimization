@@ -95,41 +95,79 @@ def DL_simple():
 def DL_channel():
     SUBDIVISION = 0
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
-    #beam_directions = np.array(icosphere.vertices)
-    beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
+    beam_directions = np.array(icosphere.vertices)
+    #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
 
 
     ARMS_NUMBER_CIR = len(beam_directions)
-    context_subdevisions = [1,2,3]
+    context_subdevisions = [2]
+    number_of_outputs = ARMS_NUMBER_CIR
+    number_of_features = 1
     context_sets = []
+    figures_path = "C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/scenario_uturn/DL"
+
+
+    oracle = pickle.load(open(
+        f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle",
+        "rb"))
+
+    sequential_search_reward = pickle.load(open(
+        f"{figures_path}/sequential_search_arms{int(ARMS_NUMBER_CIR)}.pickle",
+        "rb"))
+
+
     for SUBDIVISION_2 in context_subdevisions:
         icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
         context_sets.append(np.array(icosphere_context.vertices))
 
 
     for cont_set in context_sets:
-        figures_path = "C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/scenario_uturn/DL"
 
 
-
+        test_name = "many_beams"
         rewards_predicted = pickle.load(open(
-            f"{figures_path}/rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle",
+            f"{figures_path}/{test_name}_rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle",
             "rb"))
 
         ALL_REWARD = pickle.load(open(
-            f"{figures_path}/rewards_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle",
+            f"{figures_path}/{test_name}_rewards_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle",
             "rb"))
 
         features = pickle.load(open(
-            f"{figures_path}/features_con_num{len(cont_set)}.pickle",
+            f"{figures_path}/{test_name}_features_con_num{len(cont_set)}.pickle",
             "rb"))
 
-        features_for_prediction = np.unique(features)
+        if False:
+            for i in range(number_of_outputs):
+                features_for_prediction = features[0] #np.unique(features)
+                rewards_for_plotting = rewards_predicted[i,:]
+                fig_name = f"{test_name}_arm{i}_reward_cont{len(cont_set)}"
+                plt.figure(fig_name)
+                plt.plot(features_for_prediction, rewards_for_plotting, "*", label="predicted")
+                plt.plot(features[0], ALL_REWARD[i], ".", label="reference")
+                # plt.title("")
+                plt.ylabel('Reward')
+                plt.xlabel('Context')
+                # plt.ylim(top=250)
+                plt.grid()
+                plt.legend()
 
-        fig_name = f"reward_cont{len(cont_set)}"
+                plt.savefig(
+                    f"{figures_path}/{fig_name}.pdf",
+                    dpi=700, bbox_inches='tight')
+        reward_DL = np.zeros(np.shape(oracle))
+        for it_num in range(int(np.shape(rewards_predicted)[1])):
+            index_max = np.argmax(rewards_predicted[:,it_num])
+            reward_DL[it_num] = ALL_REWARD[index_max, it_num]
+
+        cumulative_reward_DL = np.cumsum(reward_DL) / (np.arange(len(reward_DL)) + 1)
+        cumulative_oracle = np.cumsum(oracle) / (np.arange(len(oracle)) + 1)
+        cumulative_sequential_search_reward = np.cumsum(sequential_search_reward) / (np.arange(len(sequential_search_reward)) + 1)
+        fig_name = f"{test_name}_cont{len(cont_set)}_algorithm_comparison"
         plt.figure(fig_name)
-        plt.plot(np.array([features_for_prediction]).transpose(), rewards_predicted, "*", label="predicted")
-        plt.plot(np.array([features]).transpose(), ALL_REWARD[0], ".", label="reference")
+        plt.plot(cumulative_reward_DL, label="DL")
+        plt.plot(cumulative_oracle,label="Oracle")
+        plt.plot(cumulative_sequential_search_reward, label="Sequential search")
         # plt.title("")
         plt.ylabel('Reward')
         plt.xlabel('Context')
