@@ -160,14 +160,18 @@ def agent(X_shape, Y_shape):
 
 def create_features_matrix(cir_cache, number_of_samples_in_one_dataset, datasettype="synthetic"):
     if datasettype == "channel":
+        features = np.zeros((2, number_of_samples_in_one_dataset))
         cir_cache.get_all_contexts()
-        features = cir_cache.all_contexts
+        features[0, : ] = cir_cache.all_contexts
+        features[1, : ] = np.argmax(cir_cache.all_rewards, axis=0)
+        features[1,:] = np.roll(features[1,:],1)
     elif datasettype == "synthetic":
         features = np.linspace(0, number_of_samples_in_one_dataset - 1, number_of_samples_in_one_dataset)
 
     return features
 
 def create_reward_matrix(cir_cache, number_of_outputs, number_of_samples_in_one_dataset, datasettype = "synthetic"):
+    ALL_REWARD = np.zeros((number_of_outputs, number_of_samples_in_one_dataset))
     if datasettype == "channel":
 
         cir_cache.get_all_rewards()
@@ -207,10 +211,12 @@ def create_reward_matrix(cir_cache, number_of_outputs, number_of_samples_in_one_
         pickle.dump(sequential_search_reward,
                     open(f"{figures_path}/sequential_search_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
-        return cir_cache.all_rewards[0:number_of_outputs,:]  #normalize???
+
+        ALL_REWARD = cir_cache.all_rewards[0:number_of_outputs, 0:number_of_samples_in_one_dataset]
+
 
     elif datasettype == "synthetic":
-        ALL_REWARD = np.zeros((number_of_outputs, number_of_samples_in_one_dataset))
+
         ALL_REWARD[0, :np.shape(ALL_REWARD)[1] // 3] = 1
         ALL_REWARD[0, -np.shape(ALL_REWARD)[1] // 3:] = 1
 
@@ -218,8 +224,8 @@ def create_reward_matrix(cir_cache, number_of_outputs, number_of_samples_in_one_
 
         # ALL_REWARD[1] = abs((ALL_REWARD[0] - 1))
         # ALL_REWARD[1, 0:int(np.shape(ALL_REWARD)[1] / 2)] = 20
-
-    return ALL_REWARD
+    features = create_features_matrix(cir_cache, number_of_samples_in_one_dataset, datasettype=datasettype)
+    return ALL_REWARD, features
 
 if __name__ == '__main__':
     voxel_size = 0.5
@@ -240,7 +246,7 @@ if __name__ == '__main__':
 
     ARMS_NUMBER_CIR = len(beam_directions)
     number_of_outputs = ARMS_NUMBER_CIR
-    number_of_features = 1
+
 
 
     context_subdevisions = [3]
@@ -277,13 +283,17 @@ if __name__ == '__main__':
         cir_cache = CIR_cache(PATH, FRAME_NUMBER, TX_locations, RX_locations, cont_set,
                               frames_per_data_frame=frames_per_data_frame)
 
-        features = create_features_matrix(cir_cache, number_of_samples_in_one_dataset, datasettype=datasettype)
+
+        ALL_REWARD, features = create_reward_matrix(cir_cache, number_of_outputs, number_of_samples_in_one_dataset,
+                                                    datasettype=datasettype)
+
+
         features_normalized = np.zeros(np.shape(features))
+        number_of_features = len(features)
         for i in range(number_of_features):
             features_normalized[i] = features[i] / max(features[i])
 
 
-        ALL_REWARD = create_reward_matrix(cir_cache, number_of_outputs, number_of_samples_in_one_dataset, datasettype =datasettype)
 
         Y = []
         for _ in range(number_of_outputs):

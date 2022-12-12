@@ -163,7 +163,9 @@ def DL_channel():
         cumulative_reward_DL = np.cumsum(reward_DL) / (np.arange(len(reward_DL)) + 1)
         cumulative_oracle = np.cumsum(oracle) / (np.arange(len(oracle)) + 1)
         cumulative_sequential_search_reward = np.cumsum(sequential_search_reward) / (np.arange(len(sequential_search_reward)) + 1)
-        fig_name = f"{test_name}_cont{len(cont_set)}_algorithm_comparison"
+
+
+        fig_name = f"{test_name}_cum_cont{len(cont_set)}_algorithm_comparison"
         plt.figure(fig_name)
         plt.plot(cumulative_reward_DL, label="DL")
         plt.plot(cumulative_oracle,label="Oracle")
