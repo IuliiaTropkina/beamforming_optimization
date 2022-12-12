@@ -124,8 +124,16 @@ def DL_channel():
     for cont_set in context_sets:
 
 
-        test_name = "many_beams"
-        rewards_predicted = pickle.load(open(
+        test_name = "many_beams_dir_plus_previous"
+        test_name2 = "many_beams"
+        test_name3 = "many_beams_previous"
+        rewards_predicted_previous = pickle.load(open(
+            f"{figures_path}/{test_name3}_rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle",
+            "rb"))
+        rewards_predicted_dir = pickle.load(open(
+            f"{figures_path}/{test_name2}_rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle",
+            "rb"))
+        rewards_predicted_dir_plus_previous = pickle.load(open(
             f"{figures_path}/{test_name}_rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle",
             "rb"))
 
@@ -155,24 +163,36 @@ def DL_channel():
                 plt.savefig(
                     f"{figures_path}/{fig_name}.pdf",
                     dpi=700, bbox_inches='tight')
-        reward_DL = np.zeros(np.shape(oracle))
-        for it_num in range(int(np.shape(rewards_predicted)[1])):
-            index_max = np.argmax(rewards_predicted[:,it_num])
-            reward_DL[it_num] = ALL_REWARD[index_max, it_num]
 
-        cumulative_reward_DL = np.cumsum(reward_DL) / (np.arange(len(reward_DL)) + 1)
+        def choose_beam(rewards_predicted,ALL_REWARD):
+            reward = np.zeros(int(np.shape(rewards_predicted)[1]))
+            for it_num in range(int(np.shape(rewards_predicted)[1])):
+                index_max = np.argmax(rewards_predicted[:,it_num])
+                reward[it_num] = ALL_REWARD[index_max, it_num]
+            return reward
+
+        rewards_dir = choose_beam(rewards_predicted_dir, ALL_REWARD)
+        rewards_dir_plus_previous = choose_beam(rewards_predicted_dir_plus_previous, ALL_REWARD)
+        rewards_previous = choose_beam(rewards_predicted_previous, ALL_REWARD)
+
+
+        cumulative_reward_dir = np.cumsum(rewards_dir) / (np.arange(len(rewards_dir)) + 1)
+        cumulative_reward_previous = np.cumsum(rewards_previous) / (np.arange(len(rewards_previous)) + 1)
+        cumulative_reward_dir_plus_previous = np.cumsum(rewards_dir_plus_previous) / (np.arange(len(rewards_dir_plus_previous)) + 1)
         cumulative_oracle = np.cumsum(oracle) / (np.arange(len(oracle)) + 1)
         cumulative_sequential_search_reward = np.cumsum(sequential_search_reward) / (np.arange(len(sequential_search_reward)) + 1)
 
 
         fig_name = f"{test_name}_cum_cont{len(cont_set)}_algorithm_comparison"
         plt.figure(fig_name)
-        plt.plot(cumulative_reward_DL, label="DL")
+        plt.plot(cumulative_reward_dir, label="DL, DOA")
+        plt.plot(cumulative_reward_dir_plus_previous, label="DL, DOA + previous beam")
+        plt.plot(cumulative_reward_previous, label="DL, previous beam")
         plt.plot(cumulative_oracle,label="Oracle")
         plt.plot(cumulative_sequential_search_reward, label="Sequential search")
         # plt.title("")
-        plt.ylabel('Reward')
-        plt.xlabel('Context')
+        plt.ylabel('Average reward')
+        plt.xlabel('Iteration')
         # plt.ylim(top=250)
         plt.grid()
         plt.legend()

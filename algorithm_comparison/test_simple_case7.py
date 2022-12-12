@@ -158,17 +158,25 @@ def agent(X_shape, Y_shape):
                   metrics=['accuracy'])
     return model
 
-def create_features_matrix(cir_cache, number_of_samples_in_one_dataset, datasettype="synthetic"):
+def create_features_matrix(cir_cache, number_of_samples_in_one_dataset, context_type = "DOA", datasettype="synthetic"):
     if datasettype == "channel":
         features = np.zeros((2, number_of_samples_in_one_dataset))
         cir_cache.get_all_contexts()
         features[0, : ] = cir_cache.all_contexts
         features[1, : ] = np.argmax(cir_cache.all_rewards, axis=0)
         features[1,:] = np.roll(features[1,:],1)
+        if context_type == "DOA":
+            return np.array([features[0, :]])
+        elif context_type == "previous_beam":
+            return features
+        else:
+            return np.array([features[1, :]])
+
     elif datasettype == "synthetic":
         features = np.linspace(0, number_of_samples_in_one_dataset - 1, number_of_samples_in_one_dataset)
 
-    return features
+        return features
+
 
 def create_reward_matrix(cir_cache, number_of_outputs, number_of_samples_in_one_dataset, datasettype = "synthetic"):
     ALL_REWARD = np.zeros((number_of_outputs, number_of_samples_in_one_dataset))
@@ -178,8 +186,7 @@ def create_reward_matrix(cir_cache, number_of_outputs, number_of_samples_in_one_
         oracle = []
         for i in range(number_of_samples_in_one_dataset):
             oracle.append(max(cir_cache.all_rewards[:, i]))
-        pickle.dump(oracle, open(
-            f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+        pickle.dump(oracle, open(f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
         sequential_search_reward = []
         max_reward_search = np.zeros(ARMS_NUMBER_CIR)
@@ -329,7 +336,8 @@ if __name__ == '__main__':
             rew = model.predict(features_normalized.transpose())
             rewards_predicted[out_num] = rew[:,0,0]
 
-        test_name = "many_beams"
+
+        test_name = "many_beams_dir_plus_previous"
         pickle.dump(rewards_predicted,
                     open(f"{figures_path}/{test_name}_rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
