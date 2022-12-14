@@ -10,6 +10,19 @@ from math import sqrt
 import math
 from scipy import spatial
 
+
+def vector_to_euler(v: np.ndarray):
+    """
+    Return roll, pitch and yaw for given offset vector
+    :param v: The offset vector in cartesian coordinates
+    :return: the pitch and yaw angles to match vector. Roll is always 0
+    """
+    v = v / norm(v)
+    yaw = np.arctan2(v[1], v[0])
+    pitch = np.arcsin(v[2])
+    return vector(0.0, pitch, yaw)
+
+
 def bin_rays_by_direction(beam_dirs, ray_dirs, power) -> dict:
     dirs_sorted = {}
     for ray_num, ray in enumerate(ray_dirs):
@@ -145,15 +158,16 @@ class CIR_cache:
 
 def agent(X_shape, Y_shape):
     learning_rate = 0.001
+    coef = 4
     init = tf.keras.initializers.HeUniform()
     model = keras.Sequential()
-    model.add(keras.layers.Dense(8, input_shape=X_shape, activation='relu', kernel_initializer=init))
-    model.add(keras.layers.Dense(8, activation='relu', kernel_initializer=init))
-    model.add(keras.layers.Dense(8, activation='relu', kernel_initializer=init))
-    model.add(keras.layers.Dense(8, activation='relu', kernel_initializer=init))
-    model.add(keras.layers.Dense(4, activation='relu', kernel_initializer=init))
-    model.add(keras.layers.Dense(4, activation='relu', kernel_initializer=init))
-    model.add(keras.layers.Dense(Y_shape, activation='linear', kernel_initializer=init))
+    model.add(keras.layers.Dense(8*coef, input_shape=X_shape, activation='relu', kernel_initializer=init))
+    model.add(keras.layers.Dense(8*coef, activation='relu', kernel_initializer=init))
+    model.add(keras.layers.Dense(8*coef, activation='relu', kernel_initializer=init))
+    model.add(keras.layers.Dense(8*coef, activation='relu', kernel_initializer=init))
+    model.add(keras.layers.Dense(4*coef, activation='relu', kernel_initializer=init))
+    model.add(keras.layers.Dense(4*coef, activation='relu', kernel_initializer=init))
+    model.add(keras.layers.Dense(Y_shape, activation='sigmoid', kernel_initializer=init))
     model.compile(loss=tf.keras.losses.Huber(), optimizer=tf.keras.optimizers.Adam(lr=learning_rate),
                   metrics=['accuracy'])
     return model
@@ -168,9 +182,9 @@ def create_features_matrix(cir_cache, number_of_samples_in_one_dataset, context_
         if context_type == "DOA":
             return np.array([features[0, :]])
         elif context_type == "previous_beam":
-            return features
-        else:
             return np.array([features[1, :]])
+        else:
+            return features
 
     elif datasettype == "synthetic":
         features = np.linspace(0, number_of_samples_in_one_dataset - 1, number_of_samples_in_one_dataset)
@@ -178,7 +192,7 @@ def create_features_matrix(cir_cache, number_of_samples_in_one_dataset, context_
         return features
 
 
-def create_reward_matrix(cir_cache, number_of_outputs, number_of_samples_in_one_dataset, datasettype = "synthetic"):
+def create_reward_matrix(cir_cache, number_of_outputs, number_of_samples_in_one_dataset, context_type, datasettype = "synthetic"):
     ALL_REWARD = np.zeros((number_of_outputs, number_of_samples_in_one_dataset))
     if datasettype == "channel":
 
@@ -231,8 +245,10 @@ def create_reward_matrix(cir_cache, number_of_outputs, number_of_samples_in_one_
 
         # ALL_REWARD[1] = abs((ALL_REWARD[0] - 1))
         # ALL_REWARD[1, 0:int(np.shape(ALL_REWARD)[1] / 2)] = 20
-    features = create_features_matrix(cir_cache, number_of_samples_in_one_dataset, datasettype=datasettype)
+    features = create_features_matrix(cir_cache, number_of_samples_in_one_dataset, context_type=context_type, datasettype=datasettype)
     return ALL_REWARD, features
+
+
 
 if __name__ == '__main__':
     voxel_size = 0.5
@@ -245,7 +261,7 @@ if __name__ == '__main__':
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
 
-    SUBDIVISION = 0
+    SUBDIVISION = 2
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
@@ -278,6 +294,7 @@ if __name__ == '__main__':
         RX_locations = []
         TX_locations = []
         sc = "uturn"
+        context_type = "previous_beam" # "DOA_plus_previous_beam", "DOA"
         folder_name_CIRS = f"CIRS_scenario_{sc}"
         PATH = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Projects/voxel_engine/draft_engine/narvi/CIRS/{folder_name_CIRS}/"
         for fr in range(1, 50):
@@ -292,13 +309,16 @@ if __name__ == '__main__':
 
 
         ALL_REWARD, features = create_reward_matrix(cir_cache, number_of_outputs, number_of_samples_in_one_dataset,
-                                                    datasettype=datasettype)
+                                                    context_type=context_type, datasettype=datasettype)
+
+        #features3 = np.reshape(np.full((number_of_samples_in_one_dataset, ARMS_NUMBER_CIR), range(ARMS_NUMBER_CIR)).transpose(), (1, number_of_samples_in_one_dataset*ARMS_NUMBER_CIR))
 
 
         features_normalized = np.zeros(np.shape(features))
         number_of_features = len(features)
         for i in range(number_of_features):
             features_normalized[i] = features[i] / max(features[i])
+
 
 
 
@@ -327,9 +347,12 @@ if __name__ == '__main__':
         for ii in range(number_of_features):
             XX[ii] = np.reshape(X[ii], (1, total_number_of_samples))
 
-        rewards_predicted = np.zeros((number_of_outputs, total_number_of_samples))
+        rewards_predicted = np.zeros((number_of_outputs, np.shape(features_normalized)[1]))
         batch_size = 1
+
+
         for out_num in range(number_of_outputs):
+            print(out_num)
             model = agent((number_of_features, 1), 1)
             model.fit(XX.transpose(), np.array([YY[out_num]]).transpose(), batch_size=batch_size, verbose=0, shuffle=True)
 
@@ -337,9 +360,9 @@ if __name__ == '__main__':
             rewards_predicted[out_num] = rew[:,0,0]
 
 
-        test_name = "many_beams_dir_plus_previous"
+        test_name = f"many_beams_other_network"
         pickle.dump(rewards_predicted,
-                    open(f"{figures_path}/{test_name}_rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+                    open(f"{figures_path}/{test_name}_{context_type}_rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
         pickle.dump(ALL_REWARD,
                     open(f"{figures_path}/{test_name}_rewards_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))

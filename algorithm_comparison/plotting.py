@@ -93,18 +93,38 @@ def DL_simple():
         plt.grid()
 
 def DL_channel():
-    SUBDIVISION = 0
+    SUBDIVISION = 2
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
 
 
     ARMS_NUMBER_CIR = len(beam_directions)
-    context_subdevisions = [2]
+    context_subdevisions = [3]
     number_of_outputs = ARMS_NUMBER_CIR
-    number_of_features = 1
+
     context_sets = []
     figures_path = "C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/scenario_uturn/DL"
+
+
+
+    # features_for_prediction = features[0]  # np.unique(features)
+    # rewards_for_plotting = rewards_predicted[i, :]
+    # fig_name = f"_arm_reward_cont{len(cont_set)}"
+    # plt.figure(fig_name)
+    # plt.plot(features_for_prediction, rewards_for_plotting, "*", label="predicted")
+    # plt.plot(features[0], ALL_REWARD[i], ".", label="reference")
+    # # plt.title("")
+    # plt.ylabel('Reward')
+    # plt.xlabel('Context')
+    # # plt.ylim(top=250)
+    # plt.grid()
+    # plt.legend()
+    #
+    # plt.savefig(
+    #     f"{figures_path}/{fig_name}.pdf",
+    #     dpi=700, bbox_inches='tight')
+
 
 
     oracle = pickle.load(open(
@@ -120,23 +140,10 @@ def DL_channel():
         icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
         context_sets.append(np.array(icosphere_context.vertices))
 
-
+    context_type = ["DOA_plus_previous_beam", "DOA", "previous_beam"] #"DOA", "previous_beam"
+    lable_name = ["DOA + previous beam", "DOA", "previous beam"]
     for cont_set in context_sets:
-
-
-        test_name = "many_beams_dir_plus_previous"
-        test_name2 = "many_beams"
-        test_name3 = "many_beams_previous"
-        rewards_predicted_previous = pickle.load(open(
-            f"{figures_path}/{test_name3}_rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle",
-            "rb"))
-        rewards_predicted_dir = pickle.load(open(
-            f"{figures_path}/{test_name2}_rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle",
-            "rb"))
-        rewards_predicted_dir_plus_previous = pickle.load(open(
-            f"{figures_path}/{test_name}_rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle",
-            "rb"))
-
+        test_name = f"many_beams_other_network"
         ALL_REWARD = pickle.load(open(
             f"{figures_path}/{test_name}_rewards_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle",
             "rb"))
@@ -144,55 +151,39 @@ def DL_channel():
         features = pickle.load(open(
             f"{figures_path}/{test_name}_features_con_num{len(cont_set)}.pickle",
             "rb"))
-
-        if False:
-            for i in range(number_of_outputs):
-                features_for_prediction = features[0] #np.unique(features)
-                rewards_for_plotting = rewards_predicted[i,:]
-                fig_name = f"{test_name}_arm{i}_reward_cont{len(cont_set)}"
-                plt.figure(fig_name)
-                plt.plot(features_for_prediction, rewards_for_plotting, "*", label="predicted")
-                plt.plot(features[0], ALL_REWARD[i], ".", label="reference")
-                # plt.title("")
-                plt.ylabel('Reward')
-                plt.xlabel('Context')
-                # plt.ylim(top=250)
-                plt.grid()
-                plt.legend()
-
-                plt.savefig(
-                    f"{figures_path}/{fig_name}.pdf",
-                    dpi=700, bbox_inches='tight')
-
-        def choose_beam(rewards_predicted,ALL_REWARD):
-            reward = np.zeros(int(np.shape(rewards_predicted)[1]))
-            for it_num in range(int(np.shape(rewards_predicted)[1])):
-                index_max = np.argmax(rewards_predicted[:,it_num])
-                reward[it_num] = ALL_REWARD[index_max, it_num]
-            return reward
-
-        rewards_dir = choose_beam(rewards_predicted_dir, ALL_REWARD)
-        rewards_dir_plus_previous = choose_beam(rewards_predicted_dir_plus_previous, ALL_REWARD)
-        rewards_previous = choose_beam(rewards_predicted_previous, ALL_REWARD)
-
-
-        cumulative_reward_dir = np.cumsum(rewards_dir) / (np.arange(len(rewards_dir)) + 1)
-        cumulative_reward_previous = np.cumsum(rewards_previous) / (np.arange(len(rewards_previous)) + 1)
-        cumulative_reward_dir_plus_previous = np.cumsum(rewards_dir_plus_previous) / (np.arange(len(rewards_dir_plus_previous)) + 1)
         cumulative_oracle = np.cumsum(oracle) / (np.arange(len(oracle)) + 1)
         cumulative_sequential_search_reward = np.cumsum(sequential_search_reward) / (np.arange(len(sequential_search_reward)) + 1)
 
-
-        fig_name = f"{test_name}_cum_cont{len(cont_set)}_algorithm_comparison"
+        fig_name = f"{test_name}_arms{ARMS_NUMBER_CIR}_cum_cont{len(cont_set)}_algorithm_comparison"
         plt.figure(fig_name)
-        plt.plot(cumulative_reward_dir, label="DL, DOA")
-        plt.plot(cumulative_reward_dir_plus_previous, label="DL, DOA + previous beam")
-        plt.plot(cumulative_reward_previous, label="DL, previous beam")
-        plt.plot(cumulative_oracle,label="Oracle")
+        plt.plot(cumulative_oracle, label="Oracle")
         plt.plot(cumulative_sequential_search_reward, label="Sequential search")
+        for con_type, l in zip(context_type, lable_name):
+
+
+
+            rewards_predicted = pickle.load(open(
+                f"{figures_path}/{test_name}_{con_type}_rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle",
+                "rb"))
+
+
+
+            def choose_beam(rewards_predicted,ALL_REWARD):
+                reward = np.zeros(int(np.shape(rewards_predicted)[1]))
+                for it_num in range(int(np.shape(rewards_predicted)[1])):
+                    index_max = np.argmax(rewards_predicted[:,it_num])
+                    reward[it_num] = ALL_REWARD[index_max, it_num]
+                return reward
+
+            rewards = choose_beam(rewards_predicted, ALL_REWARD)
+            cumulative_reward = np.cumsum(rewards) / (np.arange(len(rewards)) + 1)
+
+
+            plt.plot(cumulative_reward, label=f"DL, {l}")
+
         # plt.title("")
-        plt.ylabel('Average reward')
-        plt.xlabel('Iteration')
+        plt.ylabel('Average cumulative reward')
+        plt.xlabel('Sample')
         # plt.ylim(top=250)
         plt.grid()
         plt.legend()
@@ -202,5 +193,6 @@ def DL_channel():
             dpi=700, bbox_inches='tight')
 
     plt.show()
+
 
 DL_channel()
