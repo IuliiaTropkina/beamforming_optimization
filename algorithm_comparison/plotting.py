@@ -373,4 +373,98 @@ def plot_time():
 
     plt.show()
 
+
+def plot_location():
+
+
+
+
+
+    frames_per_data_frame = 1000 #10000
+    FRAME_NUMBER = 38
+    ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
+    ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
+
+    SUBDIVISION = 1
+    icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
+    beam_directions = np.array(icosphere.vertices)
+    #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
+
+    ARMS_NUMBER_CIR = len(beam_directions)
+    SUBDIVISION_2 = 1
+    icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
+
+
+
+    NUMBER_OF_ITERATIONS_TRAINING = ITER_NUMBER_CIR #250000
+    # scenarios = ["uturn", "LOS_moving", "blockage"]
+    scenarios = ["uturn"]
+    #context_sets = [np.array(icosphere_context.vertices),np.array([[1, -1, 0], [1, 1, 0], [-1, -1, 0], [-1, 1, 0]]), np.array([[1, 1, 0]])]
+    #context_sets = [np.array(icosphere_context.vertices)]
+    location_grid = []
+    context_sets = [location_grid]
+    context_types = ["location"]
+    # algorithm_names = ["EPS_greedy",
+    #                    "UCB",
+    #                    "THS"]
+    cont_params = [0.5]
+    cont_param_signs = ["Grid step"]
+    algorithm_names = ["EPS_greedy"] #"DQL","EPS_greedy"
+    algorithm_legend_names = ["$\epsilon$-Greedy"]
+    param_signs = ["$\epsilon$"]
+    # parameters = [[0.05, 0.1, 0.15],
+    #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
+    #               [0.2, 0.5]]
+    parameters = [[0.05,0.1,0.15]]
+
+
+
+
+
+    for sc in scenarios:
+        number_of_cycles = 1
+        folder_name_figures = f"scenario_{sc}"
+        figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}/context_location/"
+
+        oracle = pickle.load(open(
+            f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle",
+            "rb"))
+
+        sequential_search_reward = pickle.load(open(
+            f"{figures_path}/sequential_search_arms{int(ARMS_NUMBER_CIR)}.pickle",
+            "rb"))
+
+        test_name = f"Context_location_DOA"
+        fig_name = f"{test_name}_arms{ARMS_NUMBER_CIR}"
+        plt.figure(fig_name)
+        plt.plot(sequential_search_reward, label="Sequential search")
+        plt.plot(oracle, label="Oracle")
+        for con_type, cont_param, cont_param_sigh in zip(context_types, cont_params, cont_param_signs):
+            try:
+                num_ex_conts = pickle.load(open(f"{figures_path}/number_of_contexts_cont_par{cont_param}.pickle", "rb"))
+                print(f"Number of existing contexts for cont param {cont_param}: {num_ex_conts}")
+            except:
+                print(f"Number of existing contexts for cont param {cont_param} is unknown!")
+            for alg_name, pars, algorithm_legend_name in zip(algorithm_names, parameters, algorithm_legend_names, ):
+
+                for p in pars:
+                    average_reward = pickle.load(open(
+                        f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}.pickle",
+                        "rb"))
+                    plt.plot(average_reward, label=f"{algorithm_legend_name}, {param_signs} = {p}")
+
+        plt.title(f"Location, grid spet = {cont_params[0]}")
+        plt.ylabel('Cumulative average reward')
+        plt.xlabel('Sample')
+        # plt.yscale("log")
+        # plt.ylim(top=250)
+        plt.grid()
+        plt.legend(prop={'size': 9})
+
+        plt.savefig(
+            f"{figures_path}/{fig_name}.pdf",
+            dpi=700, bbox_inches='tight')
+
+        plt.show()
+
 plot_time()

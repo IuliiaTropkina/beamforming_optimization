@@ -358,6 +358,7 @@ class Contextual_bandit:
         self.all_rewards = np.zeros((len(context_set), ITER_NUMBER_CIR))
         self.param = param
         self.arms_number = arms_number
+        self.alg_name = alg_name
         # if alg_name == "UCB":
         #     for con in self.context_set:
         #         self.MAB.append(UCB(arms_number, param))
@@ -368,19 +369,21 @@ class Contextual_bandit:
         #     for con in self.context_set:
         #         self.MAB.append(ThompsonSampling(arms_number, param))
 
+    def add_context_space(self):
+        if self.alg_name == "UCB":
+            self.MAB.append(UCB(self.arms_number, self.param))
+        elif self.alg_name == "EPS_greedy":
+            self.MAB.append(EPS_greedy(self.arms_number, self.param))
+        elif self.alg_name == "THS":
+            self.MAB.append(ThompsonSampling(self.arms_number, self.param))
+
     def add_context(self,context):
         try:
             context_number = np.where(np.all(self.existing_contexts == context, axis=1))[0][0]
         except:
             self.existing_contexts = np.append(self.existing_contexts, np.array([context]), axis=0)
             context_number = len(self.existing_contexts) - 1
-
-        if alg_name == "UCB":
-            self.MAB.append(UCB(self.arms_number, self.param))
-        elif alg_name == "EPS_greedy":
-            self.MAB.append(EPS_greedy(self.arms_number, self.param))
-        elif alg_name == "THS":
-            self.MAB.append(ThompsonSampling(self.arms_number, self.param))
+            self.add_context_space()
         return context_number
 
     def run_bandit(self):
@@ -393,6 +396,7 @@ class Contextual_bandit:
                 if i == 0:
                     self.existing_contexts = np.array([context])
                     context_number = 0
+                    self.add_context_space()
                 else:
                     context_number = self.add_context(context)
 
@@ -499,7 +503,7 @@ if __name__ == '__main__':
     # DATASET FROM ENGINE
     voxel_size = 0.5
     grid_step = 0.1
-    LOCATION_GRID_STEP = 1
+    LOCATION_GRID_STEP = 0.2
 
 
     P_TX = 1
@@ -532,7 +536,7 @@ if __name__ == '__main__':
     # algorithm_names = ["EPS_greedy",
     #                    "UCB",
     #                    "THS"]
-
+    cont_params = [LOCATION_GRID_STEP]
     algorithm_names = ["EPS_greedy"] #"DQL","EPS_greedy"
     # parameters = [[0.05, 0.1, 0.15],
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
@@ -540,17 +544,7 @@ if __name__ == '__main__':
     parameters = [[0.05,0.1,0.15]]
 
     for sc in scenarios:
-        folder_name_CIRS = f"CIRS_scenario_{sc}"
-        PATH = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Projects/voxel_engine/draft_engine/narvi/CIRS/{folder_name_CIRS}/"
-        RX_locations = []
-        TX_locations = []
-        for fr in range(1,50):
-            with open(f"{PATH}/scene_frame{fr}.json") as json_file:
-                info = json.load(json_file)
-            RX_locations.append(info["RX_location"][0])
-            TX_locations.append(info["TX_location"][0])
-        TX_locations = np.array(TX_locations)
-        RX_locations = np.array(RX_locations)
+
         folder_name_figures = f"scenario_{sc}"
         figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}/context_location/"
         if not os.path.exists(figures_path):
@@ -672,7 +666,7 @@ if __name__ == '__main__':
         pickle.dump(avarage_random_choice, open(
             f"{figures_path}/cumulative_avarage_random_choice_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
-        for con_set, con_type in zip(context_sets,context_types):
+        for con_set, con_type, cont_param in zip(context_sets,context_types, cont_params):
 
             # env = MultipathChannel( ARMS_NUMBER_CIR, len(con_set), con_set, starting_point = 0)
             # #env_test = MultipathChannel( ARMS_NUMBER_CIR, len(con_set), con_set, starting_point = NUMBER_OF_ITERATIONS_TRAINING)
@@ -720,7 +714,7 @@ if __name__ == '__main__':
                         cumulative_average, reward = bandit.run_bandit()
 
                         pickle.dump(len(bandit.existing_contexts), open(
-                            f"{figures_path}/number_of_contexts.pickle",
+                            f"{figures_path}/number_of_contexts_cont_par{cont_param}.pickle",
                             'wb'))
 
                         fig7 = plt.figure()
@@ -824,7 +818,7 @@ if __name__ == '__main__':
                             bbox_inches='tight')
 
                     pickle.dump(cumulative_average, open(
-                        f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_context{len(con_set)}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}.pickle",
+                        f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}.pickle",
                         'wb')) 
 
                     pickle.dump(np.array([cir_cache.max_reward]), open(
