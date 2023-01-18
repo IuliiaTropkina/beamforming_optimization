@@ -23,9 +23,9 @@ from tensorflow.keras.layers import Dense, Flatten
 from tensorflow.keras.optimizers import Adam
 import tensorflow.keras as keras
 
-from rl.agents import DQNAgent
-from rl.policy import BoltzmannQPolicy
-from rl.memory import SequentialMemory
+# from rl.agents import DQNAgent
+# from rl.policy import BoltzmannQPolicy
+# from rl.memory import SequentialMemory
 
 #TODO: 1) learing rate 2) number of layers/nuerons 3)activation function (relu, linear, sigmoid) 4) metric (accuracy, m..) 5)loss functio (adam,...)
 
@@ -273,7 +273,7 @@ class CIR_cache:
     def get_noise(self):
         return np.random.randn()
 
-    def choose_context_number(self, context, i_number):
+    def choose_context_number(self, context, i_number, context_type):
 
         data_frame_num1 = i_number // self.frames_per_data_frame
 
@@ -282,11 +282,29 @@ class CIR_cache:
         # context_changed_direction = - context
         # context_number = spatial.KDTree(context_changed_direction).query(beam_dir_max_power)[1]
 
+        if context_type == "DOA":
+            context_vector = vector_normalize(TX_locations[data_frame_num1] - RX_locations[data_frame_num1])
+        elif context_type == "location":
+            context_vector =  RX_locations[data_frame_num1]
 
-        direction_fromRX_toTX = vector_normalize(TX_locations[data_frame_num1] - RX_locations[data_frame_num1])
-        context_number = spatial.KDTree(context).query(direction_fromRX_toTX)[1]
+        context_number = spatial.KDTree(context).query(context_vector)[1]
         return context_number
 
+    def choose_context(self, i_number, context_type):
+
+        data_frame_num1 = i_number // self.frames_per_data_frame
+
+
+        if context_type == "DOA":
+            context_vector = vector_normalize(TX_locations[data_frame_num1] - RX_locations[data_frame_num1])
+            context_vector_rounded = context_vector
+        elif context_type == "location":
+            context_vector =  TX_locations[data_frame_num1] - RX_locations[data_frame_num1]
+            context_vector_rounded = np.round(context_vector / LOCATION_GRID_STEP)
+
+
+
+        return context_vector_rounded
 class MultipathChannel(Env):
     def __init__(self, number_of_actions, number_of_states, context_set, starting_point = 0):
         self.action_space = Discrete(number_of_actions)
@@ -326,25 +344,44 @@ class MultipathChannel(Env):
 
 
 class Contextual_bandit:
-    def __init__(self, alg_name, arms_number, iter_number, param, context_set=[[]], data_random=False,
+    def __init__(self, alg_name, arms_number, iter_number, param, context_type, context_set=[[]], data_random=False,
                  random_data_with_CONTEXT=False):
+        self.context_type = context_type
         self.data_random = data_random
         self.random_data_with_CONTEXT = random_data_with_CONTEXT
         self.MAB = []
+        self.existing_contexts = np.array([])
         self.context_set = context_set
         self.iter_number = iter_number
         self.context_for_all_iterations = np.zeros((len(context_set), ITER_NUMBER_CIR))
         self.chosen_beam_number = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
         self.all_rewards = np.zeros((len(context_set), ITER_NUMBER_CIR))
+        self.param = param
+        self.arms_number = arms_number
+        # if alg_name == "UCB":
+        #     for con in self.context_set:
+        #         self.MAB.append(UCB(arms_number, param))
+        # elif alg_name == "EPS_greedy":
+        #     for con in self.context_set:
+        #         self.MAB.append(EPS_greedy(arms_number, param))
+        # elif alg_name == "THS":
+        #     for con in self.context_set:
+        #         self.MAB.append(ThompsonSampling(arms_number, param))
+
+    def add_context(self,context):
+        try:
+            context_number = np.where(np.all(self.existing_contexts == context, axis=1))[0][0]
+        except:
+            self.existing_contexts = np.append(self.existing_contexts, np.array([context]), axis=0)
+            context_number = len(self.existing_contexts) - 1
+
         if alg_name == "UCB":
-            for con in self.context_set:
-                self.MAB.append(UCB(arms_number, param))
+            self.MAB.append(UCB(self.arms_number, self.param))
         elif alg_name == "EPS_greedy":
-            for con in self.context_set:
-                self.MAB.append(EPS_greedy(arms_number, param))
+            self.MAB.append(EPS_greedy(self.arms_number, self.param))
         elif alg_name == "THS":
-            for con in self.context_set:
-                self.MAB.append(ThompsonSampling(arms_number, param))
+            self.MAB.append(ThompsonSampling(self.arms_number, self.param))
+        return context_number
 
     def run_bandit(self):
         rewards = np.empty(self.iter_number)
@@ -352,11 +389,18 @@ class Contextual_bandit:
             if self.data_random:
                 context_number = 0
             else:
-                context_number = cir_cache.choose_context_number(self.context_set, i)
+                context = cir_cache.choose_context(i, self.context_type)
+                if i == 0:
+                    self.existing_contexts = np.array([context])
+                    context_number = 0
+                else:
+                    context_number = self.add_context(context)
+
+
             arm_num = self.MAB[context_number].get_arm()
 
             self.chosen_beam_number[arm_num, i] = 1
-            self.context_for_all_iterations[context_number, i] = 1
+            #self.context_for_all_iterations[context_number, i] = 1
             if self.data_random:
                 if self.random_data_with_CONTEXT:
                     obtained_reward = choose_random(arm_num, i)
@@ -371,6 +415,7 @@ class Contextual_bandit:
 
             self.MAB[context_number].all_iter_count += 1
         cumulative_average = np.cumsum(rewards) / (np.arange(self.iter_number) + 1)
+
         return cumulative_average, rewards
 
 
@@ -442,10 +487,11 @@ class EPS_greedy:
 
 if __name__ == '__main__':
     # PLOTTING
-    PLOT_ALL_REWARDS = True
-    PLOT_CONTEXT = True
+    PLOT_ALL_REWARDS = False
+    PLOT_CONTEXT = False
     PLOT_REWARDS_DESTRIBUTION = False
     SYNTHETIC = False
+
 
     if SYNTHETIC:
         run_synthetic()
@@ -453,18 +499,21 @@ if __name__ == '__main__':
     # DATASET FROM ENGINE
     voxel_size = 0.5
     grid_step = 0.1
+    LOCATION_GRID_STEP = 1
+
+
     P_TX = 1
     carrier_frequency = 900e6
 
-    frames_per_data_frame = 1 #10000
+    frames_per_data_frame = 1000 #10000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
 
-    SUBDIVISION = 0
+    SUBDIVISION = 1
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
-    #beam_directions = np.array(icosphere.vertices)
-    beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
+    beam_directions = np.array(icosphere.vertices)
+    #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
 
     ARMS_NUMBER_CIR = len(beam_directions)
     SUBDIVISION_2 = 1
@@ -476,18 +525,19 @@ if __name__ == '__main__':
     # scenarios = ["uturn", "LOS_moving", "blockage"]
     scenarios = ["uturn"]
     #context_sets = [np.array(icosphere_context.vertices),np.array([[1, -1, 0], [1, 1, 0], [-1, -1, 0], [-1, 1, 0]]), np.array([[1, 1, 0]])]
-    context_sets = [np.array(icosphere_context.vertices)]
+    #context_sets = [np.array(icosphere_context.vertices)]
+    location_grid = []
+    context_sets = [location_grid]
+    context_types = ["location"]
     # algorithm_names = ["EPS_greedy",
     #                    "UCB",
     #                    "THS"]
 
-    algorithm_names = ["DQL",
-                       "EPS_greedy"]
+    algorithm_names = ["EPS_greedy"] #"DQL","EPS_greedy"
     # parameters = [[0.05, 0.1, 0.15],
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
-    parameters = [[0.05],
-                  [0.05]]
+    parameters = [[0.05,0.1,0.15]]
 
     for sc in scenarios:
         folder_name_CIRS = f"CIRS_scenario_{sc}"
@@ -502,7 +552,7 @@ if __name__ == '__main__':
         TX_locations = np.array(TX_locations)
         RX_locations = np.array(RX_locations)
         folder_name_figures = f"scenario_{sc}"
-        figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}/"
+        figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}/context_location/"
         if not os.path.exists(figures_path):
             os.makedirs(figures_path)
 
@@ -553,15 +603,35 @@ if __name__ == '__main__':
         iter_number_for_search = 0
         chosen_beam_number = iter_number_for_search
         chosen_reward = cir_cache.all_rewards[0, i]
+        sequential_search_time = []
+        eps_greedy_time = []
+        num_it_search = 0
+        num_it_eps_greedy = 0
+        eps = 0.15
+        exp_vs_expl = False
         for i in range(0, ITER_NUMBER_CIR):
+            if exp_vs_expl:
+                eps_greedy_time.append(num_it_eps_greedy / ((i + 1) - num_it_eps_greedy))
+            else:
+                eps_greedy_time.append(num_it_eps_greedy / ((i + 1)))
+
+            p = np.random.random()
+            if p < eps:
+                num_it_eps_greedy += 1
+
             chosen_reward = cir_cache.all_rewards[chosen_beam_number, i]
             sequential_search_reward.append(chosen_reward)
             chosen_beam_number_seq_search[chosen_beam_number, i] = 1
+            if exp_vs_expl:
+                sequential_search_time.append(num_it_search/((i+1)-num_it_search))
+            else:
+                sequential_search_time.append(num_it_search / ((i + 1)))
 
             if SEARCH:
                 max_reward_search[iter_number_for_search] = chosen_reward
                 iter_number_for_search += 1
                 chosen_beam_number += 1
+                num_it_search += 1
                 if iter_number_for_search == ARMS_NUMBER_CIR:
                     chosen_beam_number = np.argmax(max_reward_search)
                     threshold = max(max_reward_search) / 2
@@ -588,8 +658,12 @@ if __name__ == '__main__':
         avarage_sequential_search = np.cumsum(sequential_search_reward) / (np.arange(ITER_NUMBER_CIR) + 1)
         avarage_sequential_search_dBm = 10 * np.log10(avarage_sequential_search / (10 ** (-3)))
         pickle.dump(avarage_sequential_search, open(f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
-
-
+        pickle.dump(sequential_search_time,
+                    open(f"{figures_path}/time_sequential_search_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
+                         'wb'))
+        pickle.dump(eps_greedy_time,
+                    open(f"{figures_path}/time_eps_greedy_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
+                         'wb'))
         random_choice = []
         for i in range(ITER_NUMBER_CIR):
             random_num = np.random.choice(ARMS_NUMBER_CIR)
@@ -598,7 +672,7 @@ if __name__ == '__main__':
         pickle.dump(avarage_random_choice, open(
             f"{figures_path}/cumulative_avarage_random_choice_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
-        for con_set in context_sets:
+        for con_set, con_type in zip(context_sets,context_types):
 
             # env = MultipathChannel( ARMS_NUMBER_CIR, len(con_set), con_set, starting_point = 0)
             # #env_test = MultipathChannel( ARMS_NUMBER_CIR, len(con_set), con_set, starting_point = NUMBER_OF_ITERATIONS_TRAINING)
@@ -642,8 +716,13 @@ if __name__ == '__main__':
                 for p in pars:
                     if alg_name == "UCB" or alg_name == "EPS_greedy" or alg_name == "THS":
                         number_of_cycles = 1
-                        bandit = Contextual_bandit(alg_name, ARMS_NUMBER_CIR, ITER_NUMBER_CIR, p, context_set=con_set)
+                        bandit = Contextual_bandit(alg_name, ARMS_NUMBER_CIR, ITER_NUMBER_CIR, p, context_type = con_type, context_set=con_set)
                         cumulative_average, reward = bandit.run_bandit()
+
+                        pickle.dump(len(bandit.existing_contexts), open(
+                            f"{figures_path}/number_of_contexts.pickle",
+                            'wb'))
+
                         fig7 = plt.figure()
                         plt.imshow(bandit.chosen_beam_number[:, 0:ITER_NUMBER_CIR - 1:1000], aspect="auto")
                         plt.xlabel("Iteration (every 1000)", fontname="Times New Roman", fontsize="16")
@@ -652,21 +731,21 @@ if __name__ == '__main__':
                         plt.yticks(fontname="Times New Roman", fontsize="16")
 
                         plt.savefig(
-                            f"{selected_beams_folder}/chosen_arm_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}.pdf",
+                            f"{selected_beams_folder}/chosen_arm_type{con_type}_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}.pdf",
                             dpi=700,
                             bbox_inches='tight')
 
-                        fig89 = plt.figure()
-                        plt.imshow(bandit.context_for_all_iterations[:, 0:ITER_NUMBER_CIR - 1:1000], aspect="auto")
-                        plt.xlabel("Iteration (every 1000)", fontname="Times New Roman", fontsize="16")
-                        plt.ylabel("Context nubmer", fontname="Times New Roman", fontsize="16")
-                        plt.xticks(fontname="Times New Roman", fontsize="16")
-                        plt.yticks(fontname="Times New Roman", fontsize="16")
-
-                        plt.savefig(
-                            f"{selected_beams_folder}/context_for_all_iterations_context{len(con_set)}.pdf",
-                            dpi=700,
-                            bbox_inches='tight')
+                        # fig89 = plt.figure()
+                        # plt.imshow(bandit.context_for_all_iterations[:, 0:ITER_NUMBER_CIR - 1:1000], aspect="auto")
+                        # plt.xlabel("Iteration (every 1000)", fontname="Times New Roman", fontsize="16")
+                        # plt.ylabel("Context nubmer", fontname="Times New Roman", fontsize="16")
+                        # plt.xticks(fontname="Times New Roman", fontsize="16")
+                        # plt.yticks(fontname="Times New Roman", fontsize="16")
+                        #
+                        # plt.savefig(
+                        #     f"{selected_beams_folder}/context_for_all_iterations_cont_type{con_type}_context{len(con_set)}.pdf",
+                        #     dpi=700,
+                        #     bbox_inches='tight')
 
                     elif alg_name == "DQL":
 
@@ -744,11 +823,9 @@ if __name__ == '__main__':
                             dpi=700,
                             bbox_inches='tight')
 
-
-
                     pickle.dump(cumulative_average, open(
-                        f"{figures_path}/cumulative_average_{alg_name}_context{len(con_set)}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}.pickle",
-                        'wb'))
+                        f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_context{len(con_set)}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}.pickle",
+                        'wb')) 
 
                     pickle.dump(np.array([cir_cache.max_reward]), open(
                         f"{figures_path}/max_reward.pickle",

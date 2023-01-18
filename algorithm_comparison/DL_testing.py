@@ -9,7 +9,7 @@ import trimesh
 from math import sqrt
 import math
 from scipy import spatial
-
+import sys
 
 def vector_to_euler(v: np.ndarray):
     """
@@ -113,7 +113,6 @@ class CIR_cache:
         for it_num in range(ITER_NUMBER_CIR):
             self.all_contexts[0, it_num],self.all_contexts[1, it_num], self.all_contexts[2, it_num] = self.choose_context_number(self.context_set, it_num)
 
-
     def get_reward(self, arm_num, it_num):
         data_frame_num1 = it_num // self.frames_per_data_frame
         data_frame_num2 = data_frame_num1 + 1
@@ -152,7 +151,6 @@ class CIR_cache:
 
 
         direction_fromRX_toTX = vector_normalize(self.TX_locations[data_frame_num1] - self.RX_locations[data_frame_num1])
-
         a, az, el = vector_to_euler(direction_fromRX_toTX)
         context_number = spatial.KDTree(context).query(direction_fromRX_toTX)[1]
         return context_number, az, el
@@ -161,7 +159,7 @@ class CIR_cache:
 
 def agent(X_shape, Y_shape):
     learning_rate = 0.001
-    coef = 1
+    coef = 4
     init = tf.keras.initializers.HeUniform()
     model = keras.Sequential()
     model.add(keras.layers.Dense(8*coef, input_shape=X_shape, activation='relu', kernel_initializer=init))
@@ -254,27 +252,30 @@ def create_reward_matrix(cir_cache, number_of_outputs, number_of_samples_in_one_
     return ALL_REWARD, features
 
 
-import sys
 
 if __name__ == '__main__':
-    voxel_size = 0.5
-    grid_step = 0.1
-    P_TX = 1
-    carrier_frequency = 900e6
+
     try:
         seed = sys.argv[1]
     except:
         print("Using default seed!!!!")
         seed = 42
-    np.random.seed(seed)
-    tf.random.set_seed(seed)
+    np.random.seed(int(seed))
+    tf.random.set_seed(int(seed))
+
+    PATH = f"./narvi/DL"
+
+    voxel_size = 0.5
+    grid_step = 0.1
+    P_TX = 1
+    carrier_frequency = 900e6
 
     frames_per_data_frame = 1000 #10000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
 
-    SUBDIVISION = 1
+    SUBDIVISION = 2
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
@@ -299,8 +300,8 @@ if __name__ == '__main__':
     #features = np.linspace(0, number_of_samples_in_one_dataset - 1, number_of_samples_in_one_dataset)
     for cont_set in context_sets:
 
-        folder_name_figures = f"scenario_uturn"
-        figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}/DL/"
+
+        figures_path = f"{PATH}/output/"
 
         datasettype = "channel"
 
@@ -309,7 +310,7 @@ if __name__ == '__main__':
         sc = "uturn"
         context_type = "DOA_plus_previous_beam" # "DOA_plus_previous_beam", "DOA"
         folder_name_CIRS = f"CIRS_scenario_{sc}"
-        PATH = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Projects/voxel_engine/draft_engine/narvi/CIRS/{folder_name_CIRS}/"
+        PATH = f"{PATH}/{folder_name_CIRS}/"
         for fr in range(1, 50):
             with open(f"{PATH}/scene_frame{fr}.json") as json_file:
                 info = json.load(json_file)
@@ -326,7 +327,7 @@ if __name__ == '__main__':
 
         #features3 = np.reshape(np.full((number_of_samples_in_one_dataset, ARMS_NUMBER_CIR), range(ARMS_NUMBER_CIR)).transpose(), (1, number_of_samples_in_one_dataset*ARMS_NUMBER_CIR))
 
-
+        features = features[2:3,:]
         features_normalized = np.zeros(np.shape(features))
         number_of_features = len(features)
         for i in range(number_of_features):
@@ -365,7 +366,6 @@ if __name__ == '__main__':
 
 
         for out_num in range(number_of_outputs):
-
             print(out_num)
             model = agent((number_of_features, 1), 1)
             model.fit(XX.transpose(), np.array([YY[out_num]]).transpose(), batch_size=batch_size, verbose=0, shuffle=True)
@@ -373,8 +373,9 @@ if __name__ == '__main__':
             rew = model.predict(features_normalized.transpose())
             rewards_predicted[out_num] = rew[:,0,0]
 
+        a = 1
 
-        test_name = f"many_beams_other_network_seed{seed}"
+        test_name = f"many_beams_state_as_angles_{seed}"
         pickle.dump(rewards_predicted,
                     open(f"{figures_path}/{test_name}_{context_type}_rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
@@ -383,6 +384,9 @@ if __name__ == '__main__':
 
         pickle.dump(features,
                     open(f"{figures_path}/{test_name}_features_con_num{len(cont_set)}.pickle", 'wb'))
+
+
+
 
 
 
