@@ -205,14 +205,19 @@ class CIR_cache:
                         self.all_rewards[ar_num, it_num] / (10 ** (-3)))
                 else:
                     self.all_rewards_dBm[ar_num, it_num] = -100
-            self.all_rewards_normalized[:, it_num] = self.all_rewards[:, it_num]/np.max(self.all_rewards[:, it_num])
+            #Normalization
+            #self.all_rewards_normalized[:, it_num] = self.all_rewards[:, it_num]/np.max(self.all_rewards[:, it_num])
+            self.all_rewards_normalized[:, it_num] = self.all_rewards[:, it_num]
 
+        self.all_rewards = self.all_rewards_normalized
         self.max_reward = np.max(self.all_rewards)
         self.all_rewards = self.all_rewards/self.max_reward
+        #self.all_rewards = self.all_rewards
 
-        self.all_rewards = np.zeros(np.shape(self.all_rewards_normalized))
-        self.all_rewards[np.where(self.all_rewards_normalized == 1.0)] = 1
-        a  = 0
+        #For DL testing??
+        # self.all_rewards = np.zeros(np.shape(self.all_rewards_normalized))
+        # self.all_rewards[np.where(self.all_rewards_normalized == 1.0)] = 1
+
         # plt.figure()
         # plt.hist(self.all_rewards.flatten(), bins=10)
         # plt.show(block=True)
@@ -503,18 +508,23 @@ if __name__ == '__main__':
     # DATASET FROM ENGINE
     voxel_size = 0.5
     grid_step = 0.1
-    LOCATION_GRID_STEP = 0.2
+
+
+
+
 
 
     P_TX = 1
     carrier_frequency = 900e6
+
+    LOCATION_GRID_STEP = 8
 
     frames_per_data_frame = 1000 #10000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
 
-    SUBDIVISION = 1
+    SUBDIVISION = 3
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
@@ -544,7 +554,17 @@ if __name__ == '__main__':
     parameters = [[0.05,0.1,0.15]]
 
     for sc in scenarios:
-
+        folder_name_CIRS = f"CIRS_scenario_{sc}"
+        PATH = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Projects/voxel_engine/draft_engine/narvi/CIRS/{folder_name_CIRS}/"
+        RX_locations = []
+        TX_locations = []
+        for fr in range(1,50):
+            with open(f"{PATH}/scene_frame{fr}.json") as json_file:
+                info = json.load(json_file)
+            RX_locations.append(info["RX_location"][0])
+            TX_locations.append(info["TX_location"][0])
+        TX_locations = np.array(TX_locations)
+        RX_locations = np.array(RX_locations)
         folder_name_figures = f"scenario_{sc}"
         figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}/context_location/"
         if not os.path.exists(figures_path):
