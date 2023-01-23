@@ -328,7 +328,7 @@ def plot_seed_test():
     plt.show()
 
 def plot_time():
-    SUBDIVISION = 2
+    SUBDIVISION = 3
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
@@ -344,15 +344,15 @@ def plot_time():
 
 
     sequential_search_time = pickle.load(open(
-        f"{figures_path}/time_sequential_search_arms{int(ARMS_NUMBER_CIR)}.pickle",
+        f"{figures_path}/exp_expl_time_sequential_search_arms{int(ARMS_NUMBER_CIR)}.pickle",
         "rb"))
-    test_name = f"exp_vs_all_time"
+    test_name = f"exp_vs_expl"
     fig_name = f"{test_name}_arms{ARMS_NUMBER_CIR}"
     plt.figure(fig_name)
     plt.plot(sequential_search_time, label="Sequential search")
     for eps in [0.05,0.1,0.15]:
         eps_greedy_time = pickle.load(open(
-            f"{figures_path}/time_eps_greedy_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
+            f"{figures_path}/exp_expl_time_eps_greedy_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
             "rb"))
         plt.plot(eps_greedy_time, label=f"Epsilon greedy strategy, $\epsilon$ = {eps}")
 
@@ -363,7 +363,8 @@ def plot_time():
     plt.ylabel('Exploration to exploitation time ratio')
     plt.xlabel('Sample')
     # plt.yscale("log")
-    # plt.ylim(top=250)
+    plt.xlim(left=ARMS_NUMBER_CIR*2)
+    plt.ylim(top=1, bottom = 0)
     plt.grid()
     plt.legend(prop={'size': 9})
 
@@ -385,7 +386,7 @@ def plot_location():
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
 
-    SUBDIVISION = 3
+    SUBDIVISION = 2
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
@@ -403,20 +404,21 @@ def plot_location():
     #context_sets = [np.array(icosphere_context.vertices)]
     location_grid = []
     context_sets = [location_grid]
-    context_types = ["location"]
+    context_types = ["location","DOA","DOA","DOA","DOA"]
     # algorithm_names = ["EPS_greedy",
     #                    "UCB",
     #                    "THS"]
 
-    cont_params = [15]
-    cont_param_signs = ["Grid step"]
+    cont_params = [15, 12, 42, 162, 642]
+    cont_param_signs = ["Grid step", "Number of contexts","Number of contexts","Number of contexts","Number of contexts"]
+
     algorithm_names = ["EPS_greedy"] #"DQL","EPS_greedy"
     algorithm_legend_names = ["$\epsilon$-Greedy"]
     param_signs = ["$\epsilon$"]
     # parameters = [[0.05, 0.1, 0.15],
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
-    parameters = [[0.05,0.1,0.15]]
+    parameters = [[0.15]]
 
 
 
@@ -435,7 +437,7 @@ def plot_location():
             f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}.pickle",
             "rb"))
 
-        test_name = f"Context_location_DOA"
+        test_name = f"Context_location_DOA_comp"
         fig_name = f"{test_name}_arms{ARMS_NUMBER_CIR}"
         plt.figure(fig_name)
         plt.plot(sequential_search_reward, label="Sequential search")
@@ -452,9 +454,12 @@ def plot_location():
                     average_reward = pickle.load(open(
                         f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}.pickle",
                         "rb"))
-                    plt.plot(average_reward, label=f"{algorithm_legend_name}, {param_sign} = {p}")
+                    #plt.plot(average_reward, label=f"{algorithm_legend_name}, {param_sign} = {p}")
+                    plt.plot(average_reward, label=f"{cont_param_sigh} = {cont_param}")
 
-        plt.title(f"Grid step = {cont_params[0]}, Number of contexts = {num_ex_conts}")
+        #plt.title(f"Grid step = {cont_params[0]}, Number of contexts = {num_ex_conts}")
+        plt.title(f"{param_sign} = {p}")
+
         plt.ylabel('Cumulative average reward')
         plt.xlabel('Sample')
         # plt.yscale("log")
@@ -467,5 +472,5 @@ def plot_location():
             dpi=700, bbox_inches='tight')
 
         plt.show()
-
-plot_location()
+plot_time()
+#plot_location()

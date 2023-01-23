@@ -278,21 +278,12 @@ class CIR_cache:
     def get_noise(self):
         return np.random.randn()
 
-    def choose_context_number(self, context, i_number, context_type):
+    def choose_context_number(self, context, i_number):
 
         data_frame_num1 = i_number // self.frames_per_data_frame
-
-        # arm_num_max = np.argmax(self.binned_rays_by_frame[data_frame_num1])
-        # beam_dir_max_power = beam_directions[arm_num_max]
-        # context_changed_direction = - context
-        # context_number = spatial.KDTree(context_changed_direction).query(beam_dir_max_power)[1]
-
-        if context_type == "DOA":
-            context_vector = vector_normalize(TX_locations[data_frame_num1] - RX_locations[data_frame_num1])
-        elif context_type == "location":
-            context_vector =  RX_locations[data_frame_num1]
-
+        context_vector = vector_normalize(TX_locations[data_frame_num1] - RX_locations[data_frame_num1])
         context_number = spatial.KDTree(context).query(context_vector)[1]
+
         return context_number
 
     def choose_context(self, i_number, context_type):
@@ -364,15 +355,16 @@ class Contextual_bandit:
         self.param = param
         self.arms_number = arms_number
         self.alg_name = alg_name
-        # if alg_name == "UCB":
-        #     for con in self.context_set:
-        #         self.MAB.append(UCB(arms_number, param))
-        # elif alg_name == "EPS_greedy":
-        #     for con in self.context_set:
-        #         self.MAB.append(EPS_greedy(arms_number, param))
-        # elif alg_name == "THS":
-        #     for con in self.context_set:
-        #         self.MAB.append(ThompsonSampling(arms_number, param))
+        if len(context_set)!=0:
+            if alg_name == "UCB":
+                for _ in self.context_set:
+                    self.MAB.append(UCB(arms_number, param))
+            elif alg_name == "EPS_greedy":
+                for _ in self.context_set:
+                    self.MAB.append(EPS_greedy(arms_number, param))
+            elif alg_name == "THS":
+                for _ in self.context_set:
+                    self.MAB.append(ThompsonSampling(arms_number, param))
 
     def add_context_space(self):
         if self.alg_name == "UCB":
@@ -398,13 +390,15 @@ class Contextual_bandit:
                 context_number = 0
             else:
                 context = cir_cache.choose_context(i, self.context_type)
-                if i == 0:
-                    self.existing_contexts = np.array([context])
-                    context_number = 0
-                    self.add_context_space()
-                else:
-                    context_number = self.add_context(context)
-
+                if self.context_type == "location":
+                    if i == 0:
+                        self.existing_contexts = np.array([context])
+                        context_number = 0
+                        self.add_context_space()
+                    else:
+                        context_number = self.add_context(context)
+                elif self.context_type == "DOA":
+                    context_number = cir_cache.choose_context_number(self.context_set, i)
 
             arm_num = self.MAB[context_number].get_arm()
 
@@ -517,7 +511,7 @@ if __name__ == '__main__':
     P_TX = 1
     carrier_frequency = 900e6
 
-    LOCATION_GRID_STEP = 8
+    LOCATION_GRID_STEP = 20
 
     frames_per_data_frame = 1000 #10000
     FRAME_NUMBER = 38
@@ -530,7 +524,7 @@ if __name__ == '__main__':
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
 
     ARMS_NUMBER_CIR = len(beam_directions)
-    SUBDIVISION_2 = 1
+    SUBDIVISION_2 = 3
     icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
 
 
@@ -541,17 +535,17 @@ if __name__ == '__main__':
     #context_sets = [np.array(icosphere_context.vertices),np.array([[1, -1, 0], [1, 1, 0], [-1, -1, 0], [-1, 1, 0]]), np.array([[1, 1, 0]])]
     #context_sets = [np.array(icosphere_context.vertices)]
     location_grid = []
-    context_sets = [location_grid]
-    context_types = ["location"]
+    context_sets = [np.array(icosphere_context.vertices)]
+    context_types = ["DOA"]
     # algorithm_names = ["EPS_greedy",
     #                    "UCB",
     #                    "THS"]
-    cont_params = [LOCATION_GRID_STEP]
+    cont_params = [len(np.array(icosphere_context.vertices))]
     algorithm_names = ["EPS_greedy"] #"DQL","EPS_greedy"
     # parameters = [[0.05, 0.1, 0.15],
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
-    parameters = [[0.05,0.1,0.15]]
+    parameters = [[0.15]]
 
     for sc in scenarios:
         folder_name_CIRS = f"CIRS_scenario_{sc}"
@@ -673,10 +667,10 @@ if __name__ == '__main__':
         avarage_sequential_search_dBm = 10 * np.log10(avarage_sequential_search / (10 ** (-3)))
         pickle.dump(avarage_sequential_search, open(f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
         pickle.dump(sequential_search_time,
-                    open(f"{figures_path}/time_sequential_search_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
+                    open(f"{figures_path}/exp_expl_time_sequential_search_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
                          'wb'))
         pickle.dump(eps_greedy_time,
-                    open(f"{figures_path}/time_eps_greedy_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
+                    open(f"{figures_path}/exp_expl_time_eps_greedy_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
                          'wb'))
         random_choice = []
         for i in range(ITER_NUMBER_CIR):
