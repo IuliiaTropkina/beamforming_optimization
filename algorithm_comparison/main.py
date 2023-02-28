@@ -355,6 +355,9 @@ class Contextual_bandit:
         self.param = param
         self.arms_number = arms_number
         self.alg_name = alg_name
+        self.reward_exploitation = []
+        self.exploitation_iterations = []
+
         if len(context_set)!=0:
             if alg_name == "UCB":
                 for _ in self.context_set:
@@ -415,11 +418,13 @@ class Contextual_bandit:
 
             # for the plot
             rewards[i] = obtained_reward
-
+            if self.MAB[context_number].EXPLOITATION:
+                self.reward_exploitation.append(obtained_reward)
+                self.exploitation_iterations.append(i)
             self.MAB[context_number].all_iter_count += 1
         cumulative_average = np.cumsum(rewards) / (np.arange(self.iter_number) + 1)
 
-        return cumulative_average, rewards
+        return cumulative_average, rewards, self.reward_exploitation, self.exploitation_iterations
 
 
 class UCB:
@@ -473,7 +478,7 @@ class EPS_greedy:
         self.eps = eps
         self.arms_number = arms_number
         self.all_iter_count = 0
-
+        self.EXPLOITATION = False
     def update(self, arm_num, obtained_reward):
         self.arms_iter_count[arm_num] += 1
         self.arms_mean_reward[arm_num] = (1 - 1.0 / self.arms_iter_count[arm_num]) * self.arms_mean_reward[
@@ -482,9 +487,10 @@ class EPS_greedy:
     def get_arm(self):
         p = np.random.random()
         if p < self.eps:
+            self.EXPLOITATION = False
             return np.random.choice(self.arms_number)
-
         else:
+            self.EXPLOITATION = True
             return np.argmax(self.arms_mean_reward)
 
 
@@ -504,43 +510,51 @@ if __name__ == '__main__':
     grid_step = 0.1
 
 
-
-
-
-
     P_TX = 1
     carrier_frequency = 900e6
 
-    LOCATION_GRID_STEP = 20
+    LOCATION_GRID_STEP = 15
 
     frames_per_data_frame = 1000 #10000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
 
-    SUBDIVISION = 3
+    SUBDIVISION = 2
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
 
     ARMS_NUMBER_CIR = len(beam_directions)
-    SUBDIVISION_2 = 3
+    SUBDIVISION_2 = 2
     icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
 
 
+    SCENARIO_DURATION = 5
+    NUMBER_OF_CONS_SSB = 4
+    SSB_periods = np.array([5,10,20,40,80,160]) #ms
+    SSB_periods = SSB_periods*10**(-3)
 
+    def create_packet(SSB_period):
+        iterations_SSB = []
+        iterations = np.linspace(0,ITER_NUMBER_RANDOM-1, ITER_NUMBER_RANDOM)
+        sample_space = SCENARIO_DURATION/ITER_NUMBER_RANDOM
+
+
+    create_packet(SSB_periods[0])
     NUMBER_OF_ITERATIONS_TRAINING = ITER_NUMBER_CIR #250000
     # scenarios = ["uturn", "LOS_moving", "blockage"]
     scenarios = ["uturn"]
     #context_sets = [np.array(icosphere_context.vertices),np.array([[1, -1, 0], [1, 1, 0], [-1, -1, 0], [-1, 1, 0]]), np.array([[1, 1, 0]])]
     #context_sets = [np.array(icosphere_context.vertices)]
     location_grid = []
-    context_sets = [np.array(icosphere_context.vertices)]
-    context_types = ["DOA"]
+    context_sets = [np.array(icosphere_context.vertices),location_grid]
+    context_types = ["DOA", "location"]
     # algorithm_names = ["EPS_greedy",
     #                    "UCB",
     #                    "THS"]
-    cont_params = [len(np.array(icosphere_context.vertices))]
+    cont_params = [len(np.array(icosphere_context.vertices)), LOCATION_GRID_STEP]
+    folder_test = "real_protocol"
     algorithm_names = ["EPS_greedy"] #"DQL","EPS_greedy"
     # parameters = [[0.05, 0.1, 0.15],
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
@@ -560,14 +574,15 @@ if __name__ == '__main__':
         TX_locations = np.array(TX_locations)
         RX_locations = np.array(RX_locations)
         folder_name_figures = f"scenario_{sc}"
-        figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}/context_location/"
+        figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}/{folder_test}"
         if not os.path.exists(figures_path):
             os.makedirs(figures_path)
 
         selected_beams_folder = f"{figures_path}/selected_beams"
+
+
         if not os.path.exists(selected_beams_folder):
-            os.system(
-                f"mkdir {selected_beams_folder}")
+            os.makedirs(selected_beams_folder)
 
         cir_cache = CIR_cache(PATH, FRAME_NUMBER, frames_per_data_frame=frames_per_data_frame)
         cir_cache.get_all_rewards()
@@ -599,11 +614,14 @@ if __name__ == '__main__':
             oracle.append(max(cir_cache.all_rewards[:, i]))
         avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
         avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
-        pickle.dump(avarage_oracle, open(
-            f"{figures_path}/cumulative_avarage_oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+        pickle.dump(oracle, open(
+            f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
 
         sequential_search_reward = []
+        seq_search_exploitation_reward = []
+        seq_search_exploitation_it_num = []
+
         max_reward_search = np.zeros(ARMS_NUMBER_CIR)
         chosen_beam_number_seq_search = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
         threshold = 0
@@ -645,6 +663,8 @@ if __name__ == '__main__':
                     threshold = max(max_reward_search) / 2
                     SEARCH = False
             else:
+                seq_search_exploitation_reward.append(chosen_reward)
+                seq_search_exploitation_it_num.append(i)
                 if chosen_reward < threshold:
                     SEARCH = True
                     iter_number_for_search = 0
@@ -664,8 +684,18 @@ if __name__ == '__main__':
 
 
         avarage_sequential_search = np.cumsum(sequential_search_reward) / (np.arange(ITER_NUMBER_CIR) + 1)
+
+
         avarage_sequential_search_dBm = 10 * np.log10(avarage_sequential_search / (10 ** (-3)))
         pickle.dump(avarage_sequential_search, open(f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+        pickle.dump(seq_search_exploitation_reward,
+                    open(f"{figures_path}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}.pickle",
+                         'wb'))
+        pickle.dump(seq_search_exploitation_it_num,
+                    open(f"{figures_path}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}.pickle",
+                         'wb'))
+
+
         pickle.dump(sequential_search_time,
                     open(f"{figures_path}/exp_expl_time_sequential_search_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
                          'wb'))
@@ -725,7 +755,7 @@ if __name__ == '__main__':
                     if alg_name == "UCB" or alg_name == "EPS_greedy" or alg_name == "THS":
                         number_of_cycles = 1
                         bandit = Contextual_bandit(alg_name, ARMS_NUMBER_CIR, ITER_NUMBER_CIR, p, context_type = con_type, context_set=con_set)
-                        cumulative_average, reward = bandit.run_bandit()
+                        cumulative_average, reward, reward_exploitation, exloitation_iterations  = bandit.run_bandit()
 
                         pickle.dump(len(bandit.existing_contexts), open(
                             f"{figures_path}/number_of_contexts_cont_par{cont_param}.pickle",
@@ -834,6 +864,14 @@ if __name__ == '__main__':
                     pickle.dump(cumulative_average, open(
                         f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}.pickle",
                         'wb')) 
+
+                    pickle.dump(exloitation_iterations, open(
+                        f"{figures_path}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}.pickle",
+                        'wb'))
+
+                    pickle.dump(reward_exploitation, open(
+                        f"{figures_path}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}.pickle",
+                        'wb'))
 
                     pickle.dump(np.array([cir_cache.max_reward]), open(
                         f"{figures_path}/max_reward.pickle",

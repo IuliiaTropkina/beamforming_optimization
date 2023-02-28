@@ -20,7 +20,7 @@ def vector_to_euler(v: np.ndarray):
     v = v / norm(v)
     yaw = np.arctan2(v[1], v[0])
     pitch = np.arcsin(v[2])
-    return vector(0.0, pitch, yaw)
+    return 0.0, pitch, yaw
 
 
 def bin_rays_by_direction(beam_dirs, ray_dirs, power) -> dict:
@@ -175,19 +175,15 @@ def agent(X_shape, Y_shape):
 
 def create_features_matrix(cir_cache, number_of_samples_in_one_dataset, context_type = "DOA", datasettype="synthetic"):
     if datasettype == "channel":
-        features = np.zeros((2, number_of_samples_in_one_dataset))
+        features = np.zeros((4, number_of_samples_in_one_dataset))
         cir_cache.get_all_contexts()
         features[0, : ] = cir_cache.all_contexts[0,:]
         features[1, : ] = np.argmax(cir_cache.all_rewards, axis=0)
         features[1,:] = np.roll(features[1,:],1)
         features[2, :] = cir_cache.all_contexts[1, :]
         features[3, :] = cir_cache.all_contexts[2, :]
-        if context_type == "DOA":
-            return np.array([features[0, :]])
-        elif context_type == "previous_beam":
-            return np.array([features[1, :]])
-        else:
-            return features
+
+        return features
 
     elif datasettype == "synthetic":
         features = np.linspace(0, number_of_samples_in_one_dataset - 1, number_of_samples_in_one_dataset)
@@ -259,12 +255,13 @@ if __name__ == '__main__':
         seed = sys.argv[1]
     except:
         print("Using default seed!!!!")
-        seed = 42
+        seed = 34
     np.random.seed(int(seed))
     tf.random.set_seed(int(seed))
 
-    PATH = f"./narvi/DL"
-
+    #PATH = f"./narvi/DL"
+    folder_name_CIRS = f"CIRS_scenario_uturn"
+    PATH = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Projects/voxel_engine/draft_engine/narvi/CIRS/"
     voxel_size = 0.5
     grid_step = 0.1
     P_TX = 1
@@ -299,16 +296,16 @@ if __name__ == '__main__':
     total_number_of_samples = number_of_one_dataset_to_be_repeated * number_of_samples_in_one_dataset
     #features = np.linspace(0, number_of_samples_in_one_dataset - 1, number_of_samples_in_one_dataset)
     for cont_set in context_sets:
+        context_for_all_iterations = np.zeros((len(cont_set), ITER_NUMBER_CIR))
 
-
-        figures_path = f"{PATH}/output/"
+        figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/scenario_uturn/DL" #f"{PATH}/output/"
 
         datasettype = "channel"
 
         RX_locations = []
         TX_locations = []
         sc = "uturn"
-        context_type = "DOA_plus_previous_beam" # "DOA_plus_previous_beam", "DOA"
+        context_type = "DOA" #"DOA_plus_previous_beam" # "DOA_plus_previous_beam", "DOA"
         folder_name_CIRS = f"CIRS_scenario_{sc}"
         PATH = f"{PATH}/{folder_name_CIRS}/"
         for fr in range(1, 50):
@@ -327,12 +324,38 @@ if __name__ == '__main__':
 
         #features3 = np.reshape(np.full((number_of_samples_in_one_dataset, ARMS_NUMBER_CIR), range(ARMS_NUMBER_CIR)).transpose(), (1, number_of_samples_in_one_dataset*ARMS_NUMBER_CIR))
 
-        features = features[2:3,:]
+        #features = features[2:3,:]
+
+        if context_type == "previous_beam":
+            features = np.array([features[1, :]])
+            for i in range(ITER_NUMBER_CIR):
+                context_for_all_iterations[int(features[0, i]), i] = 1
+        elif context_type == "DOA":
+            features = np.array([features[0, :]])
+            for i in range(ITER_NUMBER_CIR):
+                context_for_all_iterations[int(features[0, i]), i] = 1
+
         features_normalized = np.zeros(np.shape(features))
         number_of_features = len(features)
+
         for i in range(number_of_features):
             features_normalized[i] = features[i] / max(features[i])
 
+        test_name = f"many_beams_state_as_angles_{seed}"
+
+        fig89 = plt.figure()
+        plt.imshow(context_for_all_iterations[:, 0:ITER_NUMBER_CIR - 1:1000], aspect="auto")
+        plt.xlabel("Iteration (every 1000)", fontname="Times New Roman", fontsize="16")
+        plt.ylabel("Context nubmer", fontname="Times New Roman", fontsize="16")
+        plt.xticks(fontname="Times New Roman", fontsize="16")
+        plt.yticks(fontname="Times New Roman", fontsize="16")
+
+        plt.savefig(
+            f"{figures_path}/context_changing_{test_name}_con_type{context_type}_lencont{len(cont_set)}.pdf",
+            dpi=700,
+            bbox_inches='tight')
+
+        exit()
 
 
 
@@ -373,9 +396,12 @@ if __name__ == '__main__':
             rew = model.predict(features_normalized.transpose())
             rewards_predicted[out_num] = rew[:,0,0]
 
-        a = 1
 
-        test_name = f"many_beams_state_as_angles_{seed}"
+
+
+
+
+
         pickle.dump(rewards_predicted,
                     open(f"{figures_path}/{test_name}_{context_type}_rewards_predicted_con_num{len(cont_set)}_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
