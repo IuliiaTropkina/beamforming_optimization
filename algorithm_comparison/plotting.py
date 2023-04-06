@@ -471,7 +471,7 @@ def plot_location():
 
 def plot_exploitation_test():
 
-    frames_per_data_frame = 1000 #10000
+    frames_per_data_frame = 1000#10000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
@@ -510,11 +510,35 @@ def plot_exploitation_test():
     #               [0.2, 0.5]]
     parameters = [[0.15]]
 
-
-
-
+    figures_path_DL = "C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/scenario_uturn/DL"
+    test_name_DL = f"many_beams_other_network"
+    DL_state = 642
+    ALL_REWARD = pickle.load(open(
+        f"{figures_path_DL}/{test_name_DL}_rewards_con_num{DL_state}_arms{int(ARMS_NUMBER_CIR)}.pickle",
+        "rb"))
 
     for sc in scenarios:
+
+        rewards_predicted = pickle.load(open(
+            f"{figures_path_DL}/{test_name_DL}_DOA_rewards_predicted_con_num{DL_state}_arms{int(ARMS_NUMBER_CIR)}.pickle",
+            "rb"))
+
+        def choose_beam(rewards_predicted, ALL_REWARD):
+            reward = np.zeros(int(np.shape(rewards_predicted)[1]))
+            for it_num in range(int(np.shape(rewards_predicted)[1])):
+                index_max = np.argmax(rewards_predicted[:, it_num])
+                reward[it_num] = ALL_REWARD[index_max, it_num]
+            return reward
+
+        rewards_DL = choose_beam(rewards_predicted, ALL_REWARD)
+        cumulative_reward_DL = np.cumsum(rewards_DL) / (np.arange(len(rewards_DL)) + 1)
+
+
+
+
+
+
+
         number_of_cycles = 1
         folder_name_figures = f"scenario_{sc}"
         figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}/{folder_test}"
@@ -537,6 +561,7 @@ def plot_exploitation_test():
         plt.figure(fig_name)
         plt.plot(sequential_search_reward, label="Sequential search")
         plt.plot(avarage_oracle, label="Oracle")
+
         for con_type, cont_param, cont_param_sigh in zip(context_types, cont_params, cont_param_signs):
             try:
                 num_ex_conts = pickle.load(open(f"{figures_path}/number_of_contexts_cont_par{cont_param}.pickle", "rb"))
@@ -551,7 +576,7 @@ def plot_exploitation_test():
                         f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}.pickle",
                         "rb"))
 
-                    plt.plot(average_reward, label=f"{con_type}, {cont_param_sigh} = {cont_param}")
+                    plt.plot(np.array( average_reward), label=f"{algorithm_legend_name}, {param_sign} = {p}, {cont_param_sigh} = {cont_param}")
 
         #plt.title(f"Grid step = {cont_params[0]}, Number of contexts = {num_ex_conts}")
         # plt.title(f"{param_sign} = {p}")
@@ -578,30 +603,19 @@ def plot_exploitation_test():
             f"{figures_path}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}.pickle",
             "rb"))
 
-        test_name = f"exploitation_test_seq"
+        test_name = f"exploitation"
         fig_name = f"{test_name}_arms{ARMS_NUMBER_CIR}"
-        plt.figure(fig_name)
+        plt.figure(fig_name,figsize=(9, 4))
         oracle = np.array(oracle)
+        oracle_average = np.cumsum(np.array(oracle)) / (np.arange(len(oracle)) + 1)
         oracle_for_seq = oracle[np.array(seq_search_exploitation_it_num)]
         oracle_for_seq_average = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
         seq_search_exploitation_reward_average = np.cumsum(seq_search_exploitation_reward) / (np.arange(len(seq_search_exploitation_reward)) + 1)
 
-        plt.plot(seq_search_exploitation_reward_average, label="Sequential search")
-        plt.plot(oracle_for_seq_average, label=f"Oracle")
+        plt.plot(np.array(seq_search_exploitation_it_num), seq_search_exploitation_reward_average, label="Sequential search")
+        plt.plot(np.linspace(0,len(avarage_oracle)-1,len(avarage_oracle)), oracle_average, label=f"Oracle")
 
-        # plt.title(f"Grid step = {cont_params[0]}, Number of contexts = {num_ex_conts}")
-        plt.title(f"Sequential search")
-
-        plt.ylabel('Cumulative average reward')
-        plt.xlabel('Sample')
-        # plt.yscale("log")
-        # plt.ylim(top=250)
-        plt.grid()
-        plt.legend(prop={'size': 9})
-
-        plt.savefig(
-            f"{figures_path}/{fig_name}.pdf",
-            dpi=700, bbox_inches='tight')
+        plt.plot(cumulative_reward_DL, label=f"SL, DOA, Number of states = {DL_state}")
 
 
         for con_type, cont_param, cont_param_sigh in zip(context_types, cont_params, cont_param_signs):
@@ -614,9 +628,9 @@ def plot_exploitation_test():
                                                                          algorithm_legend_names, param_signs):
 
                 for p in pars:
-                    test_name = f"exploitation_test_bandit_{p}"
-                    fig_name = f"{test_name}_arms{ARMS_NUMBER_CIR}"
-                    plt.figure(fig_name)
+                    # test_name = f"exploitation_test_bandit_{p}"
+                    # fig_name = f"{test_name}_arms{ARMS_NUMBER_CIR}"
+                    # plt.figure(fig_name)
 
                     exloitation_iterations = pickle.load(open(
                         f"{figures_path}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}.pickle",
@@ -628,26 +642,27 @@ def plot_exploitation_test():
 
 
                     reward_exploitation_average = np.cumsum(reward_exploitation) / (np.arange(len(reward_exploitation)) + 1)
-                    plt.plot(reward_exploitation_average, label=f"{con_type}, {cont_param_sigh} = {cont_param}")
-                    oracle_for_bandit = oracle[np.array(exloitation_iterations)]
-                    oracle_for_bandit_average = np.cumsum(oracle_for_bandit) / (np.arange(len(oracle_for_bandit)) + 1)
+                    plt.plot(np.array(exloitation_iterations), reward_exploitation_average, label=f"{algorithm_legend_name}, {con_type}, {cont_param_sigh} = {cont_param}")
+                    # oracle_for_bandit = oracle[np.array(exloitation_iterations)]
+                    # oracle_for_bandit_average = np.cumsum(oracle_for_bandit) / (np.arange(len(oracle_for_bandit)) + 1)
+                    #
+                    # plt.plot(oracle_for_bandit_average, label=f"Oracle, {con_type}, {cont_param_sigh} = {cont_param}")
 
-                    plt.plot(oracle_for_bandit_average, label=f"Oracle, {con_type}, {cont_param_sigh} = {cont_param}")
 
+        # plt.title(f"Grid step = {cont_params[0]}, Number of contexts = {num_ex_conts}")
+        # plt.title(f"MAB, {param_sign} = {p}")
 
-                    # plt.title(f"Grid step = {cont_params[0]}, Number of contexts = {num_ex_conts}")
-                    plt.title(f"MAB, {param_sign} = {p}")
-
-                    plt.ylabel('Cumulative average reward')
-                    plt.xlabel('Sample')
-                    # plt.yscale("log")
-                    # plt.ylim(top=250)
-                    plt.grid()
-                    plt.legend(prop={'size': 9})
-
-                    plt.savefig(
-                        f"{figures_path}/{fig_name}.pdf",
-                        dpi=700, bbox_inches='tight')
+        plt.ylabel('Cumulative average reward', fontsize = 14)
+        plt.xlabel("Sample", fontsize = 14)
+        # plt.yscale("log")
+        # plt.ylim(top=250)
+        plt.grid()
+        plt.legend(prop={'size': 12})
+        plt.yticks(fontsize=12)
+        plt.xticks(fontsize=12)
+        plt.savefig(
+            f"{figures_path}/{fig_name}.pdf",
+            dpi=700, bbox_inches='tight')
 
 
 
@@ -659,7 +674,13 @@ def plot_exploitation_test():
 
 def plot_real_protocol():
 
-    frames_per_data_frame = 1000 #10000
+    def cumulative_window(arr, window_size):
+        new_arr = np.zeros(len(arr))
+        for i in range(len(arr)-window_size):
+            new_arr[i] = sum(arr[i:i+window_size])/window_size
+        return new_arr
+
+    frames_per_data_frame = 10000 #10000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
@@ -690,20 +711,20 @@ def plot_real_protocol():
     cont_params = [15, 162]
     cont_param_signs = ["Grid step", "Number of contexts"]
 
-    algorithm_names = ["EPS_greedy"] #"DQL","EPS_greedy"
-    algorithm_legend_names = ["$\epsilon$-Greedy"]
-    param_signs = ["$\epsilon$"]
+    algorithm_names = ["EPS_greedy", "UCB", "THS"] #"DQL","EPS_greedy"
+    algorithm_legend_names = ["$\epsilon$-Greedy", "UCB", "THS"]
+    param_signs = ["$\epsilon$","c", "mean"]
     # parameters = [[0.05, 0.1, 0.15],
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
-    parameters = [[0.15]]
+    parameters = [[0.7], [0.02], [0.5]]
 
     SCENARIO_DURATION = 3
     NUMBER_OF_CONS_SSB = 4
     SSB_period = np.array([5,10,20,40,80,160])
     SSB_period = SSB_period*10**(-3)
 
-
+    window_size = 1000
 
     for sc in scenarios:
         number_of_cycles = 1
@@ -711,7 +732,9 @@ def plot_real_protocol():
         folder_name_figures = f"scenario_{sc}"
         figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}/{folder_test}"
 
-
+        max_reward = pickle.load(open(
+            f"{figures_path}/max_reward.pickle",
+            "rb"))
 
 
         test_name = f"real_protocol_SSB_period"
@@ -721,27 +744,57 @@ def plot_real_protocol():
             f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle",
             "rb"))
         avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
-        plt.plot(avarage_oracle, label="Oracle")
-        for SSB_p in SSB_period:
-            sequential_search_reward = pickle.load(open(
-                f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
-                "rb"))
-            plt.plot(sequential_search_reward, label=f"SSB period = {SSB_p}")
-        plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}")
-        plt.ylabel('Cumulative average reward')
-        plt.xlabel('Sample')
-        # plt.yscale("log")
-        # plt.ylim(top=250)
-        plt.grid()
-        plt.legend(prop={'size': 9})
+        #avarage_oracle = cumulative_window(oracle, window_size)
+        avarage_oracle = avarage_oracle*max_reward
+        avarage_oracle = 10 * np.log10(avarage_oracle / (10 ** (-3)))
 
+        # plt.plot(avarage_oracle, label="Oracle")
+        for SSB_p in SSB_period:
+            # sequential_search_reward = pickle.load(open(
+            #     f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+            #     "rb"))
+
+            seq_search_exploitation_reward = pickle.load(open(
+                f"{figures_path}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                "rb"))
+
+            seq_search_exploitation_it_num = pickle.load(open(
+                f"{figures_path}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                "rb"))
+            oracle = np.array(oracle)
+            oracle_for_seq = oracle[np.array(seq_search_exploitation_it_num)]
+            oracle_for_seq_average = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
+            #oracle_for_seq_average = cumulative_window(oracle_for_seq, window_size)
+            oracle_for_seq_average = oracle_for_seq_average * max_reward
+            oracle_for_seq_average = 10 * np.log10(oracle_for_seq_average / (10 ** (-3)))
+
+
+            seq_search_exploitation_reward_average = np.cumsum(seq_search_exploitation_reward) / (
+                        np.arange(len(seq_search_exploitation_reward)) + 1)
+
+            #seq_search_exploitation_reward_average = cumulative_window(seq_search_exploitation_reward, window_size)
+
+
+            seq_search_exploitation_reward_average = seq_search_exploitation_reward_average * max_reward
+            seq_search_exploitation_reward_average = 10 * np.log10(seq_search_exploitation_reward_average / (10 ** (-3)))
+
+            diff_seq_search = oracle_for_seq_average - seq_search_exploitation_reward_average
+            plt.plot(np.array(seq_search_exploitation_it_num)/1000,diff_seq_search, label=f"SSB period = {SSB_p}")
+
+        #plt.plot(oracle_for_seq_average, label=f"Oracle, SSB period = {SSB_p}")
+
+        plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}",fontsize=14)
+        plt.ylabel('Power loss, dB',fontsize=14)
+        plt.xlabel("Sample, $10^{3}$",fontsize=14)
+        # plt.yscale("log")
+        plt.ylim(0,10)
+        plt.grid()
+        plt.legend(prop={'size': 12})
+        plt.yticks(fontsize=12)
+        plt.xticks(fontsize=12)
         plt.savefig(
             f"{figures_path}/{fig_name}.pdf",
             dpi=700, bbox_inches='tight')
-
-
-
-
 
 
         for con_type, cont_param, cont_param_sigh in zip(context_types, cont_params, cont_param_signs):
@@ -760,27 +813,55 @@ def plot_real_protocol():
                     fig_name = f"{con_type}_{alg_name}_{p}_{cont_param}_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
 
                     plt.figure(fig_name)
-                    plt.plot(avarage_oracle, label="Oracle")
+                    # plt.plot(avarage_oracle, label="Oracle")
                     for SSB_p in SSB_period:
-                        average_reward = pickle.load(open(
-                            f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                        # average_reward = pickle.load(open(
+                        #     f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                        #     "rb"))
+                        # #plt.plot(average_reward, label=f"{algorithm_legend_name}, {param_sign} = {p}")
+                        # plt.plot(average_reward, label=f"SSB period = {SSB_p}")
+
+
+                        exloitation_iterations = pickle.load(open(
+                            f"{figures_path}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
                             "rb"))
-                        #plt.plot(average_reward, label=f"{algorithm_legend_name}, {param_sign} = {p}")
-                        plt.plot(average_reward, label=f"SSB period = {SSB_p}")
+
+                        reward_exploitation = pickle.load(open(
+                            f"{figures_path}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                            "rb"))
 
 
+                        reward_exploitation_average = np.cumsum(reward_exploitation) / (np.arange(len(reward_exploitation)) + 1)
+                        #reward_exploitation_average = cumulative_window(reward_exploitation,window_size)
 
+                        reward_exploitation_average = reward_exploitation_average * max_reward
+                        reward_exploitation_average = 10 * np.log10(
+                            reward_exploitation_average / (10 ** (-3)))
+
+
+                        oracle_for_bandit = oracle[np.array(exloitation_iterations)]
+                        oracle_for_bandit_average = np.cumsum(oracle_for_bandit) / (np.arange(len(oracle_for_bandit)) + 1)
+
+                        #oracle_for_bandit_average = cumulative_window(oracle_for_bandit,window_size)
+
+                        oracle_for_bandit_average = oracle_for_bandit_average * max_reward
+                        oracle_for_bandit_average = 10 * np.log10(
+                            oracle_for_bandit_average / (10 ** (-3)))
+                        diff = oracle_for_bandit_average - reward_exploitation_average
+                        plt.plot(np.array(exloitation_iterations)/1000, diff, label=f"SSB period = {SSB_p}")
+                    #plt.plot(oracle_for_bandit_average, label=f"Oracle, SSB period = {SSB_p}")
 
                     #plt.title(f"Grid step = {cont_params[0]}, Number of contexts = {num_ex_conts}")
-                    plt.title(f"{algorithm_legend_name}, {param_sign} = {p}, {cont_param_sigh} = {cont_param}, Number of SSB = {NUMBER_OF_CONS_SSB}")
+                    plt.title(f"{algorithm_legend_name}, {param_sign} = {p}, {cont_param_sigh} = {cont_param}, Number of SSB = {NUMBER_OF_CONS_SSB}",fontsize=14)
 
-                    plt.ylabel('Cumulative average reward')
-                    plt.xlabel('Sample')
+                    plt.ylabel('Power loss, dB',fontsize=14)
+                    plt.xlabel("Sample, $10^{3}$",fontsize=14)
                     # plt.yscale("log")
-                    # plt.ylim(top=250)
+                    plt.ylim(0,10)
                     plt.grid()
-                    plt.legend(prop={'size': 9})
-
+                    plt.legend(prop={'size': 12})
+                    plt.yticks(fontsize=12)
+                    plt.xticks(fontsize=12)
                     plt.savefig(
                         f"{figures_path}/{fig_name}.pdf",
                         dpi=700, bbox_inches='tight')
@@ -790,5 +871,6 @@ def plot_real_protocol():
 
 #DL_channel()
 #plot_time()
+#plot_exploitation_test()
 #plot_exploitation_test()
 plot_real_protocol()

@@ -145,6 +145,9 @@ def choose_random(arm_num, frame_num):
     point_of_max = int((frame_num / 1000) % ARMS_NUMBER_RANDOM)
     means = np.roll(np.hamming(ARMS_NUMBER_RANDOM), point_of_max)
     return np.clip(np.random.randn() + means[arm_num], 0, 1)
+
+
+
     # return np.random.randn() + 3
 
 
@@ -539,7 +542,7 @@ if __name__ == '__main__':
 
     LOCATION_GRID_STEP = 15
 
-    frames_per_data_frame = 1000 #10000
+    frames_per_data_frame = 10000 #10000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
@@ -554,8 +557,8 @@ if __name__ == '__main__':
     icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
 
 
-    SCENARIO_DURATION = 8
-    NUMBER_OF_CONS_SSB = 4
+    SCENARIO_DURATION = 4
+    NUMBER_OF_CONS_SSB = 64
     SSB_periods = np.array([5,10,20,40,80,160])
     SSB_periods = SSB_periods*10**(-3)
     REAL_PROTOCOL = True
@@ -596,358 +599,359 @@ if __name__ == '__main__':
     # parameters = [[0.05, 0.1, 0.15],
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
-    parameters = [[0.15]]
-
+    #parameters = [[0.02]]#UCB
+    parameters = [[1]]  # eps greedy
 
 
     def calc(SSB_period):
 
-        for sc in scenarios:
-            folder_name_CIRS = f"CIRS_scenario_{sc}"
-            PATH = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Projects/voxel_engine/draft_engine/narvi/CIRS/{folder_name_CIRS}/"
-            RX_locations = []
-            TX_locations = []
-            for fr in range(1,50):
-                with open(f"{PATH}/scene_frame{fr}.json") as json_file:
-                    info = json.load(json_file)
-                RX_locations.append(info["RX_location"][0])
-                TX_locations.append(info["TX_location"][0])
-            TX_locations = np.array(TX_locations)
-            RX_locations = np.array(RX_locations)
-            folder_name_figures = f"scenario_{sc}"
-            figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}/{folder_test}"
-            if not os.path.exists(figures_path):
-                os.makedirs(figures_path)
 
-            selected_beams_folder = f"{figures_path}/selected_beams"
+        data = np.zeros((1,ITER_NUMBER_RANDOM))
+        for i in range(ITER_NUMBER_RANDOM):
+            if is_SSB(i, SSB_period):
+                data[0,i] = 1
 
 
-            if not os.path.exists(selected_beams_folder):
-                os.makedirs(selected_beams_folder)
+        fig7777 = plt.figure()
+        plt.imshow(data[:,0:int(ITER_NUMBER_CIR / 16)], aspect="auto")
+        plt.xlabel("Data type", fontname="Times New Roman", fontsize="16")
+        plt.ylabel("Iteration", fontname="Times New Roman", fontsize="16")
+        plt.xticks(fontname="Times New Roman", fontsize="16")
+        plt.yticks(fontname="Times New Roman", fontsize="16")
 
-            data = np.zeros((1,ITER_NUMBER_RANDOM))
-            for i in range(ITER_NUMBER_RANDOM):
-                if is_SSB(i, SSB_period):
-                    data[0,i] = 1
+        plt.savefig(f"{selected_beams_folder}/packet_SSB_period{SSB_period}_cons_period{NUMBER_OF_CONS_SSB}.pdf",
+                    dpi=700, bbox_inches='tight')
 
+        sequential_search_reward = []
+        seq_search_exploitation_reward = []
+        seq_search_exploitation_it_num = []
 
-            fig7777 = plt.figure()
-            plt.imshow(data[:,0:int(ITER_NUMBER_CIR / 16)], aspect="auto")
-            plt.xlabel("Data type", fontname="Times New Roman", fontsize="16")
-            plt.ylabel("Iteration", fontname="Times New Roman", fontsize="16")
-            plt.xticks(fontname="Times New Roman", fontsize="16")
-            plt.yticks(fontname="Times New Roman", fontsize="16")
+        max_reward_search = np.zeros(ARMS_NUMBER_CIR)
+        chosen_beam_number_seq_search = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
+        threshold = 0
+        SEARCH = True
+        iter_number_for_search = 0
+        chosen_reward = cir_cache.all_rewards[0, i]
+        sequential_search_time = []
+        eps_greedy_time = []
+        num_it_search = 0
+        num_it_eps_greedy = 0
+        eps = 0.15
+        exp_vs_expl = False
+        trying_beam_number = 0
+        for i in range(0, ITER_NUMBER_CIR):
+            if SEARCH and not REAL_PROTOCOL:
+                trying_beam_number = iter_number_for_search
+            elif SEARCH and REAL_PROTOCOL and is_SSB(i,SSB_period):
+                trying_beam_number = iter_number_for_search
+            else:
+                trying_beam_number = np.argmax(max_reward_search)
 
-            plt.savefig(f"{selected_beams_folder}/packet_SSB_period{SSB_period}_cons_period{NUMBER_OF_CONS_SSB}.pdf",
-                        dpi=700, bbox_inches='tight')
+            if exp_vs_expl:
+                eps_greedy_time.append(num_it_eps_greedy / ((i + 1) - num_it_eps_greedy))
+            else:
+                eps_greedy_time.append(num_it_eps_greedy / ((i + 1)))
 
-            cir_cache = CIR_cache(PATH, FRAME_NUMBER, frames_per_data_frame=frames_per_data_frame)
-            cir_cache.get_all_rewards()
-            if PLOT_ALL_REWARDS:
-                cir_cache.plot_all_rewards()
-            if PLOT_REWARDS_DESTRIBUTION:
-                # beams_to_plot = [1,5,7,11]
-                beams_to_plot = np.linspace(1, ARMS_NUMBER_CIR - 1, ARMS_NUMBER_CIR)
-                binwidth = 100
-                for i, b in enumerate(beams_to_plot):
-                    if sum(cir_cache.all_rewards[int(b), :]) != 0:
-                        # Set up the plot
-                        fig, ax = plt.subplots()
+            p = np.random.random()
+            if p < eps:
+                num_it_eps_greedy += 1
 
-                        ax.hist(cir_cache.all_rewards[int(b), :], bins=int(binwidth), density=True,
-                                color='blue', edgecolor='black')
+            chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
+            sequential_search_reward.append(chosen_reward)
+            chosen_beam_number_seq_search[trying_beam_number, i] = 1
+            if exp_vs_expl:
+                sequential_search_time.append(num_it_search/((i+1)-num_it_search))
+            else:
+                sequential_search_time.append(num_it_search / ((i + 1)))
 
-                        # Title and labels
-                        ax.set_title(f"Beam number {i}")
-                        ax.set_xlabel('Power, W')
-                        ax.set_ylabel("Number of times")
-                        plt.grid()
-                        plt.savefig(f"{figures_path}beam_power_PDF_arms_num_{ARMS_NUMBER_CIR}_num{i}.pdf", dpi=700,
-                                    bbox_inches='tight')
-                        # plt.hist([x1, x2, x3, x4, x5], bins=int(180 / 15), normed=True,
-                        #          color=colors, label=names)
-            oracle = []
-            for i in range(ITER_NUMBER_CIR):
-                oracle.append(max(cir_cache.all_rewards[:, i]))
-            avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
-            avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
-            pickle.dump(oracle, open(
-                f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+            if REAL_PROTOCOL:
+                SEARCH_IN_SSB = SEARCH and is_SSB(i,SSB_period)
 
+            else:
+                SEARCH_IN_SSB = SEARCH
 
-            sequential_search_reward = []
-            seq_search_exploitation_reward = []
-            seq_search_exploitation_it_num = []
+            if SEARCH_IN_SSB:
+                max_reward_search[iter_number_for_search] = chosen_reward
+                iter_number_for_search += 1
+                num_it_search += 1
+                if iter_number_for_search == ARMS_NUMBER_CIR:
 
-            max_reward_search = np.zeros(ARMS_NUMBER_CIR)
-            chosen_beam_number_seq_search = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
-            threshold = 0
-            SEARCH = True
-            iter_number_for_search = 0
-            chosen_reward = cir_cache.all_rewards[0, i]
-            sequential_search_time = []
-            eps_greedy_time = []
-            num_it_search = 0
-            num_it_eps_greedy = 0
-            eps = 0.15
-            exp_vs_expl = False
-            trying_beam_number = 0
-            for i in range(0, ITER_NUMBER_CIR):
-                if SEARCH and not REAL_PROTOCOL:
-                    trying_beam_number = iter_number_for_search
-                elif SEARCH and REAL_PROTOCOL and is_SSB(i,SSB_period):
-                    trying_beam_number = iter_number_for_search
-                else:
-                    trying_beam_number = np.argmax(max_reward_search)
-
-                if exp_vs_expl:
-                    eps_greedy_time.append(num_it_eps_greedy / ((i + 1) - num_it_eps_greedy))
-                else:
-                    eps_greedy_time.append(num_it_eps_greedy / ((i + 1)))
-
-                p = np.random.random()
-                if p < eps:
-                    num_it_eps_greedy += 1
-
-                chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
-                sequential_search_reward.append(chosen_reward)
-                chosen_beam_number_seq_search[trying_beam_number, i] = 1
-                if exp_vs_expl:
-                    sequential_search_time.append(num_it_search/((i+1)-num_it_search))
-                else:
-                    sequential_search_time.append(num_it_search / ((i + 1)))
-
-                if REAL_PROTOCOL:
-                    SEARCH_IN_SSB = SEARCH and is_SSB(i,SSB_period)
-
-                else:
-                    SEARCH_IN_SSB = SEARCH
-
-                if SEARCH_IN_SSB:
-                    max_reward_search[iter_number_for_search] = chosen_reward
-                    iter_number_for_search += 1
-                    num_it_search += 1
-                    if iter_number_for_search == ARMS_NUMBER_CIR:
-
-                        threshold = max(max_reward_search) / 2
-                        SEARCH = False
-                        iter_number_for_search = 0
-                else:
-                    seq_search_exploitation_reward.append(chosen_reward)
-                    seq_search_exploitation_it_num.append(i)
-                    if chosen_reward < threshold:
-                        SEARCH = True
+                    threshold = max(max_reward_search) / 2
+                    SEARCH = False
+                    iter_number_for_search = 0
+            else:
+                seq_search_exploitation_reward.append(chosen_reward)
+                seq_search_exploitation_it_num.append(i)
+                if chosen_reward < threshold:
+                    SEARCH = True
 
 
 
 
 
-            fig75 = plt.figure()
-            plt.imshow(chosen_beam_number_seq_search[:, 0:int(ITER_NUMBER_CIR)], aspect="auto")
-            plt.xlabel("Iteration", fontname="Times New Roman", fontsize="16")
-            plt.ylabel("Beam nubmer", fontname="Times New Roman", fontsize="16")
-            plt.xticks(fontname="Times New Roman", fontsize="16")
-            plt.yticks(fontname="Times New Roman", fontsize="16")
+        fig75 = plt.figure()
+        plt.imshow(chosen_beam_number_seq_search[:, 0:int(ITER_NUMBER_CIR)], aspect="auto")
+        plt.xlabel("Iteration", fontname="Times New Roman", fontsize="16")
+        plt.ylabel("Beam nubmer", fontname="Times New Roman", fontsize="16")
+        plt.xticks(fontname="Times New Roman", fontsize="16")
+        plt.yticks(fontname="Times New Roman", fontsize="16")
 
-            plt.savefig(f"{selected_beams_folder}/chosen_arm_sequantial_search_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pdf",
-                        dpi=700,
-                        bbox_inches='tight')
-
-
-            avarage_sequential_search = np.cumsum(sequential_search_reward) / (np.arange(ITER_NUMBER_CIR) + 1)
+        plt.savefig(f"{selected_beams_folder}/chosen_arm_sequantial_search_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pdf",
+                    dpi=700,
+                    bbox_inches='tight')
 
 
-            avarage_sequential_search_dBm = 10 * np.log10(avarage_sequential_search / (10 ** (-3)))
-            pickle.dump(avarage_sequential_search, open(f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle", 'wb'))
-            pickle.dump(seq_search_exploitation_reward,
-                        open(f"{figures_path}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
-                             'wb'))
-            pickle.dump(seq_search_exploitation_it_num,
-                        open(f"{figures_path}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
-                             'wb'))
+        avarage_sequential_search = np.cumsum(sequential_search_reward) / (np.arange(ITER_NUMBER_CIR) + 1)
 
 
-            pickle.dump(sequential_search_time,
-                        open(f"{figures_path}/exp_expl_time_sequential_search_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
-                             'wb'))
-            pickle.dump(eps_greedy_time,
-                        open(f"{figures_path}/exp_expl_time_eps_greedy_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
-                             'wb'))
-            random_choice = []
-            for i in range(ITER_NUMBER_CIR):
-                random_num = np.random.choice(ARMS_NUMBER_CIR)
-                random_choice.append(cir_cache.all_rewards[random_num, i])
-            avarage_random_choice = np.cumsum(random_choice) / (np.arange(ITER_NUMBER_CIR) + 1)
-            pickle.dump(avarage_random_choice, open(
-                f"{figures_path}/cumulative_avarage_random_choice_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
-
-            for con_set, con_type, cont_param in zip(context_sets,context_types, cont_params):
-
-                # env = MultipathChannel( ARMS_NUMBER_CIR, len(con_set), con_set, starting_point = 0)
-                # #env_test = MultipathChannel( ARMS_NUMBER_CIR, len(con_set), con_set, starting_point = NUMBER_OF_ITERATIONS_TRAINING)
-                # env_test = MultipathChannel(ARMS_NUMBER_CIR, len(con_set), con_set,
-                #                             starting_point=0)
-
-                env = MultipathChannel(ARMS_NUMBER_CIR, ITER_NUMBER_CIR, con_set, starting_point = 0)
-                #env_test = MultipathChannel( ARMS_NUMBER_CIR, len(con_set), con_set, starting_point = NUMBER_OF_ITERATIONS_TRAINING)
-                env_test = MultipathChannel(ARMS_NUMBER_CIR, ITER_NUMBER_CIR, con_set,
-                                            starting_point=0)
-                if PLOT_CONTEXT:
-                    fig4 = plt.figure()
-                    ax = plt.axes(projection='3d')
-                    col = ["r", "b", "g", "m"]
-                    for b in beam_directions:
-                        cont_number = spatial.KDTree(con_set).query(b)[1]
-                        if len(con_set) == 4:
-                            scatter_plot = ax.scatter3D(b[0], b[1], b[2], color=col[cont_number])
-                            for ind_con, con in enumerate(con_set):
-                                scatter_plot = ax.scatter3D(con[0] * 3, con[1] * 3, con[2] * 3, color=col[ind_con])
-                                scatter_plot = ax.scatter3D(con[0] * 3, con[1] * 3, con[2] * 3, color=col[ind_con])
-                        else:
-                            scatter_plot = ax.scatter3D(b[0], b[1], b[2])
-                            for ind_con, con in enumerate(con_set):
-                                scatter_plot = ax.scatter3D(con[0] * 3, con[1] * 3, con[2] * 3)
-                                scatter_plot = ax.scatter3D(con[0] * 3, con[1] * 3, con[2] * 3)
+        avarage_sequential_search_dBm = 10 * np.log10(avarage_sequential_search / (10 ** (-3)))
+        pickle.dump(avarage_sequential_search, open(f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle", 'wb'))
+        pickle.dump(seq_search_exploitation_reward,
+                    open(f"{figures_path}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                         'wb'))
+        pickle.dump(seq_search_exploitation_it_num,
+                    open(f"{figures_path}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                         'wb'))
 
 
+        pickle.dump(sequential_search_time,
+                    open(f"{figures_path}/exp_expl_time_sequential_search_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
+                         'wb'))
+        pickle.dump(eps_greedy_time,
+                    open(f"{figures_path}/exp_expl_time_eps_greedy_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
+                         'wb'))
+        random_choice = []
+        for i in range(ITER_NUMBER_CIR):
+            random_num = np.random.choice(ARMS_NUMBER_CIR)
+            random_choice.append(cir_cache.all_rewards[random_num, i])
+        avarage_random_choice = np.cumsum(random_choice) / (np.arange(ITER_NUMBER_CIR) + 1)
+        pickle.dump(avarage_random_choice, open(
+            f"{figures_path}/cumulative_avarage_random_choice_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
-                    fig = plt.figure()
+        for con_set, con_type, cont_param in zip(context_sets,context_types, cont_params):
 
-                    ax = plt.axes(projection='3d')
+            # env = MultipathChannel( ARMS_NUMBER_CIR, len(con_set), con_set, starting_point = 0)
+            # #env_test = MultipathChannel( ARMS_NUMBER_CIR, len(con_set), con_set, starting_point = NUMBER_OF_ITERATIONS_TRAINING)
+            # env_test = MultipathChannel(ARMS_NUMBER_CIR, len(con_set), con_set,
+            #                             starting_point=0)
 
-                    scatter_plot = ax.scatter3D(beam_directions[:, 0], beam_directions[:, 1], beam_directions[:, 2])
-                    plt.savefig(f"{figures_path}context.png", dpi=700, bbox_inches='tight')
+            env = MultipathChannel(ARMS_NUMBER_CIR, ITER_NUMBER_CIR, con_set, starting_point = 0)
+            #env_test = MultipathChannel( ARMS_NUMBER_CIR, len(con_set), con_set, starting_point = NUMBER_OF_ITERATIONS_TRAINING)
+            env_test = MultipathChannel(ARMS_NUMBER_CIR, ITER_NUMBER_CIR, con_set,
+                                        starting_point=0)
+            if PLOT_CONTEXT:
+                fig4 = plt.figure()
+                ax = plt.axes(projection='3d')
+                col = ["r", "b", "g", "m"]
+                for b in beam_directions:
+                    cont_number = spatial.KDTree(con_set).query(b)[1]
+                    if len(con_set) == 4:
+                        scatter_plot = ax.scatter3D(b[0], b[1], b[2], color=col[cont_number])
+                        for ind_con, con in enumerate(con_set):
+                            scatter_plot = ax.scatter3D(con[0] * 3, con[1] * 3, con[2] * 3, color=col[ind_con])
+                            scatter_plot = ax.scatter3D(con[0] * 3, con[1] * 3, con[2] * 3, color=col[ind_con])
+                    else:
+                        scatter_plot = ax.scatter3D(b[0], b[1], b[2])
+                        for ind_con, con in enumerate(con_set):
+                            scatter_plot = ax.scatter3D(con[0] * 3, con[1] * 3, con[2] * 3)
+                            scatter_plot = ax.scatter3D(con[0] * 3, con[1] * 3, con[2] * 3)
 
 
 
-                for alg_name, pars in zip(algorithm_names, parameters):
+                fig = plt.figure()
 
-                    for p in pars:
-                        if alg_name == "UCB" or alg_name == "EPS_greedy" or alg_name == "THS":
-                            number_of_cycles = 1
-                            bandit = Contextual_bandit(alg_name, ARMS_NUMBER_CIR, ITER_NUMBER_CIR, p, context_type = con_type, context_set=con_set)
-                            cumulative_average, reward, reward_exploitation, exloitation_iterations  = bandit.run_bandit()
+                ax = plt.axes(projection='3d')
 
-                            pickle.dump(len(bandit.existing_contexts), open(
-                                f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
-                                'wb'))
+                scatter_plot = ax.scatter3D(beam_directions[:, 0], beam_directions[:, 1], beam_directions[:, 2])
+                plt.savefig(f"{figures_path}context.png", dpi=700, bbox_inches='tight')
 
-                            fig7 = plt.figure()
-                            plt.imshow(bandit.chosen_beam_number[:, 0:int(ITER_NUMBER_CIR/16)], aspect="auto")
-                            plt.xlabel("Iteration", fontname="Times New Roman", fontsize="16")
-                            plt.ylabel("Beam nubmer", fontname="Times New Roman", fontsize="16")
-                            plt.xticks(fontname="Times New Roman", fontsize="16")
-                            plt.yticks(fontname="Times New Roman", fontsize="16")
 
-                            plt.savefig(
-                                f"{selected_beams_folder}/chosen_arm_type{con_type}_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pdf",
-                                dpi=700,
+
+            for alg_name, pars in zip(algorithm_names, parameters):
+                print(alg_name)
+                for p in pars:
+                    if alg_name == "UCB" or alg_name == "EPS_greedy" or alg_name == "THS":
+                        number_of_cycles = 1
+                        bandit = Contextual_bandit(alg_name, ARMS_NUMBER_CIR, ITER_NUMBER_CIR, p, context_type = con_type, context_set=con_set)
+                        cumulative_average, reward, reward_exploitation, exloitation_iterations  = bandit.run_bandit()
+
+                        pickle.dump(len(bandit.existing_contexts), open(
+                            f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                            'wb'))
+
+                        fig7 = plt.figure()
+                        plt.imshow(bandit.chosen_beam_number[:, 0:int(ITER_NUMBER_CIR/16)], aspect="auto")
+                        plt.xlabel("Iteration", fontname="Times New Roman", fontsize="16")
+                        plt.ylabel("Beam nubmer", fontname="Times New Roman", fontsize="16")
+                        plt.xticks(fontname="Times New Roman", fontsize="16")
+                        plt.yticks(fontname="Times New Roman", fontsize="16")
+
+                        plt.savefig(
+                            f"{selected_beams_folder}/chosen_arm_type{con_type}_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pdf",
+                            dpi=700,
+                            bbox_inches='tight')
+
+                        # fig89 = plt.figure()
+                        # plt.imshow(bandit.context_for_all_iterations[:, 0:ITER_NUMBER_CIR - 1:1000], aspect="auto")
+                        # plt.xlabel("Iteration (every 1000)", fontname="Times New Roman", fontsize="16")
+                        # plt.ylabel("Context nubmer", fontname="Times New Roman", fontsize="16")
+                        # plt.xticks(fontname="Times New Roman", fontsize="16")
+                        # plt.yticks(fontname="Times New Roman", fontsize="16")
+                        #
+                        # plt.savefig(
+                        #     f"{selected_beams_folder}/context_for_all_iterations_cont_type{con_type}_context{len(con_set)}.pdf",
+                        #     dpi=700,
+                        #     bbox_inches='tight')
+
+                    elif alg_name == "DQL":
+
+                        states = env.observation_space.shape
+                        actions = env.action_space.n
+
+                        model = build_model(states, actions)
+
+                        dqn = build_agent(model, actions)
+                        # dqn.compile(Adam(lr=1e-3), metrics=['accuracy'])
+                        dqn.compile(Adam(lr=1e-3), metrics=['accuracy'])
+
+                        number_of_cycles = 1000
+                        # for n_c in range(number_of_cycles):
+                        #     env.reset()
+                        dqn.fit(env, nb_steps=NUMBER_OF_ITERATIONS_TRAINING*number_of_cycles, visualize=False, verbose=1)
+
+                        rewards_training = env.record_rewards
+                        actions_training = env.record_actions
+                        states_training = env.record_states
+
+                        cum_rewards_training = np.cumsum(rewards_training) / (np.arange(len(rewards_training)) + 1)
+
+                        pickle.dump(cum_rewards_training, open(
+                            f"{figures_path}/training_reward_{alg_name}_context{len(con_set)}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}.pickle",
+                            'wb'))
+
+                        number_of_episodes = ITER_NUMBER_CIR # ITER_NUMBER_CIR-NUMBER_OF_ITERATIONS_TRAINING
+                        results = dqn.test(env_test, nb_episodes=1, nb_max_episode_steps = number_of_episodes, visualize=False)
+                        rewards_test = env_test.record_rewards
+                        actions_test = env_test.record_actions
+                        states_test = env_test.record_states
+
+                        print(np.mean(results.history['episode_reward']))
+
+                        all_rewards = rewards_test
+                        all_actions = actions_test
+                        all_states = states_test
+
+
+                        # all_rewards = np.concatenate((rewards_training,rewards_test), axis = 0)
+                        # all_actions = np.concatenate((actions_training,actions_test), axis = 0)
+                        # all_states = np.concatenate((states_training, states_test), axis=0)
+
+                        cumulative_average = np.cumsum(all_rewards) / (np.arange(len(all_rewards)) + 1)
+                        actions_for_plot = np.zeros((ARMS_NUMBER_CIR, len(all_actions)))
+                        for ac_num, ac in enumerate(all_actions):
+                            actions_for_plot[ac, ac_num] = 1
+
+                        states_for_plot = np.zeros((len(con_set), len(all_states)))
+                        for ac_num, ac in enumerate(all_states):
+                            states_for_plot[ac, ac_num] = 1
+
+                        fig20 = plt.figure()
+                        plt.imshow(actions_for_plot[:,0:len(all_actions) - 1:1000], aspect="auto")
+                        plt.xlabel("Iteration (every 1000)", fontname="Times New Roman", fontsize="16")
+                        plt.ylabel("Beam nubmer", fontname="Times New Roman", fontsize="16")
+                        plt.xticks(fontname="Times New Roman", fontsize="16")
+                        plt.yticks(fontname="Times New Roman", fontsize="16")
+
+                        plt.savefig(
+                            f"{selected_beams_folder}/chosen_arm_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pdf",
+                            dpi=700,
+                            bbox_inches='tight')
+
+                        fig21 = plt.figure()
+                        plt.imshow(states_for_plot[:,0:len(all_actions) - 1:1000], aspect="auto")
+                        plt.xlabel("Iteration (every 1000)", fontname="Times New Roman", fontsize="16")
+                        plt.ylabel("State number", fontname="Times New Roman", fontsize="16")
+                        plt.xticks(fontname="Times New Roman", fontsize="16")
+                        plt.yticks(fontname="Times New Roman", fontsize="16")
+
+                        plt.savefig(
+                            f"{selected_beams_folder}/states_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pdf",
+                            dpi=700,
+                            bbox_inches='tight')
+
+                    pickle.dump(cumulative_average, open(
+                        f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                        'wb'))
+
+                    pickle.dump(exloitation_iterations, open(
+                        f"{figures_path}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                        'wb'))
+
+                    pickle.dump(reward_exploitation, open(
+                        f"{figures_path}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                        'wb'))
+
+                    pickle.dump(np.array([cir_cache.max_reward]), open(
+                        f"{figures_path}/max_reward.pickle",
+                        'wb'))
+
+
+    for sc in scenarios:
+        folder_name_CIRS = f"CIRS_scenario_{sc}"
+        PATH = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Projects/voxel_engine/draft_engine/narvi/CIRS/{folder_name_CIRS}/"
+        RX_locations = []
+        TX_locations = []
+        for fr in range(1,50):
+            with open(f"{PATH}/scene_frame{fr}.json") as json_file:
+                info = json.load(json_file)
+            RX_locations.append(info["RX_location"][0])
+            TX_locations.append(info["TX_location"][0])
+        TX_locations = np.array(TX_locations)
+        RX_locations = np.array(RX_locations)
+        folder_name_figures = f"scenario_{sc}"
+        figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}/{folder_test}"
+        if not os.path.exists(figures_path):
+            os.makedirs(figures_path)
+
+        selected_beams_folder = f"{figures_path}/selected_beams"
+
+
+        if not os.path.exists(selected_beams_folder):
+            os.makedirs(selected_beams_folder)
+
+
+
+        cir_cache = CIR_cache(PATH, FRAME_NUMBER, frames_per_data_frame=frames_per_data_frame)
+        cir_cache.get_all_rewards()
+        if PLOT_ALL_REWARDS:
+            cir_cache.plot_all_rewards()
+        if PLOT_REWARDS_DESTRIBUTION:
+            # beams_to_plot = [1,5,7,11]
+            beams_to_plot = np.linspace(1, ARMS_NUMBER_CIR - 1, ARMS_NUMBER_CIR)
+            binwidth = 100
+            for i, b in enumerate(beams_to_plot):
+                if sum(cir_cache.all_rewards[int(b), :]) != 0:
+                    # Set up the plot
+                    fig, ax = plt.subplots()
+
+                    ax.hist(cir_cache.all_rewards[int(b), :], bins=int(binwidth), density=True,
+                            color='blue', edgecolor='black')
+
+                    # Title and labels
+                    ax.set_title(f"Beam number {i}")
+                    ax.set_xlabel('Power, W')
+                    ax.set_ylabel("Number of times")
+                    plt.grid()
+                    plt.savefig(f"{figures_path}beam_power_PDF_arms_num_{ARMS_NUMBER_CIR}_num{i}.pdf", dpi=700,
                                 bbox_inches='tight')
-
-                            # fig89 = plt.figure()
-                            # plt.imshow(bandit.context_for_all_iterations[:, 0:ITER_NUMBER_CIR - 1:1000], aspect="auto")
-                            # plt.xlabel("Iteration (every 1000)", fontname="Times New Roman", fontsize="16")
-                            # plt.ylabel("Context nubmer", fontname="Times New Roman", fontsize="16")
-                            # plt.xticks(fontname="Times New Roman", fontsize="16")
-                            # plt.yticks(fontname="Times New Roman", fontsize="16")
-                            #
-                            # plt.savefig(
-                            #     f"{selected_beams_folder}/context_for_all_iterations_cont_type{con_type}_context{len(con_set)}.pdf",
-                            #     dpi=700,
-                            #     bbox_inches='tight')
-
-                        elif alg_name == "DQL":
-
-                            states = env.observation_space.shape
-                            actions = env.action_space.n
-
-                            model = build_model(states, actions)
-
-                            dqn = build_agent(model, actions)
-                            # dqn.compile(Adam(lr=1e-3), metrics=['accuracy'])
-                            dqn.compile(Adam(lr=1e-3), metrics=['accuracy'])
-
-                            number_of_cycles = 1000
-                            # for n_c in range(number_of_cycles):
-                            #     env.reset()
-                            dqn.fit(env, nb_steps=NUMBER_OF_ITERATIONS_TRAINING*number_of_cycles, visualize=False, verbose=1)
-
-                            rewards_training = env.record_rewards
-                            actions_training = env.record_actions
-                            states_training = env.record_states
-
-                            cum_rewards_training = np.cumsum(rewards_training) / (np.arange(len(rewards_training)) + 1)
-
-                            pickle.dump(cum_rewards_training, open(
-                                f"{figures_path}/training_reward_{alg_name}_context{len(con_set)}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}.pickle",
-                                'wb'))
-
-                            number_of_episodes = ITER_NUMBER_CIR # ITER_NUMBER_CIR-NUMBER_OF_ITERATIONS_TRAINING
-                            results = dqn.test(env_test, nb_episodes=1, nb_max_episode_steps = number_of_episodes, visualize=False)
-                            rewards_test = env_test.record_rewards
-                            actions_test = env_test.record_actions
-                            states_test = env_test.record_states
-
-                            print(np.mean(results.history['episode_reward']))
-
-                            all_rewards = rewards_test
-                            all_actions = actions_test
-                            all_states = states_test
-
-
-                            # all_rewards = np.concatenate((rewards_training,rewards_test), axis = 0)
-                            # all_actions = np.concatenate((actions_training,actions_test), axis = 0)
-                            # all_states = np.concatenate((states_training, states_test), axis=0)
-
-                            cumulative_average = np.cumsum(all_rewards) / (np.arange(len(all_rewards)) + 1)
-                            actions_for_plot = np.zeros((ARMS_NUMBER_CIR, len(all_actions)))
-                            for ac_num, ac in enumerate(all_actions):
-                                actions_for_plot[ac, ac_num] = 1
-
-                            states_for_plot = np.zeros((len(con_set), len(all_states)))
-                            for ac_num, ac in enumerate(all_states):
-                                states_for_plot[ac, ac_num] = 1
-
-                            fig20 = plt.figure()
-                            plt.imshow(actions_for_plot[:,0:len(all_actions) - 1:1000], aspect="auto")
-                            plt.xlabel("Iteration (every 1000)", fontname="Times New Roman", fontsize="16")
-                            plt.ylabel("Beam nubmer", fontname="Times New Roman", fontsize="16")
-                            plt.xticks(fontname="Times New Roman", fontsize="16")
-                            plt.yticks(fontname="Times New Roman", fontsize="16")
-
-                            plt.savefig(
-                                f"{selected_beams_folder}/chosen_arm_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pdf",
-                                dpi=700,
-                                bbox_inches='tight')
-
-                            fig21 = plt.figure()
-                            plt.imshow(states_for_plot[:,0:len(all_actions) - 1:1000], aspect="auto")
-                            plt.xlabel("Iteration (every 1000)", fontname="Times New Roman", fontsize="16")
-                            plt.ylabel("State number", fontname="Times New Roman", fontsize="16")
-                            plt.xticks(fontname="Times New Roman", fontsize="16")
-                            plt.yticks(fontname="Times New Roman", fontsize="16")
-
-                            plt.savefig(
-                                f"{selected_beams_folder}/states_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pdf",
-                                dpi=700,
-                                bbox_inches='tight')
-
-                        pickle.dump(cumulative_average, open(
-                            f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
-                            'wb'))
-
-                        pickle.dump(exloitation_iterations, open(
-                            f"{figures_path}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
-                            'wb'))
-
-                        pickle.dump(reward_exploitation, open(
-                            f"{figures_path}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
-                            'wb'))
-
-                        pickle.dump(np.array([cir_cache.max_reward]), open(
-                            f"{figures_path}/max_reward.pickle",
-                            'wb'))
-
-
-    for SSB_period in SSB_periods:
-        calc(SSB_period)
+                    # plt.hist([x1, x2, x3, x4, x5], bins=int(180 / 15), normed=True,
+                    #          color=colors, label=names)
+        oracle = []
+        for i in range(ITER_NUMBER_CIR):
+            oracle.append(max(cir_cache.all_rewards[:, i]))
+        avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
+        avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
+        pickle.dump(oracle, open(
+            f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+        for SSB_period in SSB_periods:
+            calc(SSB_period)
