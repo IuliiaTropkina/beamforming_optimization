@@ -343,7 +343,7 @@ class MultipathChannel(Env):
 
 
 class Contextual_bandit:
-    def __init__(self, alg_name, arms_number, iter_number, param, context_type, context_set=[[]], data_random=False,
+    def __init__(self, alg_name, arms_number, iter_number, param, context_type, SSB_period, num_batch, context_set=[[]], data_random=False,
                  random_data_with_CONTEXT=False):
         self.context_type = context_type
         self.data_random = data_random
@@ -361,6 +361,8 @@ class Contextual_bandit:
         self.alg_name = alg_name
         self.reward_exploitation = []
         self.exploitation_iterations = []
+        self.SSB_period = SSB_period
+        self.num_batch = num_batch
 
         if len(context_set)!=0:
             if alg_name == "UCB":
@@ -407,7 +409,7 @@ class Contextual_bandit:
                 elif self.context_type == "DOA":
                     context_number = cir_cache.choose_context_number(self.context_set, i)
             if REAL_PROTOCOL:
-                if is_SSB(i, SSB_period):
+                if is_SSB(i, self.SSB_period,self.num_batch):
                     self.arm_num = self.MAB[context_number].get_arm()
                 else:
                     self.arm_num = self.MAB[context_number].arm_exploitation
@@ -426,7 +428,7 @@ class Contextual_bandit:
                 obtained_reward = cir_cache.all_rewards[self.arm_num, i]
 
             if REAL_PROTOCOL:
-                if is_SSB(i, SSB_period):
+                if is_SSB(i,  self.SSB_period,self.num_batch):
                     self.MAB[context_number].update(self.arm_num, obtained_reward)
             else:
                 self.MAB[context_number].update(self.arm_num, obtained_reward)
@@ -438,7 +440,7 @@ class Contextual_bandit:
             #     self.reward_exploitation.append(obtained_reward)
             #     self.exploitation_iterations.append(i)
 
-            if not is_SSB(i, SSB_period):
+            if not is_SSB(i,  self.SSB_period,self.num_batch):
                 self.reward_exploitation.append(obtained_reward)
                 self.exploitation_iterations.append(i)
 
@@ -640,7 +642,7 @@ if __name__ == '__main__':
         for i in range(0, ITER_NUMBER_CIR):
             if SEARCH and not REAL_PROTOCOL:
                 trying_beam_number = iter_number_for_search
-            elif SEARCH and REAL_PROTOCOL and is_SSB(i,SSB_period):
+            elif SEARCH and REAL_PROTOCOL and is_SSB(i,SSB_period, num_batch):
                 trying_beam_number = iter_number_for_search
             else:
                 trying_beam_number = np.argmax(max_reward_search)
@@ -663,7 +665,7 @@ if __name__ == '__main__':
                 sequential_search_time.append(num_it_search / ((i + 1)))
 
             if REAL_PROTOCOL:
-                SEARCH_IN_SSB = SEARCH and is_SSB(i,SSB_period)
+                SEARCH_IN_SSB = SEARCH and is_SSB(i,SSB_period,num_batch)
 
             else:
                 SEARCH_IN_SSB = SEARCH
@@ -770,7 +772,7 @@ if __name__ == '__main__':
                 for p in pars:
                     if alg_name == "UCB" or alg_name == "EPS_greedy" or alg_name == "THS":
                         number_of_cycles = 1
-                        bandit = Contextual_bandit(alg_name, ARMS_NUMBER_CIR, ITER_NUMBER_CIR, p, context_type = con_type, context_set=con_set)
+                        bandit = Contextual_bandit(alg_name, ARMS_NUMBER_CIR, ITER_NUMBER_CIR, p, con_type, SSB_period, num_batch, context_set=con_set)
                         cumulative_average, reward, reward_exploitation, exloitation_iterations  = bandit.run_bandit()
 
                         pickle.dump(len(bandit.existing_contexts), open(
