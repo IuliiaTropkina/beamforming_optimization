@@ -705,20 +705,20 @@ if __name__ == '__main__':
 
 
         avarage_sequential_search_dBm = 10 * np.log10(avarage_sequential_search / (10 ** (-3)))
-        pickle.dump(avarage_sequential_search, open(f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle", 'wb'))
+        pickle.dump(avarage_sequential_search, open(f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}_seed{seed_number}.pickle", 'wb'))
         pickle.dump(seq_search_exploitation_reward,
-                    open(f"{figures_path}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
+                    open(f"{figures_path}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}_seed{seed_number}.pickle",
                          'wb'))
         pickle.dump(seq_search_exploitation_it_num,
-                    open(f"{figures_path}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
+                    open(f"{figures_path}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}_seed{seed_number}.pickle",
                          'wb'))
 
 
         pickle.dump(sequential_search_time,
-                    open(f"{figures_path}/exp_expl_time_sequential_search_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
+                    open(f"{figures_path}/exp_expl_time_sequential_search_arms{int(ARMS_NUMBER_CIR)}_eps{eps}_seed{seed_number}.pickle",
                          'wb'))
         pickle.dump(eps_greedy_time,
-                    open(f"{figures_path}/exp_expl_time_eps_greedy_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
+                    open(f"{figures_path}/exp_expl_time_eps_greedy_arms{int(ARMS_NUMBER_CIR)}_eps{eps}_seed{seed_number}.pickle",
                          'wb'))
         random_choice = []
         for i in range(ITER_NUMBER_CIR):
@@ -726,7 +726,7 @@ if __name__ == '__main__':
             random_choice.append(cir_cache.all_rewards[random_num, i])
         avarage_random_choice = np.cumsum(random_choice) / (np.arange(ITER_NUMBER_CIR) + 1)
         pickle.dump(avarage_random_choice, open(
-            f"{figures_path}/cumulative_avarage_random_choice_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+            f"{figures_path}/cumulative_avarage_random_choice_arms{int(ARMS_NUMBER_CIR)}_seed{seed_number}.pickle", 'wb'))
 
         for con_set, con_type, cont_param in zip(context_sets,context_types, cont_params):
 
@@ -776,7 +776,7 @@ if __name__ == '__main__':
                         cumulative_average, reward, reward_exploitation, exloitation_iterations  = bandit.run_bandit()
 
                         pickle.dump(len(bandit.existing_contexts), open(
-                            f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
+                            f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{SSB_period}_consSSB{num_batch}_seed{seed_number}_seed{seed_number}.pickle",
                             'wb'))
 
                         fig7 = plt.figure()
@@ -880,15 +880,15 @@ if __name__ == '__main__':
                             bbox_inches='tight')
 
                     pickle.dump(cumulative_average, open(
-                        f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
+                        f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{num_batch}_seed{seed_number}.pickle",
                         'wb'))
 
                     pickle.dump(exloitation_iterations, open(
-                        f"{figures_path}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
+                        f"{figures_path}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{num_batch}_seed{seed_number}.pickle",
                         'wb'))
 
                     pickle.dump(reward_exploitation, open(
-                        f"{figures_path}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
+                        f"{figures_path}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{num_batch}_seed{seed_number}.pickle",
                         'wb'))
 
                     pickle.dump(np.array([cir_cache.max_reward]), open(
