@@ -187,7 +187,7 @@ class CIR_cache:
         self.max_reward = 0
 
         for frame_num in range(num_rt_frames_total):
-            file_name = f"{PATH}CIR_scene_frame{frame_num + 1}_grid_step{grid_step}_voxel_size{voxel_size}_freq{carrier_frequency}"
+            file_name = f"{PATH}/CIR_scene_frame{frame_num + 1}_grid_step{grid_step}_voxel_size{voxel_size}_freq{carrier_frequency}"
             data = pickle.load(open(f"{file_name}.pickle", "rb"))
             directions_of_arrival_RX = data[0]
             directions_of_arrival_RX = np.array(directions_of_arrival_RX)
