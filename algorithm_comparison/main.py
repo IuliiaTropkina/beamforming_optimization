@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pickle
 import trimesh
 import matplotlib.pyplot as plt
-
+import sys
 from scipy import spatial
 from datetime import datetime
 import os
@@ -521,7 +521,11 @@ class EPS_greedy:
             return self.arm_exploitation
 
 
-if __name__ == '__main__':
+def main():
+    folder_name = sys.argv[2]
+    seed_number = sys.argv[1]
+
+    np.random.seed(int(seed_number))
     # PLOTTING
     PLOT_ALL_REWARDS = False
     PLOT_CONTEXT = False
@@ -538,7 +542,7 @@ if __name__ == '__main__':
 
 
     P_TX = 1
-    carrier_frequency = 900e6
+    carrier_frequency = 28e9
 
     LOCATION_GRID_STEP = 15
 
@@ -557,34 +561,28 @@ if __name__ == '__main__':
     icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
 
 
-    SCENARIO_DURATION = 4
-    NUMBER_OF_CONS_SSB = 64
+    SCENARIO_DURATION = 8
+    NUMBERs_OF_CONS_SSB = np.array([4,8,64])
     SSB_periods = np.array([5,10,20,40,80,160])
     SSB_periods = SSB_periods*10**(-3)
     REAL_PROTOCOL = True
-    def is_SSB(iteration, SSB_period):
+    def is_SSB(iteration, SSB_period, num_batch):
 
         number_of_periods = SCENARIO_DURATION/SSB_period
 
         duration_of_one_sample = SCENARIO_DURATION/ITER_NUMBER_RANDOM
 
-        number_of_iterations_between_cons_SSB = int((5*10**(-3)/NUMBER_OF_CONS_SSB)/(duration_of_one_sample))
-        max_number_of_iteration_in_set = int((NUMBER_OF_CONS_SSB-1) * number_of_iterations_between_cons_SSB)
+        number_of_iterations_between_cons_SSB = int((5*10**(-3)/num_batch)/(duration_of_one_sample))
+        max_number_of_iteration_in_set = int((num_batch-1) * number_of_iterations_between_cons_SSB)
         number_of_iterations_per_one_SSB_period = int(SSB_period/duration_of_one_sample)
         if (iteration % number_of_iterations_per_one_SSB_period) % number_of_iterations_between_cons_SSB == 0 and (iteration % number_of_iterations_per_one_SSB_period) <= max_number_of_iteration_in_set:
             return True
         return False
 
 
-
-
-
-
-
-
     NUMBER_OF_ITERATIONS_TRAINING = ITER_NUMBER_CIR #250000
     # scenarios = ["uturn", "LOS_moving", "blockage"]
-    scenarios = ["uturn"]
+    scenarios = ["LOS"]
     #context_sets = [np.array(icosphere_context.vertices),np.array([[1, -1, 0], [1, 1, 0], [-1, -1, 0], [-1, 1, 0]]), np.array([[1, 1, 0]])]
     #context_sets = [np.array(icosphere_context.vertices)]
     location_grid = []
@@ -600,15 +598,15 @@ if __name__ == '__main__':
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
     #parameters = [[0.02]]#UCB
-    parameters = [[1]]  # eps greedy
+    parameters = [[0.15, 0.05, 0.4, 0.8, 0.95]]  # eps greedy
 
 
-    def calc(SSB_period):
+    def calc(SSB_period,num_batch):
 
 
         data = np.zeros((1,ITER_NUMBER_RANDOM))
         for i in range(ITER_NUMBER_RANDOM):
-            if is_SSB(i, SSB_period):
+            if is_SSB(i, SSB_period, num_batch):
                 data[0,i] = 1
 
 
@@ -619,7 +617,7 @@ if __name__ == '__main__':
         plt.xticks(fontname="Times New Roman", fontsize="16")
         plt.yticks(fontname="Times New Roman", fontsize="16")
 
-        plt.savefig(f"{selected_beams_folder}/packet_SSB_period{SSB_period}_cons_period{NUMBER_OF_CONS_SSB}.pdf",
+        plt.savefig(f"{selected_beams_folder}/packet_SSB_period{SSB_period}_cons_period{num_batch}.pdf",
                     dpi=700, bbox_inches='tight')
 
         sequential_search_reward = []
@@ -696,7 +694,7 @@ if __name__ == '__main__':
         plt.xticks(fontname="Times New Roman", fontsize="16")
         plt.yticks(fontname="Times New Roman", fontsize="16")
 
-        plt.savefig(f"{selected_beams_folder}/chosen_arm_sequantial_search_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pdf",
+        plt.savefig(f"{selected_beams_folder}/chosen_arm_sequantial_search_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}.pdf",
                     dpi=700,
                     bbox_inches='tight')
 
@@ -705,12 +703,12 @@ if __name__ == '__main__':
 
 
         avarage_sequential_search_dBm = 10 * np.log10(avarage_sequential_search / (10 ** (-3)))
-        pickle.dump(avarage_sequential_search, open(f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle", 'wb'))
+        pickle.dump(avarage_sequential_search, open(f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle", 'wb'))
         pickle.dump(seq_search_exploitation_reward,
-                    open(f"{figures_path}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                    open(f"{figures_path}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
                          'wb'))
         pickle.dump(seq_search_exploitation_it_num,
-                    open(f"{figures_path}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                    open(f"{figures_path}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
                          'wb'))
 
 
@@ -776,7 +774,7 @@ if __name__ == '__main__':
                         cumulative_average, reward, reward_exploitation, exloitation_iterations  = bandit.run_bandit()
 
                         pickle.dump(len(bandit.existing_contexts), open(
-                            f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                            f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
                             'wb'))
 
                         fig7 = plt.figure()
@@ -787,7 +785,7 @@ if __name__ == '__main__':
                         plt.yticks(fontname="Times New Roman", fontsize="16")
 
                         plt.savefig(
-                            f"{selected_beams_folder}/chosen_arm_type{con_type}_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pdf",
+                            f"{selected_beams_folder}/chosen_arm_type{con_type}_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}.pdf",
                             dpi=700,
                             bbox_inches='tight')
 
@@ -863,7 +861,7 @@ if __name__ == '__main__':
                         plt.yticks(fontname="Times New Roman", fontsize="16")
 
                         plt.savefig(
-                            f"{selected_beams_folder}/chosen_arm_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pdf",
+                            f"{selected_beams_folder}/chosen_arm_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}.pdf",
                             dpi=700,
                             bbox_inches='tight')
 
@@ -875,20 +873,20 @@ if __name__ == '__main__':
                         plt.yticks(fontname="Times New Roman", fontsize="16")
 
                         plt.savefig(
-                            f"{selected_beams_folder}/states_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pdf",
+                            f"{selected_beams_folder}/states_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}.pdf",
                             dpi=700,
                             bbox_inches='tight')
 
                     pickle.dump(cumulative_average, open(
-                        f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                        f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
                         'wb'))
 
                     pickle.dump(exloitation_iterations, open(
-                        f"{figures_path}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                        f"{figures_path}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
                         'wb'))
 
                     pickle.dump(reward_exploitation, open(
-                        f"{figures_path}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                        f"{figures_path}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
                         'wb'))
 
                     pickle.dump(np.array([cir_cache.max_reward]), open(
@@ -897,19 +895,20 @@ if __name__ == '__main__':
 
 
     for sc in scenarios:
-        folder_name_CIRS = f"CIRS_scenario_{sc}"
-        PATH = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Projects/voxel_engine/draft_engine/narvi/CIRS/{folder_name_CIRS}/"
+        # folder_name_CIRS = f"CIRS_scenario_{sc}"
+        # PATH = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Projects/voxel_engine/draft_engine/narvi/CIRS/{folder_name_CIRS}/"
+        PATH = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name}/CIRS"
+        PATH_json = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name}"
         RX_locations = []
         TX_locations = []
         for fr in range(1,50):
-            with open(f"{PATH}/scene_frame{fr}.json") as json_file:
+            with open(f"{PATH_json}/scene_frame{fr}.json") as json_file:
                 info = json.load(json_file)
             RX_locations.append(info["RX_location"][0])
             TX_locations.append(info["TX_location"][0])
         TX_locations = np.array(TX_locations)
         RX_locations = np.array(RX_locations)
-        folder_name_figures = f"scenario_{sc}"
-        figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}/{folder_test}"
+        figures_path = f"{PATH_json}/outpit"
         if not os.path.exists(figures_path):
             os.makedirs(figures_path)
 
@@ -954,4 +953,8 @@ if __name__ == '__main__':
         pickle.dump(oracle, open(
             f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
         for SSB_period in SSB_periods:
-            calc(SSB_period)
+            for n_b in NUMBERs_OF_CONS_SSB:
+                calc(SSB_period,n_b)
+
+
+main()

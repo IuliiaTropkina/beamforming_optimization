@@ -3,6 +3,12 @@ import matplotlib.pyplot as plt
 import pickle
 import numpy as np
 import trimesh
+import math
+
+def norm(v: np.ndarray) -> float:
+    assert v.ndim == 1
+    # assert v.dtype != np.complex128
+    return ((v * v).sum())**(1/2)
 
 def DL_simple():
     figures_path = "C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/scenario_uturn/DL_experiments"
@@ -868,9 +874,20 @@ def plot_real_protocol():
 
         plt.show()
 
+def calc_beam_wide(ico_subdivision):
+    icosphere = trimesh.creation.icosphere(subdivisions=ico_subdivision, radius=1.0, color=None)
+    triangle_size = norm(icosphere.vertices[icosphere.edges[0][0]] - icosphere.vertices[icosphere.edges[0][1]])
+    cone_angle = math.acos((2 - (triangle_size) ** 2) / 2)
+    print(cone_angle*180/math.pi, "o")
+    print(len(np.array(icosphere.vertices)))
+
 
 #DL_channel()
 #plot_time()
 #plot_exploitation_test()
 #plot_exploitation_test()
+
+
+calc_beam_wide(4)
+exit()
 plot_real_protocol()
