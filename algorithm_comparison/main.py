@@ -521,7 +521,7 @@ class EPS_greedy:
             return self.arm_exploitation
 
 
-def main():
+if __name__ == '__main__':
     folder_name = sys.argv[2]
     seed_number = sys.argv[1]
 
@@ -960,5 +960,3 @@ def main():
             for n_b in NUMBERs_OF_CONS_SSB:
                 calc(SSB_period,n_b)
 
-
-main()
