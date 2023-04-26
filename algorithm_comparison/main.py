@@ -761,7 +761,7 @@ def main():
                 ax = plt.axes(projection='3d')
 
                 scatter_plot = ax.scatter3D(beam_directions[:, 0], beam_directions[:, 1], beam_directions[:, 2])
-                plt.savefig(f"{figures_path}context.png", dpi=700, bbox_inches='tight')
+                plt.savefig(f"{figures_path}/context.png", dpi=700, bbox_inches='tight')
 
 
 
@@ -908,15 +908,19 @@ def main():
             TX_locations.append(info["TX_location"][0])
         TX_locations = np.array(TX_locations)
         RX_locations = np.array(RX_locations)
-        figures_path = f"{PATH_json}/outpit"
-        if not os.path.exists(figures_path):
+        figures_path = f"{PATH_json}/output"
+        try:
             os.makedirs(figures_path)
+        except:
+            print(f"Folder {figures_path} exists!")
 
         selected_beams_folder = f"{figures_path}/selected_beams"
 
 
-        if not os.path.exists(selected_beams_folder):
+        try:
             os.makedirs(selected_beams_folder)
+        except:
+            print(f"Folder {selected_beams_folder} exists!")
 
 
 
@@ -941,7 +945,7 @@ def main():
                     ax.set_xlabel('Power, W')
                     ax.set_ylabel("Number of times")
                     plt.grid()
-                    plt.savefig(f"{figures_path}beam_power_PDF_arms_num_{ARMS_NUMBER_CIR}_num{i}.pdf", dpi=700,
+                    plt.savefig(f"{figures_path}/beam_power_PDF_arms_num_{ARMS_NUMBER_CIR}_num{i}.pdf", dpi=700,
                                 bbox_inches='tight')
                     # plt.hist([x1, x2, x3, x4, x5], bins=int(180 / 15), normed=True,
                     #          color=colors, label=names)
