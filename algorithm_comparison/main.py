@@ -595,12 +595,12 @@ if __name__ == '__main__':
     #                    "THS"]
     cont_params = [len(np.array(icosphere_context.vertices)), LOCATION_GRID_STEP]
     folder_test = "real_protocol"
-    algorithm_names = ["EPS_greedy"] #"DQL","EPS_greedy"
+    algorithm_names = ["UCB"] #"DQL","EPS_greedy"
     # parameters = [[0.05, 0.1, 0.15],
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
-    #parameters = [[0.02]]#UCB
-    parameters = [[0.15, 0.05, 0.4, 0.8, 0.95]]  # eps greedy
+    parameters = [[0.01,0.02, 0.2, 0.5]]#UCB
+    #parameters = [[0.15, 0.05, 0.4, 0.8, 0.95]]  # eps greedy
 
 
     def calc(SSB_period,num_batch):
