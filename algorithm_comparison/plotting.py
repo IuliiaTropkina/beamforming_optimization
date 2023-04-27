@@ -4,6 +4,8 @@ import pickle
 import numpy as np
 import trimesh
 import math
+import os
+
 
 def norm(v: np.ndarray) -> float:
     assert v.ndim == 1
@@ -704,7 +706,7 @@ def plot_real_protocol():
 
     NUMBER_OF_ITERATIONS_TRAINING = ITER_NUMBER_CIR #250000
     # scenarios = ["uturn", "LOS_moving", "blockage"]
-    scenarios = ["uturn"]
+    scenarios = ["LOS"]
     #context_sets = [np.array(icosphere_context.vertices),np.array([[1, -1, 0], [1, 1, 0], [-1, -1, 0], [-1, 1, 0]]), np.array([[1, 1, 0]])]
     #context_sets = [np.array(icosphere_context.vertices)]
     location_grid = []
@@ -717,37 +719,44 @@ def plot_real_protocol():
     cont_params = [15, 162]
     cont_param_signs = ["Grid step", "Number of contexts"]
 
-    algorithm_names = ["EPS_greedy", "UCB", "THS"] #"DQL","EPS_greedy"
-    algorithm_legend_names = ["$\epsilon$-Greedy", "UCB", "THS"]
-    param_signs = ["$\epsilon$","c", "mean"]
+    algorithm_names = ["EPS_greedy", "UCB"] #"DQL","EPS_greedy"
+    algorithm_legend_names = ["$\epsilon$-Greedy", "UCB"]
+    param_signs = ["$\epsilon$","c"]
     # parameters = [[0.05, 0.1, 0.15],
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
-    parameters = [[0.7], [0.02], [0.5]]
+    parameters = [[0.15, 0.05, 0.4, 0.8, 0.95], [0.01,0.02, 0.2, 0.5]]
 
-    SCENARIO_DURATION = 3
-    NUMBER_OF_CONS_SSB = 4
+    NUMBERs_OF_CONS_SSB = np.array([4,8,64])
     SSB_period = np.array([5,10,20,40,80,160])
     SSB_period = SSB_period*10**(-3)
 
     window_size = 1000
 
-    for sc in scenarios:
-        number_of_cycles = 1
-        folder_test = "real_protocol"
-        folder_name_figures = f"scenario_{sc}"
-        figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}/{folder_test}"
 
-        max_reward = pickle.load(open(
-            f"{figures_path}/max_reward.pickle",
-            "rb"))
+    number_of_cycles = 1
+    folder_name_figures = "scenario_LOS_28"
+    # figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}"
+
+    PATH = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name_figures}/output"
+    figures_path = f"{PATH}/figures"
+    try:
+        os.makedirs(figures_path)
+    except:
+        print(f"Folder {figures_path} exists!")
+
+    max_reward = pickle.load(open(
+        f"{PATH}/max_reward.pickle",
+        "rb"))
 
 
-        test_name = f"real_protocol_SSB_period"
-        fig_name = f"sequential_seqrch{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
+    test_name = f"real_protocol_SSB_period"
+
+    for NUMBER_OF_CONS_SSB in NUMBERs_OF_CONS_SSB:
+        fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
         plt.figure(fig_name)
         oracle = pickle.load(open(
-            f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle",
+            f"{PATH}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle",
             "rb"))
         avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
         #avarage_oracle = cumulative_window(oracle, window_size)
@@ -761,11 +770,11 @@ def plot_real_protocol():
             #     "rb"))
 
             seq_search_exploitation_reward = pickle.load(open(
-                f"{figures_path}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                f"{PATH}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}_seed{1}.pickle",
                 "rb"))
 
             seq_search_exploitation_it_num = pickle.load(open(
-                f"{figures_path}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                f"{PATH}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}_seed{1}.pickle",
                 "rb"))
             oracle = np.array(oracle)
             oracle_for_seq = oracle[np.array(seq_search_exploitation_it_num)]
@@ -826,42 +835,53 @@ def plot_real_protocol():
                         #     "rb"))
                         # #plt.plot(average_reward, label=f"{algorithm_legend_name}, {param_sign} = {p}")
                         # plt.plot(average_reward, label=f"SSB period = {SSB_p}")
-
-
                         exloitation_iterations = pickle.load(open(
-                            f"{figures_path}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                            f"{PATH}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}_seed{seed_num}.pickle",
                             "rb"))
+                        diff= np.zeros(exloitation_iterations)
+                        for seed_num in range(1,11):
+                            exloitation_iterations = pickle.load(open(
+                                f"{PATH}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}_seed{seed_num}.pickle",
+                                "rb"))
 
-                        reward_exploitation = pickle.load(open(
-                            f"{figures_path}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
-                            "rb"))
-
-
-                        reward_exploitation_average = np.cumsum(reward_exploitation) / (np.arange(len(reward_exploitation)) + 1)
-                        #reward_exploitation_average = cumulative_window(reward_exploitation,window_size)
-
-                        reward_exploitation_average = reward_exploitation_average * max_reward
-                        reward_exploitation_average = 10 * np.log10(
-                            reward_exploitation_average / (10 ** (-3)))
+                            reward_exploitation = pickle.load(open(
+                                f"{PATH}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}_seed{seed_num}.pickle",
+                                "rb"))
 
 
-                        oracle_for_bandit = oracle[np.array(exloitation_iterations)]
-                        oracle_for_bandit_average = np.cumsum(oracle_for_bandit) / (np.arange(len(oracle_for_bandit)) + 1)
+                            reward_exploitation_average = np.cumsum(reward_exploitation) / (np.arange(len(reward_exploitation)) + 1)
+                            #reward_exploitation_average = cumulative_window(reward_exploitation,window_size)
 
-                        #oracle_for_bandit_average = cumulative_window(oracle_for_bandit,window_size)
+                            reward_exploitation_average = reward_exploitation_average * max_reward
+                            reward_exploitation_average = 10 * np.log10(
+                                reward_exploitation_average / (10 ** (-3)))
 
-                        oracle_for_bandit_average = oracle_for_bandit_average * max_reward
-                        oracle_for_bandit_average = 10 * np.log10(
-                            oracle_for_bandit_average / (10 ** (-3)))
-                        diff = oracle_for_bandit_average - reward_exploitation_average
-                        plt.plot(np.array(exloitation_iterations)/1000, diff, label=f"SSB period = {SSB_p}")
+
+                            oracle_for_bandit = oracle[np.array(exloitation_iterations)]
+                            oracle_for_bandit_average = np.cumsum(oracle_for_bandit) / (np.arange(len(oracle_for_bandit)) + 1)
+
+                            #oracle_for_bandit_average = cumulative_window(oracle_for_bandit,window_size)
+
+                            oracle_for_bandit_average = oracle_for_bandit_average * max_reward
+                            oracle_for_bandit_average = 10 * np.log10(
+                                oracle_for_bandit_average / (10 ** (-3)))
+                            diff += oracle_for_bandit_average - reward_exploitation_average
+                        diff = diff/10
+                        frames_per_data_frame = 10000  # 10000
+                        FRAME_NUMBER = 38
+                        ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
+                        ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
+                        SCENARIO_DURATION = 8
+                        duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_RANDOM
+
+                        plt.plot(np.array(exloitation_iterations)*duration_of_one_sample, diff, label=f"SSB period = {SSB_p}")
                     #plt.plot(oracle_for_bandit_average, label=f"Oracle, SSB period = {SSB_p}")
 
                     #plt.title(f"Grid step = {cont_params[0]}, Number of contexts = {num_ex_conts}")
                     plt.title(f"{algorithm_legend_name}, {param_sign} = {p}, {cont_param_sigh} = {cont_param}, Number of SSB = {NUMBER_OF_CONS_SSB}",fontsize=14)
 
                     plt.ylabel('Power loss, dB',fontsize=14)
-                    plt.xlabel("Sample, $10^{3}$",fontsize=14)
+                    plt.xlabel("Time, sec$",fontsize=14)
                     # plt.yscale("log")
                     plt.ylim(0,10)
                     plt.grid()
@@ -872,7 +892,7 @@ def plot_real_protocol():
                         f"{figures_path}/{fig_name}.pdf",
                         dpi=700, bbox_inches='tight')
 
-        plt.show()
+        # plt.show()
 
 def calc_beam_wide(ico_subdivision):
     icosphere = trimesh.creation.icosphere(subdivisions=ico_subdivision, radius=1.0, color=None)
@@ -888,6 +908,6 @@ def calc_beam_wide(ico_subdivision):
 #plot_exploitation_test()
 
 
-calc_beam_wide(4)
-exit()
+# calc_beam_wide(4)
+# exit()
 plot_real_protocol()
