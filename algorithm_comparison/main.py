@@ -705,20 +705,20 @@ if __name__ == '__main__':
 
 
         avarage_sequential_search_dBm = 10 * np.log10(avarage_sequential_search / (10 ** (-3)))
-        pickle.dump(avarage_sequential_search, open(f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}_seed{seed_number}.pickle", 'wb'))
+        pickle.dump(avarage_sequential_search, open(f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle", 'wb'))
         pickle.dump(seq_search_exploitation_reward,
-                    open(f"{figures_path}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}_seed{seed_number}.pickle",
+                    open(f"{figures_path}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
                          'wb'))
         pickle.dump(seq_search_exploitation_it_num,
-                    open(f"{figures_path}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}_seed{seed_number}.pickle",
+                    open(f"{figures_path}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
                          'wb'))
 
 
         pickle.dump(sequential_search_time,
-                    open(f"{figures_path}/exp_expl_time_sequential_search_arms{int(ARMS_NUMBER_CIR)}_eps{eps}_seed{seed_number}.pickle",
+                    open(f"{figures_path}/exp_expl_time_sequential_search_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
                          'wb'))
         pickle.dump(eps_greedy_time,
-                    open(f"{figures_path}/exp_expl_time_eps_greedy_arms{int(ARMS_NUMBER_CIR)}_eps{eps}_seed{seed_number}.pickle",
+                    open(f"{figures_path}/exp_expl_time_eps_greedy_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
                          'wb'))
         random_choice = []
         for i in range(ITER_NUMBER_CIR):
@@ -726,7 +726,7 @@ if __name__ == '__main__':
             random_choice.append(cir_cache.all_rewards[random_num, i])
         avarage_random_choice = np.cumsum(random_choice) / (np.arange(ITER_NUMBER_CIR) + 1)
         pickle.dump(avarage_random_choice, open(
-            f"{figures_path}/cumulative_avarage_random_choice_arms{int(ARMS_NUMBER_CIR)}_seed{seed_number}.pickle", 'wb'))
+            f"{figures_path}/cumulative_avarage_random_choice_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
         for con_set, con_type, cont_param in zip(context_sets,context_types, cont_params):
 
@@ -776,7 +776,7 @@ if __name__ == '__main__':
                         cumulative_average, reward, reward_exploitation, exloitation_iterations  = bandit.run_bandit()
 
                         pickle.dump(len(bandit.existing_contexts), open(
-                            f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{SSB_period}_consSSB{num_batch}_seed{seed_number}_seed{seed_number}.pickle",
+                            f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
                             'wb'))
 
                         fig7 = plt.figure()
@@ -895,70 +895,68 @@ if __name__ == '__main__':
                         f"{figures_path}/max_reward.pickle",
                         'wb'))
 
+    # folder_name_CIRS = f"CIRS_scenario_{sc}"
+    # PATH = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Projects/voxel_engine/draft_engine/narvi/CIRS/{folder_name_CIRS}/"
+    PATH = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name}/CIRS"
+    PATH_json = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name}"
+    RX_locations = []
+    TX_locations = []
+    for fr in range(1,50):
+        with open(f"{PATH_json}/scene_frame{fr}.json") as json_file:
+            info = json.load(json_file)
+        RX_locations.append(info["RX_location"][0])
+        TX_locations.append(info["TX_location"][0])
+    TX_locations = np.array(TX_locations)
+    RX_locations = np.array(RX_locations)
+    figures_path = f"{PATH_json}/output"
+    try:
+        os.makedirs(figures_path)
+    except:
+        print(f"Folder {figures_path} exists!")
 
-    for sc in scenarios:
-        # folder_name_CIRS = f"CIRS_scenario_{sc}"
-        # PATH = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Projects/voxel_engine/draft_engine/narvi/CIRS/{folder_name_CIRS}/"
-        PATH = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name}/CIRS"
-        PATH_json = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name}"
-        RX_locations = []
-        TX_locations = []
-        for fr in range(1,50):
-            with open(f"{PATH_json}/scene_frame{fr}.json") as json_file:
-                info = json.load(json_file)
-            RX_locations.append(info["RX_location"][0])
-            TX_locations.append(info["TX_location"][0])
-        TX_locations = np.array(TX_locations)
-        RX_locations = np.array(RX_locations)
-        figures_path = f"{PATH_json}/output"
-        try:
-            os.makedirs(figures_path)
-        except:
-            print(f"Folder {figures_path} exists!")
-
-        selected_beams_folder = f"{figures_path}/selected_beams"
+    selected_beams_folder = f"{figures_path}/selected_beams"
 
 
-        try:
-            os.makedirs(selected_beams_folder)
-        except:
-            print(f"Folder {selected_beams_folder} exists!")
+    try:
+        os.makedirs(selected_beams_folder)
+    except:
+        print(f"Folder {selected_beams_folder} exists!")
 
 
 
-        cir_cache = CIR_cache(PATH, FRAME_NUMBER, frames_per_data_frame=frames_per_data_frame)
-        cir_cache.get_all_rewards()
-        if PLOT_ALL_REWARDS:
-            cir_cache.plot_all_rewards()
-        if PLOT_REWARDS_DESTRIBUTION:
-            # beams_to_plot = [1,5,7,11]
-            beams_to_plot = np.linspace(1, ARMS_NUMBER_CIR - 1, ARMS_NUMBER_CIR)
-            binwidth = 100
-            for i, b in enumerate(beams_to_plot):
-                if sum(cir_cache.all_rewards[int(b), :]) != 0:
-                    # Set up the plot
-                    fig, ax = plt.subplots()
+    cir_cache = CIR_cache(PATH, FRAME_NUMBER, frames_per_data_frame=frames_per_data_frame)
+    cir_cache.get_all_rewards()
+    if PLOT_ALL_REWARDS:
+        cir_cache.plot_all_rewards()
+    if PLOT_REWARDS_DESTRIBUTION:
+        # beams_to_plot = [1,5,7,11]
+        beams_to_plot = np.linspace(1, ARMS_NUMBER_CIR - 1, ARMS_NUMBER_CIR)
+        binwidth = 100
+        for i, b in enumerate(beams_to_plot):
+            if sum(cir_cache.all_rewards[int(b), :]) != 0:
+                # Set up the plot
+                fig, ax = plt.subplots()
 
-                    ax.hist(cir_cache.all_rewards[int(b), :], bins=int(binwidth), density=True,
-                            color='blue', edgecolor='black')
+                ax.hist(cir_cache.all_rewards[int(b), :], bins=int(binwidth), density=True,
+                        color='blue', edgecolor='black')
 
-                    # Title and labels
-                    ax.set_title(f"Beam number {i}")
-                    ax.set_xlabel('Power, W')
-                    ax.set_ylabel("Number of times")
-                    plt.grid()
-                    plt.savefig(f"{figures_path}/beam_power_PDF_arms_num_{ARMS_NUMBER_CIR}_num{i}.pdf", dpi=700,
-                                bbox_inches='tight')
-                    # plt.hist([x1, x2, x3, x4, x5], bins=int(180 / 15), normed=True,
-                    #          color=colors, label=names)
-        oracle = []
-        for i in range(ITER_NUMBER_CIR):
-            oracle.append(max(cir_cache.all_rewards[:, i]))
-        avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
-        avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
-        pickle.dump(oracle, open(
-            f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
-        for SSB_period in SSB_periods:
-            for n_b in NUMBERs_OF_CONS_SSB:
-                calc(SSB_period,n_b)
+                # Title and labels
+                ax.set_title(f"Beam number {i}")
+                ax.set_xlabel('Power, W')
+                ax.set_ylabel("Number of times")
+                plt.grid()
+                plt.savefig(f"{figures_path}/beam_power_PDF_arms_num_{ARMS_NUMBER_CIR}_num{i}.pdf", dpi=700,
+                            bbox_inches='tight')
+                # plt.hist([x1, x2, x3, x4, x5], bins=int(180 / 15), normed=True,
+                #          color=colors, label=names)
+    oracle = []
+    for i in range(ITER_NUMBER_CIR):
+        oracle.append(max(cir_cache.all_rewards[:, i]))
+    avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
+    avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
+    pickle.dump(oracle, open(
+        f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+    for SSB_period in SSB_periods:
+        for n_b in NUMBERs_OF_CONS_SSB:
+            calc(SSB_period,n_b)
 
