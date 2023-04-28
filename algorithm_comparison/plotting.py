@@ -770,11 +770,11 @@ def plot_real_protocol():
             #     "rb"))
 
             seq_search_exploitation_reward = pickle.load(open(
-                f"{PATH}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}_seed{1}.pickle",
+                f"{PATH}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
                 "rb"))
 
             seq_search_exploitation_it_num = pickle.load(open(
-                f"{PATH}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}_seed{1}.pickle",
+                f"{PATH}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
                 "rb"))
             oracle = np.array(oracle)
             oracle_for_seq = oracle[np.array(seq_search_exploitation_it_num)]
@@ -815,9 +815,8 @@ def plot_real_protocol():
         for con_type, cont_param, cont_param_sigh in zip(context_types, cont_params, cont_param_signs):
 
 
-
             try:
-                num_ex_conts = pickle.load(open(f"{figures_path}/number_of_contexts_cont_par{cont_param}.pickle", "rb"))
+                num_ex_conts = pickle.load(open(f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle", "rb"))
                 print(f"Number of existing contexts for cont param {cont_param}: {num_ex_conts}")
             except:
                 print(f"Number of existing contexts for cont param {cont_param} is unknown!")
