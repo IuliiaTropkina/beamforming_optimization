@@ -116,8 +116,8 @@ def plot_bandit(figure_name, y, label, y_label, title, marker, log_mode=True):
     plt.xscale('linear')
     plt.plot(y, marker, label=label)
     plt.title(title)
-    plt.xlabel("Iteration", fontname="Times New Roman", fontsize="14")
-    plt.ylabel(y_label, fontname="Times New Roman", fontsize="14")
+    plt.xlabel("Iteration")
+    plt.ylabel(y_label)
     plt.legend()
     plt.grid()
     if UPDATE_FIGURES_WITH_RESULT:
@@ -230,12 +230,12 @@ class CIR_cache:
         fig5 = plt.figure()
         plt.imshow(self.all_rewards[:, 0:ITER_NUMBER_CIR - 1:1000], aspect="auto")
         col_bar2 = plt.colorbar()
-        col_bar2.set_label('Power, W', size=14, family='Times New Roman')
+        col_bar2.set_label('Power, W')
         # plt.show()
-        plt.xlabel("Iteration (every 5000)", fontname="Times New Roman", fontsize="16")
-        plt.ylabel("Arm nubmer", fontname="Times New Roman", fontsize="16")
-        plt.xticks(fontname="Times New Roman", fontsize="16")
-        plt.yticks(fontname="Times New Roman", fontsize="16")
+        plt.xlabel("Iteration (every 5000)")
+        plt.ylabel("Arm nubmer")
+        # plt.xticks(fontname="Times New Roman", fontsize="16")
+        # plt.yticks(fontname="Times New Roman", fontsize="16")
 
         plt.savefig(f"{figures_path}rewards{ARMS_NUMBER_CIR}.png", dpi=700,
                     bbox_inches='tight')
@@ -243,12 +243,12 @@ class CIR_cache:
         fig6 = plt.figure()
         plt.imshow(self.all_rewards_dBm[:, 0:ITER_NUMBER_CIR - 1:1000], aspect="auto")
         col_bar3 = plt.colorbar()
-        col_bar3.set_label('Power, dBm', size=14, family='Times New Roman')
+        col_bar3.set_label('Power, dBm')
         # plt.show()
-        plt.xlabel("Iteration (every 1000)", fontname="Times New Roman", fontsize="16")
-        plt.ylabel("Arm nubmer", fontname="Times New Roman", fontsize="16")
-        plt.xticks(fontname="Times New Roman", fontsize="16")
-        plt.yticks(fontname="Times New Roman", fontsize="16")
+        plt.xlabel("Iteration (every 1000)")
+        plt.ylabel("Arm nubmer")
+        # plt.xticks(fontname="Times New Roman", fontsize="16")
+        # plt.yticks(fontname="Times New Roman", fontsize="16")
 
         plt.savefig(f"{figures_path}rewards_dBm_{ARMS_NUMBER_CIR}.png", dpi=700,
                     bbox_inches='tight')
@@ -614,10 +614,10 @@ if __name__ == '__main__':
 
         fig7777 = plt.figure()
         plt.imshow(data[:,0:int(ITER_NUMBER_CIR / 16)], aspect="auto")
-        plt.xlabel("Data type", fontname="Times New Roman", fontsize="16")
-        plt.ylabel("Iteration", fontname="Times New Roman", fontsize="16")
-        plt.xticks(fontname="Times New Roman", fontsize="16")
-        plt.yticks(fontname="Times New Roman", fontsize="16")
+        plt.xlabel("Data type")
+        plt.ylabel("Iteration")
+        # plt.xticks(fontname="Times New Roman", fontsize="16")
+        # plt.yticks(fontname="Times New Roman", fontsize="16")
 
         plt.savefig(f"{selected_beams_folder}/packet_SSB_period{SSB_period}_cons_period{num_batch}.pdf",
                     dpi=700, bbox_inches='tight')
@@ -691,10 +691,10 @@ if __name__ == '__main__':
 
         fig75 = plt.figure()
         plt.imshow(chosen_beam_number_seq_search[:, 0:int(ITER_NUMBER_CIR)], aspect="auto")
-        plt.xlabel("Iteration", fontname="Times New Roman", fontsize="16")
-        plt.ylabel("Beam nubmer", fontname="Times New Roman", fontsize="16")
-        plt.xticks(fontname="Times New Roman", fontsize="16")
-        plt.yticks(fontname="Times New Roman", fontsize="16")
+        plt.xlabel("Iteration")
+        plt.ylabel("Beam nubmer")
+        # plt.xticks(fontname="Times New Roman", fontsize="16")
+        # plt.yticks(fontname="Times New Roman", fontsize="16")
 
         plt.savefig(f"{selected_beams_folder}/chosen_arm_sequantial_search_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}.pdf",
                     dpi=700,
@@ -781,10 +781,10 @@ if __name__ == '__main__':
 
                         fig7 = plt.figure()
                         plt.imshow(bandit.chosen_beam_number[:, 0:int(ITER_NUMBER_CIR/16)], aspect="auto")
-                        plt.xlabel("Iteration", fontname="Times New Roman", fontsize="16")
-                        plt.ylabel("Beam nubmer", fontname="Times New Roman", fontsize="16")
-                        plt.xticks(fontname="Times New Roman", fontsize="16")
-                        plt.yticks(fontname="Times New Roman", fontsize="16")
+                        plt.xlabel("Iteration")
+                        plt.ylabel("Beam nubmer")
+                        # plt.xticks(fontname="Times New Roman", fontsize="16")
+                        # plt.yticks(fontname="Times New Roman", fontsize="16")
 
                         plt.savefig(
                             f"{selected_beams_folder}/chosen_arm_type{con_type}_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}.pdf",
@@ -857,10 +857,10 @@ if __name__ == '__main__':
 
                         fig20 = plt.figure()
                         plt.imshow(actions_for_plot[:,0:len(all_actions) - 1:1000], aspect="auto")
-                        plt.xlabel("Iteration (every 1000)", fontname="Times New Roman", fontsize="16")
-                        plt.ylabel("Beam nubmer", fontname="Times New Roman", fontsize="16")
-                        plt.xticks(fontname="Times New Roman", fontsize="16")
-                        plt.yticks(fontname="Times New Roman", fontsize="16")
+                        plt.xlabel("Iteration (every 1000)")
+                        plt.ylabel("Beam nubmer") #, fontname="Times New Roman", fontsize="16"
+                        # plt.xticks(fontname="Times New Roman", fontsize="16")
+                        # plt.yticks(fontname="Times New Roman", fontsize="16")
 
                         plt.savefig(
                             f"{selected_beams_folder}/chosen_arm_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}.pdf",
@@ -869,10 +869,10 @@ if __name__ == '__main__':
 
                         fig21 = plt.figure()
                         plt.imshow(states_for_plot[:,0:len(all_actions) - 1:1000], aspect="auto")
-                        plt.xlabel("Iteration (every 1000)", fontname="Times New Roman", fontsize="16")
-                        plt.ylabel("State number", fontname="Times New Roman", fontsize="16")
-                        plt.xticks(fontname="Times New Roman", fontsize="16")
-                        plt.yticks(fontname="Times New Roman", fontsize="16")
+                        plt.xlabel("Iteration (every 1000)")
+                        plt.ylabel("State number")
+                        # plt.xticks(fontname="Times New Roman", fontsize="16")
+                        # plt.yticks(fontname="Times New Roman", fontsize="16")
 
                         plt.savefig(
                             f"{selected_beams_folder}/states_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}.pdf",
