@@ -548,7 +548,7 @@ if __name__ == '__main__':
 
     LOCATION_GRID_STEP = 15
 
-    frames_per_data_frame = 1 #10000
+    frames_per_data_frame = 10000 #10000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
@@ -956,6 +956,8 @@ if __name__ == '__main__':
     avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
     pickle.dump(oracle, open(
         f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+
+    exit()
     for SSB_period in SSB_periods:
         for n_b in NUMBERs_OF_CONS_SSB:
             calc(SSB_period,n_b)
