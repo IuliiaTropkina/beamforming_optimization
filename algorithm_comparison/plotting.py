@@ -845,7 +845,8 @@ def plot_real_protocol():
                             "rb"))
 
                         diff= np.zeros(len(exloitation_iterations))
-                        for seed_num in range(1,11):
+                        number_of_seeds = 10
+                        for seed_num in range(1,number_of_seeds+1):
                             exloitation_iterations = pickle.load(open(
                                 f"{PATH}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}_seed{seed_num}.pickle",
                                 "rb"))
@@ -872,7 +873,7 @@ def plot_real_protocol():
                             oracle_for_bandit_average = 10 * np.log10(
                                 oracle_for_bandit_average / (10 ** (-3)))
                             diff += oracle_for_bandit_average - reward_exploitation_average
-                        diff = diff/10
+                        diff = diff/number_of_seeds
                         frames_per_data_frame = 10000  # 10000
                         FRAME_NUMBER = 38
                         ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
