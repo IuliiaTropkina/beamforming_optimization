@@ -688,8 +688,15 @@ def plot_real_protocol():
             new_arr[i] = sum(arr[i:i+window_size])/window_size
         return new_arr
 
-    frames_per_data_frame = 10000 #10000
+    frames_per_data_frame = 1 #10000
     FRAME_NUMBER = 38
+
+    ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
+    ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
+    SCENARIO_DURATION = 8
+    duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_RANDOM
+
+
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
 
@@ -758,16 +765,39 @@ def plot_real_protocol():
 
     test_name = f"real_protocol_SSB_period"
 
+    oracle = pickle.load(open(
+        f"{PATH}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle",
+        "rb"))
+    oracle = oracle*max_reward
+    oracle_dBm = 10 * np.log10(oracle / (10 ** (-3)))
+    avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
+    # avarage_oracle = cumulative_window(oracle, window_size)
+    avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
+
+
+    fig_name3 = f"oracle_{test_name}_arms{ARMS_NUMBER_CIR}_dBm"
+    plt.figure(fig_name3)
+
+    its = np.linspace(0,ITER_NUMBER_CIR)
+    plt.plot(its * duration_of_one_sample, oracle_dBm)
+
+
+    plt.ylabel('Power, dB',fontsize=14)
+    plt.xlabel("Time, sec",fontsize=14)
+    # plt.yscale("log")
+    # plt.ylim(0,10)
+    plt.grid()
+    plt.legend(prop={'size': 12})
+    plt.yticks(fontsize=12)
+    plt.xticks(fontsize=12)
+    plt.savefig(
+        f"{figures_path}/{fig_name3}.pdf",
+        dpi=700, bbox_inches='tight')
+
     for NUMBER_OF_CONS_SSB in NUMBERs_OF_CONS_SSB:
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
         plt.figure(fig_name)
-        oracle = pickle.load(open(
-            f"{PATH}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle",
-            "rb"))
-        avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
-        #avarage_oracle = cumulative_window(oracle, window_size)
-        avarage_oracle = avarage_oracle*max_reward
-        avarage_oracle = 10 * np.log10(avarage_oracle / (10 ** (-3)))
+
 
         # plt.plot(avarage_oracle, label="Oracle")
         for SSB_p in SSB_period:
@@ -874,12 +904,7 @@ def plot_real_protocol():
                                 oracle_for_bandit_average / (10 ** (-3)))
                             diff += oracle_for_bandit_average - reward_exploitation_average
                         diff = diff/number_of_seeds
-                        frames_per_data_frame = 10000  # 10000
-                        FRAME_NUMBER = 38
-                        ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
-                        ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
-                        SCENARIO_DURATION = 8
-                        duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_RANDOM
+
 
                         plt.plot(np.array(exloitation_iterations)*duration_of_one_sample, diff, label=f"SSB period = {SSB_p}")
                     #plt.plot(oracle_for_bandit_average, label=f"Oracle, SSB period = {SSB_p}")
