@@ -839,7 +839,7 @@ def plot_real_protocol():
                             "rb"))
 
                         diff= np.zeros(len(exloitation_iterations))
-                        for seed_num in range(1,11):
+                        for seed_num in range(1,3):
                             exloitation_iterations = pickle.load(open(
                                 f"{PATH}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}_seed{seed_num}.pickle",
                                 "rb"))
