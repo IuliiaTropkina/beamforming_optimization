@@ -887,7 +887,7 @@ def plot_real_protocol():
                     plt.title(f"{algorithm_legend_name}, {param_sign} = {p}, {cont_param_sigh} = {cont_param}, Number of SSB = {NUMBER_OF_CONS_SSB}",fontsize=14)
 
                     plt.ylabel('Power loss, dB',fontsize=14)
-                    plt.xlabel("Time, sec$",fontsize=14)
+                    plt.xlabel("Time, sec",fontsize=14)
                     # plt.yscale("log")
                     plt.ylim(0,10)
                     plt.grid()
