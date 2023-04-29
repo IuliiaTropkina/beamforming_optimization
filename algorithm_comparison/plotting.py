@@ -697,8 +697,6 @@ def plot_real_protocol():
     duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_RANDOM
 
 
-    ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
-    ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
 
     SUBDIVISION = 2
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
@@ -768,6 +766,8 @@ def plot_real_protocol():
     oracle = pickle.load(open(
         f"{PATH}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle",
         "rb"))
+    print("!!!!!!!!!!!!!!!!!!!")
+    print(len(oracle))
     oracle = oracle*max_reward
     oracle_dBm = 10 * np.log10(oracle / (10 ** (-3)))
     avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
