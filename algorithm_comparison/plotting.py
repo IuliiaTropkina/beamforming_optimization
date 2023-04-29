@@ -900,23 +900,23 @@ def plot_real_protocol():
                         dpi=700, bbox_inches='tight')
 
 
-                    test_name = f"real_protocol_SSB_period"
-                    fig_name = f"oracle_{test_name}_arms{ARMS_NUMBER_CIR}"
+    test_name = f"real_protocol_SSB_period"
+    fig_name2 = f"oracle_{test_name}_arms{ARMS_NUMBER_CIR}"
 
-                    plt.plot(np.array(exloitation_iterations) * duration_of_one_sample, oracle_for_bandit_average)
+    plt.plot(np.array(exloitation_iterations) * duration_of_one_sample, oracle_for_bandit_average)
 
 
-                    plt.ylabel('Power, dB',fontsize=14)
-                    plt.xlabel("Time, sec",fontsize=14)
-                    # plt.yscale("log")
-                    plt.ylim(0,10)
-                    plt.grid()
-                    plt.legend(prop={'size': 12})
-                    plt.yticks(fontsize=12)
-                    plt.xticks(fontsize=12)
-                    plt.savefig(
-                        f"{figures_path}/{fig_name}.pdf",
-                        dpi=700, bbox_inches='tight')
+    plt.ylabel('Power, dB',fontsize=14)
+    plt.xlabel("Time, sec",fontsize=14)
+    # plt.yscale("log")
+    plt.ylim(0,10)
+    plt.grid()
+    plt.legend(prop={'size': 12})
+    plt.yticks(fontsize=12)
+    plt.xticks(fontsize=12)
+    plt.savefig(
+        f"{figures_path}/{fig_name2}.pdf",
+        dpi=700, bbox_inches='tight')
 
 
         # plt.show()
