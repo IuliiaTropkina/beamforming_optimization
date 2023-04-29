@@ -778,7 +778,7 @@ def plot_real_protocol():
     fig_name3 = f"oracle_{test_name}_arms{ARMS_NUMBER_CIR}_dBm"
     plt.figure(fig_name3)
 
-    its = np.linspace(0,ITER_NUMBER_CIR)
+    its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
     plt.plot(its * duration_of_one_sample, oracle_dBm)
 
 
