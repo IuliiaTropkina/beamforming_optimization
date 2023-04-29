@@ -902,7 +902,7 @@ def plot_real_protocol():
 
     test_name = f"real_protocol_SSB_period"
     fig_name2 = f"oracle_{test_name}_arms{ARMS_NUMBER_CIR}"
-
+    plt.figure(fig_name2)
     plt.plot(np.array(exloitation_iterations) * duration_of_one_sample, oracle_for_bandit_average)
 
 
