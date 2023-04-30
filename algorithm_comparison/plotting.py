@@ -733,7 +733,7 @@ def plot_real_protocol():
 
 
     #param_signs = ["$\epsilon$","c"]
-    param_signs = ["\epsilon"]
+    param_signs = ["$\epsilon$"]
     # parameters = [[0.05, 0.1, 0.15],
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
