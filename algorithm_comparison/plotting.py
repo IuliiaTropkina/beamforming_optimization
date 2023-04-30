@@ -769,7 +769,7 @@ def plot_real_protocol():
     print("!!!!!!!!!!!!!!!!!!!")
     print(len(oracle))
     oracle = oracle*max_reward
-    oracle_dBm = 10 * np.log10(oracle / (10 ** (-3)))
+    oracle_dBm = 10 * np.log10(oracle )
     avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
     # avarage_oracle = cumulative_window(oracle, window_size)
     avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
