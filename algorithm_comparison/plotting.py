@@ -696,7 +696,8 @@ def plot_real_protocol():
     SCENARIO_DURATION = 8
     duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_RANDOM
 
-
+    BS_power_dBi = 25
+    UE_power_dBi = 5
 
     SUBDIVISION = 2
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
@@ -768,7 +769,7 @@ def plot_real_protocol():
         "rb"))
 
     oracle = oracle*max_reward
-    oracle_dBm = 10 * np.log10(oracle)
+    oracle_dBm = 10 * np.log10(oracle) + BS_power_dBi + UE_power_dBi
     avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
     # avarage_oracle = cumulative_window(oracle, window_size)
     # avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
@@ -793,7 +794,7 @@ def plot_real_protocol():
     plt.savefig(
         f"{figures_path}/{fig_name3}.pdf",
         dpi=700, bbox_inches='tight')
-    exit()
+
     for NUMBER_OF_CONS_SSB in NUMBERs_OF_CONS_SSB:
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
         plt.figure(fig_name)
@@ -830,7 +831,7 @@ def plot_real_protocol():
             seq_search_exploitation_reward_average = 10 * np.log10(seq_search_exploitation_reward_average / (10 ** (-3)))
 
             diff_seq_search = oracle_for_seq_average - seq_search_exploitation_reward_average
-            plt.plot(np.array(seq_search_exploitation_it_num)/1000,diff_seq_search, label=f"SSB period = {SSB_p}")
+            plt.plot(np.array(seq_search_exploitation_it_num)*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
 
         #plt.plot(oracle_for_seq_average, label=f"Oracle, SSB period = {SSB_p}")
 

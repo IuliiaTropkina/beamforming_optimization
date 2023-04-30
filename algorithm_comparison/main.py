@@ -527,8 +527,8 @@ class EPS_greedy:
 if __name__ == '__main__':
     folder_name = sys.argv[2]
     seed_number = sys.argv[1]
-
-    np.random.seed(int(seed_number))
+    #
+    # np.random.seed(int(seed_number))
     # PLOTTING
     PLOT_ALL_REWARDS = False
     PLOT_CONTEXT = False
@@ -958,7 +958,7 @@ if __name__ == '__main__':
     pickle.dump(np.array([cir_cache.max_reward]), open(
         f"{figures_path}/max_reward.pickle",
         'wb'))
-    exit()
+
     for SSB_period in SSB_periods:
         for n_b in NUMBERs_OF_CONS_SSB:
             calc(SSB_period,n_b)
