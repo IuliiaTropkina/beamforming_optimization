@@ -832,7 +832,7 @@ def plot_real_protocol():
 
 
 
-            plt.plot(np.array(seq_search_exploitation_it_num)*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
+            plt.plot(np.array(seq_search_exploitation_it_num[window_size:len(seq_search_exploitation_it_num)])*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
 
         #plt.plot(oracle_for_seq_average, label=f"Oracle, SSB period = {SSB_p}")
 
@@ -909,7 +909,7 @@ def plot_real_protocol():
 
                         diff = 10 * np.log10(diff)
                         diff = cumulative_window(diff, window_size)
-                        plt.plot(np.array(exloitation_iterations)*duration_of_one_sample, diff, label=f"SSB period = {SSB_p}")
+                        plt.plot(np.array(exloitation_iterations[window_size:len(exloitation_iterations)])*duration_of_one_sample, diff, label=f"SSB period = {SSB_p}")
                     #plt.plot(oracle_for_bandit_average, label=f"Oracle, SSB period = {SSB_p}")
 
                     #plt.title(f"Grid step = {cont_params[0]}, Number of contexts = {num_ex_conts}")
