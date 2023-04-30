@@ -766,8 +766,7 @@ def plot_real_protocol():
     oracle = pickle.load(open(
         f"{PATH}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle",
         "rb"))
-    print("!!!!!!!!!!!!!!!!!!!")
-    print(len(oracle))
+
     oracle = oracle*max_reward
     oracle_dBm = 10 * np.log10(oracle )
     avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)

@@ -32,7 +32,8 @@ import tensorflow.keras as keras
 def E2Power(E, Freq):
     c = 299792458  # [m / sec]
     Lambda = c / Freq
-    Power = (Lambda ** 2 * (np.abs(E)) ** 2) / (4 * math.pi)
+    #Power = (Lambda ** 2 * (np.abs(E)) ** 2) / (4 * math.pi)
+    Power = np.abs(E)**2
     # Power = (Lambda**2*(np.abs(E))**2)/(4*math.pi*Z0)
     return Power
 
