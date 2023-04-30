@@ -892,9 +892,7 @@ if __name__ == '__main__':
                         f"{figures_path}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{num_batch}_seed{seed_number}.pickle",
                         'wb'))
 
-                    pickle.dump(np.array([cir_cache.max_reward]), open(
-                        f"{figures_path}/max_reward.pickle",
-                        'wb'))
+
 
     # folder_name_CIRS = f"CIRS_scenario_{sc}"
     # PATH = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Projects/voxel_engine/draft_engine/narvi/CIRS/{folder_name_CIRS}/"
@@ -958,6 +956,9 @@ if __name__ == '__main__':
     pickle.dump(oracle, open(
         f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
+    pickle.dump(np.array([cir_cache.max_reward]), open(
+        f"{figures_path}/max_reward.pickle",
+        'wb'))
     exit()
     for SSB_period in SSB_periods:
         for n_b in NUMBERs_OF_CONS_SSB:
