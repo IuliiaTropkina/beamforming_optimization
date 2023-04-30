@@ -952,7 +952,6 @@ if __name__ == '__main__':
     for i in range(ITER_NUMBER_CIR):
         oracle.append(max(cir_cache.all_rewards[:, i]))
     avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
-    avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
     pickle.dump(oracle, open(
         f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 

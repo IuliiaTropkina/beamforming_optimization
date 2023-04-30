@@ -771,7 +771,7 @@ def plot_real_protocol():
     oracle_dBm = 10 * np.log10(oracle )
     avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
     # avarage_oracle = cumulative_window(oracle, window_size)
-    avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
+    # avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
 
 
     fig_name3 = f"oracle_{test_name}_arms{ARMS_NUMBER_CIR}_dBm"
