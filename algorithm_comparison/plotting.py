@@ -683,10 +683,13 @@ def plot_exploitation_test():
 def plot_real_protocol():
 
     def cumulative_window(arr, window_size):
-        new_arr = np.zeros(len(arr))
-        for i in range(len(arr)-window_size):
-            new_arr[i] = sum(arr[i:i+window_size])/window_size
+        new_arr = np.zeros(len(arr)-window_size+1)
+        n=0
+        for i in range(window_size,len(arr)+1):
+            new_arr[n] = sum(arr[i-window_size:i])/window_size
+            n +=1
         return new_arr
+
 
     frames_per_data_frame = 10000 #10000
     FRAME_NUMBER = 38
@@ -812,22 +815,23 @@ def plot_real_protocol():
             seq_search_exploitation_it_num = pickle.load(open(
                 f"{PATH}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
                 "rb"))
+            seq_search_exploitation_reward = seq_search_exploitation_reward * max_reward
             oracle = np.array(oracle)
             oracle_for_seq = oracle[np.array(seq_search_exploitation_it_num)]
-            oracle_for_seq_average = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
+            #oracle_for_seq_average = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
             #oracle_for_seq_average = cumulative_window(oracle_for_seq, window_size)
-            oracle_for_seq_average = 10 * np.log10(oracle_for_seq_average / (10 ** (-3)))
+            # oracle_for_seq_average = 10 * np.log10(oracle_for_seq / (10 ** (-3)))
 
-            seq_search_exploitation_reward = seq_search_exploitation_reward*max_reward
-            seq_search_exploitation_reward_average = np.cumsum(seq_search_exploitation_reward) / (
-                        np.arange(len(seq_search_exploitation_reward)) + 1)
+            diff_seq_search = oracle_for_seq - seq_search_exploitation_reward
+            # seq_search_exploitation_reward_average = np.cumsum(seq_search_exploitation_reward) / (
+            #             np.arange(len(seq_search_exploitation_reward)) + 1)
 
             #seq_search_exploitation_reward_average = cumulative_window(seq_search_exploitation_reward, window_size)
+            diff_seq_search = 10 * np.log10(diff_seq_search)
+            diff_seq_search = cumulative_window(diff_seq_search, window_size)
 
 
-            seq_search_exploitation_reward_average = 10 * np.log10(seq_search_exploitation_reward_average / (10 ** (-3)))
 
-            diff_seq_search = oracle_for_seq_average - seq_search_exploitation_reward_average
             plt.plot(np.array(seq_search_exploitation_it_num)*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
 
         #plt.plot(oracle_for_seq_average, label=f"Oracle, SSB period = {SSB_p}")
@@ -873,7 +877,7 @@ def plot_real_protocol():
                             "rb"))
 
                         diff = np.zeros(len(exloitation_iterations))
-                        number_of_seeds = 1
+                        number_of_seeds = 10
                         for seed_num in range(1,number_of_seeds+1):
                             exloitation_iterations = pickle.load(open(
                                 f"{PATH}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}_seed{seed_num}.pickle",
@@ -884,25 +888,26 @@ def plot_real_protocol():
                                 "rb"))
 
                             reward_exploitation = reward_exploitation * max_reward
-                            reward_exploitation_average = np.cumsum(reward_exploitation) / (np.arange(len(reward_exploitation)) + 1)
+                            # reward_exploitation_average = np.cumsum(reward_exploitation) / (np.arange(len(reward_exploitation)) + 1)
                             #reward_exploitation_average = cumulative_window(reward_exploitation,window_size)
 
 
-                            reward_exploitation_average = 10 * np.log10(
-                                reward_exploitation_average / (10 ** (-3)))
+                            # reward_exploitation_average = 10 * np.log10(
+                            #     reward_exploitation_average / (10 ** (-3)))
 
 
                             oracle_for_bandit = oracle[np.array(exloitation_iterations)]
-                            oracle_for_bandit_average = np.cumsum(oracle_for_bandit) / (np.arange(len(oracle_for_bandit)) + 1)
+                            # oracle_for_bandit_average = np.cumsum(oracle_for_bandit) / (np.arange(len(oracle_for_bandit)) + 1)
 
                             #oracle_for_bandit_average = cumulative_window(oracle_for_bandit,window_size)
 
-                            oracle_for_bandit_average = 10 * np.log10(
-                                oracle_for_bandit_average / (10 ** (-3)))
-                            diff += oracle_for_bandit_average - reward_exploitation_average
+                            # oracle_for_bandit_average = 10 * np.log10(
+                            #     oracle_for_bandit_average / (10 ** (-3)))
+                            diff += oracle_for_bandit - reward_exploitation
                         diff = diff/number_of_seeds
 
-
+                        diff = 10 * np.log10(diff)
+                        diff = cumulative_window(diff, window_size)
                         plt.plot(np.array(exloitation_iterations)*duration_of_one_sample, diff, label=f"SSB period = {SSB_p}")
                     #plt.plot(oracle_for_bandit_average, label=f"Oracle, SSB period = {SSB_p}")
 
