@@ -742,7 +742,8 @@ def plot_real_protocol():
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
     #parameters = [[0.15, 0.05, 0.4, 0.8, 0.95], [0.01,0.02, 0.2, 0.5]]
-    parameters = [[0.01,0.02, 0.2, 0.5]]
+    # parameters = [[ 0.8], [0.01]]
+    parameters = [[0.01]]
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
     SSB_period = np.array([5,10,20,40,80,160])
     SSB_period = SSB_period*10**(-3)
@@ -828,9 +829,9 @@ def plot_real_protocol():
             #             np.arange(len(seq_search_exploitation_reward)) + 1)
 
             #seq_search_exploitation_reward_average = cumulative_window(seq_search_exploitation_reward, window_size)
-            diff_seq_search = 10 * np.log10(diff_seq_search)
-            diff_seq_search = cumulative_window(diff_seq_search, window_size)
 
+            diff_seq_search = cumulative_window(diff_seq_search, window_size)
+            #diff_seq_search = 10 * np.log10(diff_seq_search)
 
 
             plt.plot(np.array(seq_search_exploitation_it_num[window_size-1:len(seq_search_exploitation_it_num)])*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
@@ -850,7 +851,7 @@ def plot_real_protocol():
             f"{figures_path}/{fig_name}.pdf",
             dpi=700, bbox_inches='tight')
 
-
+        exit()
         for con_type, cont_param, cont_param_sigh in zip(context_types, cont_params, cont_param_signs):
 
 
@@ -908,8 +909,9 @@ def plot_real_protocol():
                             diff += oracle_for_bandit - reward_exploitation
                         diff = diff/number_of_seeds
 
-                        diff = 10 * np.log10(diff)
+
                         diff = cumulative_window(diff, window_size)
+                        diff = 10 * np.log10(diff)
                         plt.plot(np.array(exloitation_iterations[window_size-1:len(exloitation_iterations)])*duration_of_one_sample, diff, label=f"SSB period = {SSB_p}")
                     #plt.plot(oracle_for_bandit_average, label=f"Oracle, SSB period = {SSB_p}")
 
