@@ -528,7 +528,7 @@ if __name__ == '__main__':
     folder_name = sys.argv[2]
     seed_number = sys.argv[1]
     #
-    # np.random.seed(int(seed_number))
+    np.random.seed(int(seed_number))
     # PLOTTING
     PLOT_ALL_REWARDS = False
     PLOT_CONTEXT = False
