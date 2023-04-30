@@ -770,7 +770,6 @@ def plot_real_protocol():
 
     oracle = oracle*max_reward
     oracle_dBm = 10 * np.log10(oracle) + BS_power_dBi + UE_power_dBi
-    avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
     # avarage_oracle = cumulative_window(oracle, window_size)
     # avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
 
@@ -817,17 +816,15 @@ def plot_real_protocol():
             oracle_for_seq = oracle[np.array(seq_search_exploitation_it_num)]
             oracle_for_seq_average = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
             #oracle_for_seq_average = cumulative_window(oracle_for_seq, window_size)
-            oracle_for_seq_average = oracle_for_seq_average * max_reward
             oracle_for_seq_average = 10 * np.log10(oracle_for_seq_average / (10 ** (-3)))
 
-
+            seq_search_exploitation_reward = seq_search_exploitation_reward*max_reward
             seq_search_exploitation_reward_average = np.cumsum(seq_search_exploitation_reward) / (
                         np.arange(len(seq_search_exploitation_reward)) + 1)
 
             #seq_search_exploitation_reward_average = cumulative_window(seq_search_exploitation_reward, window_size)
 
 
-            seq_search_exploitation_reward_average = seq_search_exploitation_reward_average * max_reward
             seq_search_exploitation_reward_average = 10 * np.log10(seq_search_exploitation_reward_average / (10 ** (-3)))
 
             diff_seq_search = oracle_for_seq_average - seq_search_exploitation_reward_average
@@ -875,7 +872,7 @@ def plot_real_protocol():
                             f"{PATH}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}_seed{1}.pickle",
                             "rb"))
 
-                        diff= np.zeros(len(exloitation_iterations))
+                        diff = np.zeros(len(exloitation_iterations))
                         number_of_seeds = 10
                         for seed_num in range(1,number_of_seeds+1):
                             exloitation_iterations = pickle.load(open(
@@ -886,11 +883,11 @@ def plot_real_protocol():
                                 f"{PATH}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}_seed{seed_num}.pickle",
                                 "rb"))
 
-
+                            reward_exploitation = reward_exploitation * max_reward
                             reward_exploitation_average = np.cumsum(reward_exploitation) / (np.arange(len(reward_exploitation)) + 1)
                             #reward_exploitation_average = cumulative_window(reward_exploitation,window_size)
 
-                            reward_exploitation_average = reward_exploitation_average * max_reward
+
                             reward_exploitation_average = 10 * np.log10(
                                 reward_exploitation_average / (10 ** (-3)))
 
@@ -900,11 +897,10 @@ def plot_real_protocol():
 
                             #oracle_for_bandit_average = cumulative_window(oracle_for_bandit,window_size)
 
-                            oracle_for_bandit_average = oracle_for_bandit_average * max_reward
                             oracle_for_bandit_average = 10 * np.log10(
                                 oracle_for_bandit_average / (10 ** (-3)))
                             diff += oracle_for_bandit_average - reward_exploitation_average
-                        diff = diff
+                        diff = diff/number_of_seeds
 
 
                         plt.plot(np.array(exloitation_iterations)*duration_of_one_sample, diff, label=f"SSB period = {SSB_p}")
