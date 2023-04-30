@@ -861,6 +861,7 @@ def plot_real_protocol():
             for alg_name, pars, algorithm_legend_name, param_sign in zip(algorithm_names, parameters, algorithm_legend_names, param_signs):
 
                 for p in pars:
+                    print(p)
                     test_name = f"real_protocol_SSB_period"
                     fig_name = f"{con_type}_{alg_name}_{p}_{cont_param}_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
 
@@ -930,7 +931,7 @@ def plot_real_protocol():
     test_name = f"real_protocol_SSB_period"
     fig_name2 = f"oracle_{test_name}_arms{ARMS_NUMBER_CIR}"
     plt.figure(fig_name2)
-    plt.plot(np.array(exloitation_iterations) * duration_of_one_sample, oracle_for_bandit_average)
+    plt.plot(np.array(exloitation_iterations) * duration_of_one_sample, oracle_for_bandit)
 
 
     plt.ylabel('Power, dB',fontsize=14)
