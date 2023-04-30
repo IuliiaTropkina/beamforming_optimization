@@ -688,7 +688,7 @@ def plot_real_protocol():
             new_arr[i] = sum(arr[i:i+window_size])/window_size
         return new_arr
 
-    frames_per_data_frame = 1 #10000
+    frames_per_data_frame = 10000 #10000
     FRAME_NUMBER = 38
 
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
@@ -768,7 +768,7 @@ def plot_real_protocol():
         "rb"))
 
     oracle = oracle*max_reward
-    oracle_dBm = 10 * np.log10(oracle )
+    oracle_dBm = 10 * np.log10(oracle)
     avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
     # avarage_oracle = cumulative_window(oracle, window_size)
     # avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
