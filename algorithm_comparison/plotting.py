@@ -832,6 +832,10 @@ def plot_real_protocol():
             plt.plot(np.array(seq_search_exploitation_it_num[
                               window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
                      seq_search_exploitation_reward, label=f"SSB period = {SSB_p}")
+
+            for el_num,el in enumerate(seq_search_exploitation_reward):
+                if el==0:
+                    print(f"it_num, {el_num}")
             plt.plot(np.array(seq_search_exploitation_it_num[
                               window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
                      oracle_for_seq, label=f"oracle, SSB period = {SSB_p}")
