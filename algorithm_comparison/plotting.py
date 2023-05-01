@@ -821,7 +821,7 @@ def plot_real_protocol():
         dpi=700, bbox_inches='tight')
 
     best_beam = pickle.load(open(
-        f"{figures_path}/best_beam_arms{int(ARMS_NUMBER_CIR)}.pickle",
+        f"{PATH}/best_beam_arms{int(ARMS_NUMBER_CIR)}.pickle",
         "rb"))
     fig_name3 = f"best_beam_{test_name}_arms{ARMS_NUMBER_CIR}_dBm"
     plt.figure(fig_name3)
