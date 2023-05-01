@@ -949,11 +949,19 @@ if __name__ == '__main__':
                 # plt.hist([x1, x2, x3, x4, x5], bins=int(180 / 15), normed=True,
                 #          color=colors, label=names)
     oracle = []
+    best_beam = np.zeros(ITER_NUMBER_CIR)
     for i in range(ITER_NUMBER_CIR):
         oracle.append(max(cir_cache.all_rewards[:, i]))
+        best_beam[i] = np.argmax(max(cir_cache.all_rewards[:, i]))
+
     avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
     pickle.dump(oracle, open(
         f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+    pickle.dump(best_beam, open(
+        f"{figures_path}/best_beam_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+
+    exit()
+
 
     pickle.dump(np.array([cir_cache.max_reward]), open(
         f"{figures_path}/max_reward.pickle",

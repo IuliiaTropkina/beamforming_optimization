@@ -820,6 +820,27 @@ def plot_real_protocol():
         f"{figures_path}/{fig_name3}.pdf",
         dpi=700, bbox_inches='tight')
 
+    best_beam = pickle.load(open(
+        f"{figures_path}/best_beam_arms{int(ARMS_NUMBER_CIR)}.pickle",
+        "rb"))
+    fig_name3 = f"best_beam_{test_name}_arms{ARMS_NUMBER_CIR}_dBm"
+    plt.figure(fig_name3)
+
+    its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
+    plt.plot(its * duration_of_one_sample, best_beam, ".")
+
+
+    plt.ylabel('Beam number',fontsize=14)
+    plt.xlabel("Time, sec",fontsize=14)
+    # plt.yscale("log")
+    #plt.ylim(0,10)
+    plt.grid()
+    plt.legend(prop={'size': 12})
+    plt.yticks(fontsize=12)
+    plt.xticks(fontsize=12)
+    plt.savefig(
+        f"{figures_path}/{fig_name3}.pdf",
+        dpi=700, bbox_inches='tight')
 
     for NUMBER_OF_CONS_SSB in NUMBERs_OF_CONS_SSB:
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
