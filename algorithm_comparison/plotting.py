@@ -805,7 +805,6 @@ def plot_real_protocol():
         plt.figure(fig_name)
         its = np.linspace(0, ITER_NUMBER_CIR - 1, ITER_NUMBER_CIR)
         print(f"length, {ITER_NUMBER_CIR}")
-        plt.plot(its * duration_of_one_sample, oracle_dBm)
         oracle = np.array(oracle)
         # plt.plot(avarage_oracle, label="Oracle")
         for SSB_p in SSB_period:
@@ -835,7 +834,7 @@ def plot_real_protocol():
                      seq_search_exploitation_reward, label=f"SSB period = {SSB_p}")
             plt.plot(np.array(seq_search_exploitation_it_num[
                               window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
-                     oracle_for_seq, label=f"SSB period = {SSB_p}")
+                     oracle_for_seq, label=f"oracle, SSB period = {SSB_p}")
             oracle_for_seq_dBm = 10 * np.log10(oracle_for_seq / (10 ** (-3)))
             seq_search_exploitation_reward_dBm = 10 * np.log10(seq_search_exploitation_reward / (10 ** (-3)))
 
