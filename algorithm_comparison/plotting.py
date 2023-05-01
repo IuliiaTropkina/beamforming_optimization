@@ -870,7 +870,6 @@ def plot_real_protocol():
             f"{figures_path}/{fig_name}.pdf",
             dpi=700, bbox_inches='tight')
 
-        exit()
         for con_type, cont_param, cont_param_sigh in zip(context_types, cont_params, cont_param_signs):
 
 
