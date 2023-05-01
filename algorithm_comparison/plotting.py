@@ -814,30 +814,7 @@ def plot_real_protocol():
             return True
         return False
 
-    start_window = 20000
-    end_window = 30000
 
-    SSBs = np.zeros(end_window-start_window)
-    n=0
-
-    iteration_zoom = np.linspace(start_window, end_window-1,end_window-start_window)
-    for s in iteration_zoom:
-        if is_SSB(s):
-            SSBs[n] = 1
-            n += 1
-
-    fig_name = f"SSB_period"
-    plt.figure(fig_name)
-    plt.plot(iteration_zoom * duration_of_one_sample, SSBs, ".")
-    plt.ylabel('SSB transmission',fontsize=14)
-    plt.xlabel("Time, sec",fontsize=14)
-    # plt.yscale("log")
-    plt.grid()
-    plt.legend(prop={'size': 12})
-    plt.yticks(fontsize=12)
-    plt.xticks(fontsize=12)
-
-    plt.savefig(f"{figures_path}/{SSB_period}.pdf")
 
 
     for NUMBER_OF_CONS_SSB in NUMBERs_OF_CONS_SSB:
@@ -851,6 +828,8 @@ def plot_real_protocol():
             # sequential_search_reward = pickle.load(open(
             #     f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
             #     "rb"))
+
+
 
             seq_search_exploitation_reward = pickle.load(open(
                 f"{PATH}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
@@ -922,7 +901,37 @@ def plot_real_protocol():
 
 
 
-        fig_name = f"sequential_seqrch_zoom_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
+
+
+        start_window = 20000
+        end_window = 30000
+
+        SSBs = np.zeros(end_window - start_window)
+        n = 0
+
+        iteration_zoom = np.linspace(start_window, end_window - 1, end_window - start_window)
+        for s in iteration_zoom:
+            if is_SSB(s, SSB_p, NUMBER_OF_CONS_SSB):
+                SSBs[n] = 1
+                n += 1
+
+        fig_name = f"SSB_period"
+        plt.figure(fig_name)
+        plt.plot(iteration_zoom * duration_of_one_sample, SSBs, ".")
+        plt.ylabel('SSB transmission', fontsize=14)
+        plt.xlabel("Time, sec", fontsize=14)
+        # plt.yscale("log")
+        plt.grid()
+        plt.legend(prop={'size': 12})
+        plt.yticks(fontsize=12)
+        plt.xticks(fontsize=12)
+
+        plt.savefig(f"{figures_path}/{SSB_period}.pdf")
+
+
+
+
+        fig_name = f"sequential_seqrch_zoom_{test_name}_arms{ARMS_NUMBER_CIR}_SSB_p{SSB_p}_numCons{NUMBER_OF_CONS_SSB}"
         plt.figure(fig_name)
         plt.plot(np.array(seq_search_exploitation_it_num[start_window:end_window-1]) * duration_of_one_sample,
                  oracle_for_seq[start_window:end_window-1], label=f"Oracle")
