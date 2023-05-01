@@ -684,11 +684,16 @@ def plot_real_protocol():
 
     def cumulative_window(arr, window_size):
         new_arr = np.zeros(len(arr)-window_size+1)
-        n=0
+        n = 0
         for i in range(window_size,len(arr)+1):
             new_arr[n] = sum(arr[i-window_size:i])/window_size
-            n +=1
+            n += 1
         return new_arr
+
+
+
+
+
     # a = [1,2,3,4,5,6,7,8,9]
     # aa = cumulative_window(a,3)
     # exit()
@@ -711,6 +716,21 @@ def plot_real_protocol():
     ARMS_NUMBER_CIR = len(beam_directions)
     SUBDIVISION_2 = 2
     icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
+
+    def is_SSB(iteration, SSB_period, num_batch):
+
+        number_of_periods = SCENARIO_DURATION/SSB_period
+
+        duration_of_one_sample = SCENARIO_DURATION/ITER_NUMBER_RANDOM
+
+        number_of_iterations_between_cons_SSB = int((5*10**(-3)/num_batch)/(duration_of_one_sample))
+        max_number_of_iteration_in_set = int((num_batch-1) * number_of_iterations_between_cons_SSB)
+        number_of_iterations_per_one_SSB_period = int(SSB_period/duration_of_one_sample)
+        if (iteration % number_of_iterations_per_one_SSB_period) % number_of_iterations_between_cons_SSB == 0 and (iteration % number_of_iterations_per_one_SSB_period) <= max_number_of_iteration_in_set:
+            return True
+        return False
+
+
 
 
 
@@ -801,22 +821,6 @@ def plot_real_protocol():
         dpi=700, bbox_inches='tight')
 
 
-    def is_SSB(iteration, SSB_period, num_batch):
-
-        number_of_periods = SCENARIO_DURATION/SSB_period
-
-        duration_of_one_sample = SCENARIO_DURATION/ITER_NUMBER_RANDOM
-
-        number_of_iterations_between_cons_SSB = int((5*10**(-3)/num_batch)/(duration_of_one_sample))
-        max_number_of_iteration_in_set = int((num_batch-1) * number_of_iterations_between_cons_SSB)
-        number_of_iterations_per_one_SSB_period = int(SSB_period/duration_of_one_sample)
-        if (iteration % number_of_iterations_per_one_SSB_period) % number_of_iterations_between_cons_SSB == 0 and (iteration % number_of_iterations_per_one_SSB_period) <= max_number_of_iteration_in_set:
-            return True
-        return False
-
-
-
-
     for NUMBER_OF_CONS_SSB in NUMBERs_OF_CONS_SSB:
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
         plt.figure(fig_name)
@@ -903,8 +907,8 @@ def plot_real_protocol():
 
 
 
-        start_window = 0
-        end_window = 20000
+        start_window = 25000
+        end_window = 50000
 
         SSBs = np.zeros(end_window - start_window)
         n = 0
@@ -913,7 +917,7 @@ def plot_real_protocol():
         for s in iteration_zoom:
             if is_SSB(s, SSB_p, NUMBER_OF_CONS_SSB):
                 SSBs[n] = 1
-                n += 1
+            n += 1
 
         fig_name = f"SSB_period_{SSB_p}_{NUMBER_OF_CONS_SSB}"
         plt.figure(fig_name)
