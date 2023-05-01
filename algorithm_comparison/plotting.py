@@ -730,20 +730,20 @@ def plot_real_protocol():
     cont_param_signs = ["Grid step", "Number of contexts"]
 
     #algorithm_names = ["EPS_greedy", "UCB"] #"DQL","EPS_greedy"
-    algorithm_names = ["UCB"]  # "DQL","EPS_greedy"
+    algorithm_names = ["EPS_greedy"]  # "DQL","EPS_greedy"
 
     #algorithm_legend_names = ["$\epsilon$-Greedy", "UCB"]
-    algorithm_legend_names = ["UCB"]
+    algorithm_legend_names = ["$\epsilon$-Greedy"]
 
 
     #param_signs = ["$\epsilon$","c"]
-    param_signs = ["c"]
+    param_signs = ["$\epsilon$"]
     # parameters = [[0.05, 0.1, 0.15],
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
     #parameters = [[0.15, 0.05, 0.4, 0.8, 0.95], [0.01,0.02, 0.2, 0.5]]
     # parameters = [[ 0.8], [0.01]]
-    parameters = [[0.01]]
+    parameters = [[0.8]]
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
     SSB_period = np.array([5,10,20,40,80,160])
     #SSB_period = np.array([5])
