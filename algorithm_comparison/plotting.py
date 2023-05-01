@@ -829,16 +829,16 @@ def plot_real_protocol():
             seq_search_exploitation_reward = cumulative_window(seq_search_exploitation_reward, window_size)
 
 
-            plt.plot(np.array(seq_search_exploitation_it_num[
-                              window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
-                     seq_search_exploitation_reward, label=f"SSB period = {SSB_p}")
-
-            # for el_num,el in enumerate(seq_search_exploitation_reward):
-            #     if el==0:
-            #         print(f"it_num, {el_num* duration_of_one_sample}")
-            plt.plot(np.array(seq_search_exploitation_it_num[
-                              window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
-                     oracle_for_seq, label=f"oracle, SSB period = {SSB_p}")
+            # plt.plot(np.array(seq_search_exploitation_it_num[
+            #                   window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
+            #          seq_search_exploitation_reward, label=f"SSB period = {SSB_p}")
+            #
+            # # for el_num,el in enumerate(seq_search_exploitation_reward):
+            # #     if el==0:
+            # #         print(f"it_num, {el_num* duration_of_one_sample}")
+            # plt.plot(np.array(seq_search_exploitation_it_num[
+            #                   window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
+            #          oracle_for_seq, label=f"oracle, SSB period = {SSB_p}")
             oracle_for_seq_dBm = 10 * np.log10(oracle_for_seq / (10 ** (-3)))
             seq_search_exploitation_reward_dBm = 10 * np.log10(seq_search_exploitation_reward / (10 ** (-3)))
 
@@ -853,7 +853,7 @@ def plot_real_protocol():
 
 
 
-            #!!plt.plot(np.array(seq_search_exploitation_it_num[window_size-1:len(seq_search_exploitation_it_num)])*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
+            plt.plot(np.array(seq_search_exploitation_it_num[window_size-1:len(seq_search_exploitation_it_num)])*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
 
         #plt.plot(oracle_for_seq_average, label=f"Oracle, SSB period = {SSB_p}")
 
@@ -922,14 +922,15 @@ def plot_real_protocol():
                             # oracle_for_bandit_average = np.cumsum(oracle_for_bandit) / (np.arange(len(oracle_for_bandit)) + 1)
 
                             #oracle_for_bandit_average = cumulative_window(oracle_for_bandit,window_size)
+                            oracle_for_bandit = cumulative_window(oracle_for_bandit, window_size)
+                            reward_exploitation = cumulative_window(reward_exploitation, window_size)
+
 
                             oracle_for_bandit_dBm = 10 * np.log10(oracle_for_bandit / (10 ** (-3)))
                             reward_exploitation_dBm = 10 * np.log10(reward_exploitation / (10 ** (-3)))
                             diff += oracle_for_bandit_dBm - reward_exploitation_dBm
                         diff = diff/number_of_seeds
 
-
-                        diff = cumulative_window(diff, window_size)
                         plt.plot(np.array(exloitation_iterations[window_size-1:len(exloitation_iterations)])*duration_of_one_sample, diff, label=f"SSB period = {SSB_p}")
                     #plt.plot(oracle_for_bandit_average, label=f"Oracle, SSB period = {SSB_p}")
 
