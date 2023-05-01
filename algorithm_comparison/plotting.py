@@ -903,8 +903,8 @@ def plot_real_protocol():
 
 
 
-        start_window = 15000
-        end_window = 22000
+        start_window = 0
+        end_window = 20000
 
         SSBs = np.zeros(end_window - start_window)
         n = 0
