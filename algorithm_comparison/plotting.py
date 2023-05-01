@@ -858,8 +858,9 @@ def plot_real_protocol():
 
 
 
-            plt.plot(np.array(seq_search_exploitation_it_num[window_size-1:len(seq_search_exploitation_it_num)])*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
-
+            #plt.plot(np.array(seq_search_exploitation_it_num[window_size-1:len(seq_search_exploitation_it_num)])*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
+            plt.plot(np.array(seq_search_exploitation_it_num) * duration_of_one_sample,
+                 diff_seq_search, label=f"SSB period = {SSB_p}")
         #plt.plot(oracle_for_seq_average, label=f"Oracle, SSB period = {SSB_p}")
 
         plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}",fontsize=14)
@@ -939,7 +940,9 @@ def plot_real_protocol():
                             diff += oracle_for_bandit_dBm - reward_exploitation_dBm
                         diff = diff/number_of_seeds
 
-                        plt.plot(np.array(exloitation_iterations[window_size-1:len(exloitation_iterations)])*duration_of_one_sample, diff, label=f"SSB period = {SSB_p}")
+                        #plt.plot(np.array(exloitation_iterations[window_size-1:len(exloitation_iterations)])*duration_of_one_sample, diff, label=f"SSB period = {SSB_p}")
+                        plt.plot(np.array(exloitation_iterations) * duration_of_one_sample, diff,
+                                 label=f"SSB period = {SSB_p}")
                     #plt.plot(oracle_for_bandit_average, label=f"Oracle, SSB period = {SSB_p}")
 
                     #plt.title(f"Grid step = {cont_params[0]}, Number of contexts = {num_ex_conts}")
