@@ -746,18 +746,18 @@ def plot_real_protocol():
     parameters = [[0.1]]
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
     SSB_period = np.array([5,10,20,40,80,160])
-    SSB_period = np.array([5])
+    #SSB_period = np.array([5])
     SSB_period = SSB_period*10**(-3)
 
     window_size = 5000
 
 
     number_of_cycles = 1
-    folder_name_figures = "scenario_LOS_28_cum"
+    folder_name_figures = "scenario_LOS_28"
     # figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}"
 
     PATH = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name_figures}/output"
-    figures_path = f"{PATH}/figures"
+    figures_path = f"{PATH}/figures_cum"
     try:
         os.makedirs(figures_path)
     except:
