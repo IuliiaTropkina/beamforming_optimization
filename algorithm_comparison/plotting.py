@@ -903,8 +903,8 @@ def plot_real_protocol():
 
 
 
-        start_window = 20000
-        end_window = 30000
+        start_window = 15000
+        end_window = 22000
 
         SSBs = np.zeros(end_window - start_window)
         n = 0
@@ -915,7 +915,7 @@ def plot_real_protocol():
                 SSBs[n] = 1
                 n += 1
 
-        fig_name = f"SSB_period"
+        fig_name = f"SSB_period_{SSB_p}_{NUMBER_OF_CONS_SSB}"
         plt.figure(fig_name)
         plt.plot(iteration_zoom * duration_of_one_sample, SSBs, ".")
         plt.ylabel('SSB transmission', fontsize=14)
@@ -926,7 +926,7 @@ def plot_real_protocol():
         plt.yticks(fontsize=12)
         plt.xticks(fontsize=12)
 
-        plt.savefig(f"{figures_path}/{SSB_period}.pdf")
+        plt.savefig(f"{figures_path}/SSB_period{SSB_p}_{NUMBER_OF_CONS_SSB}.pdf")
 
 
 
@@ -934,10 +934,10 @@ def plot_real_protocol():
         fig_name = f"sequential_seqrch_zoom_{test_name}_arms{ARMS_NUMBER_CIR}_SSB_p{SSB_p}_numCons{NUMBER_OF_CONS_SSB}"
         plt.figure(fig_name)
         plt.plot(np.array(seq_search_exploitation_it_num[start_window:end_window-1]) * duration_of_one_sample,
-                 oracle_for_seq[start_window:end_window-1], label=f"Oracle")
+                 oracle_for_seq[start_window:end_window-1],".", label=f"Oracle")
 
         plt.plot(np.array(seq_search_exploitation_it_num[start_window:end_window-1]) * duration_of_one_sample,
-                 seq_search_exploitation_reward[start_window:end_window-1], label=f"SSB period = {SSB_p}")
+                 seq_search_exploitation_reward[start_window:end_window-1],".", label=f"SSB period = {SSB_p}")
 
         plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}",fontsize=14)
         plt.ylabel('Power, W',fontsize=14)
@@ -1048,10 +1048,10 @@ def plot_real_protocol():
                     plt.figure(fig_name)
 
                     plt.plot(np.array(exloitation_iterations[start_window:end_window - 1]) * duration_of_one_sample,
-                             oracle_for_bandit[start_window:end_window - 1], label=f"Oracle")
+                             oracle_for_bandit[start_window:end_window - 1],".", label=f"Oracle")
 
                     plt.plot(np.array(exloitation_iterations[start_window:end_window - 1]) * duration_of_one_sample,
-                             reward_exploitation[start_window:end_window - 1], label=f"SSB period = {SSB_p}")
+                             reward_exploitation[start_window:end_window - 1], ".",label=f"SSB period = {SSB_p}")
 
                     plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}", fontsize=14)
                     plt.ylabel('Power, W', fontsize=14)
