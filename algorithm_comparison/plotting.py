@@ -698,7 +698,7 @@ def plot_real_protocol():
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
     SCENARIO_DURATION = 8
-    duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_RANDOM
+    duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_RANDOM # 20 mcs 2e-5
 
     BS_power_dBi = 25
     UE_power_dBi = 5
@@ -745,8 +745,8 @@ def plot_real_protocol():
     # parameters = [[ 0.8], [0.01]]
     parameters = [[0.01]]
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
-    SSB_period = np.array([5,10,20,40,80,160])
-    #SSB_period = np.array([5])
+    #SSB_period = np.array([5,10,20,40,80,160])
+    SSB_period = np.array([5])
     SSB_period = SSB_period*10**(-3)
 
     window_size = 5000
@@ -757,7 +757,7 @@ def plot_real_protocol():
     # figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}"
 
     PATH = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name_figures}/output"
-    figures_path = f"{PATH}/figures_cum"
+    figures_path = f"{PATH}/figures_zoom"
     try:
         os.makedirs(figures_path)
     except:
@@ -800,6 +800,46 @@ def plot_real_protocol():
         f"{figures_path}/{fig_name3}.pdf",
         dpi=700, bbox_inches='tight')
 
+
+    def is_SSB(iteration, SSB_period, num_batch):
+
+        number_of_periods = SCENARIO_DURATION/SSB_period
+
+        duration_of_one_sample = SCENARIO_DURATION/ITER_NUMBER_RANDOM
+
+        number_of_iterations_between_cons_SSB = int((5*10**(-3)/num_batch)/(duration_of_one_sample))
+        max_number_of_iteration_in_set = int((num_batch-1) * number_of_iterations_between_cons_SSB)
+        number_of_iterations_per_one_SSB_period = int(SSB_period/duration_of_one_sample)
+        if (iteration % number_of_iterations_per_one_SSB_period) % number_of_iterations_between_cons_SSB == 0 and (iteration % number_of_iterations_per_one_SSB_period) <= max_number_of_iteration_in_set:
+            return True
+        return False
+
+    start_window = 20000
+    end_window = 30000
+
+    SSBs = np.zeros(end_window-start_window)
+    n=0
+
+    iteration_zoom = np.linspace(start_window, end_window-1,end_window-start_window)
+    for s in iteration_zoom:
+        if is_SSB(s):
+            SSBs[n] = 1
+            n += 1
+
+    fig_name = f"SSB_period"
+    plt.figure(fig_name)
+    plt.plot(iteration_zoom * duration_of_one_sample, SSBs, ".")
+    plt.ylabel('SSB transmission',fontsize=14)
+    plt.xlabel("Time, sec",fontsize=14)
+    # plt.yscale("log")
+    plt.grid()
+    plt.legend(prop={'size': 12})
+    plt.yticks(fontsize=12)
+    plt.xticks(fontsize=12)
+
+    plt.savefig(f"{figures_path}/{SSB_period}.pdf")
+
+
     for NUMBER_OF_CONS_SSB in NUMBERs_OF_CONS_SSB:
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
         plt.figure(fig_name)
@@ -828,11 +868,11 @@ def plot_real_protocol():
 
 
             #oracle_for_seq = cumulative_window(oracle_for_seq, window_size)
-            oracle_for_seq = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
+            oracle_for_seq_av = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
 
 
             #seq_search_exploitation_reward = cumulative_window(seq_search_exploitation_reward, window_size)
-            seq_search_exploitation_reward = np.cumsum(np.array(seq_search_exploitation_reward)) / (np.arange(len(oracle_for_seq)) + 1)
+            seq_search_exploitation_reward_av = np.cumsum(np.array(seq_search_exploitation_reward)) / (np.arange(len(oracle_for_seq)) + 1)
 
             # plt.plot(np.array(seq_search_exploitation_it_num[
             #                   window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
@@ -844,8 +884,8 @@ def plot_real_protocol():
             # plt.plot(np.array(seq_search_exploitation_it_num[
             #                   window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
             #          oracle_for_seq, label=f"oracle, SSB period = {SSB_p}")
-            oracle_for_seq_dBm = 10 * np.log10(oracle_for_seq / (10 ** (-3)))
-            seq_search_exploitation_reward_dBm = 10 * np.log10(seq_search_exploitation_reward / (10 ** (-3)))
+            oracle_for_seq_dBm = 10 * np.log10(oracle_for_seq_av / (10 ** (-3)))
+            seq_search_exploitation_reward_dBm = 10 * np.log10(seq_search_exploitation_reward_av / (10 ** (-3)))
 
 
             diff_seq_search = oracle_for_seq_dBm - seq_search_exploitation_reward_dBm
@@ -878,6 +918,30 @@ def plot_real_protocol():
         plt.savefig(
             f"{figures_path}/{fig_name}.pdf",
             dpi=700, bbox_inches='tight')
+
+
+
+
+        fig_name = f"sequential_seqrch_zoom_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
+        plt.figure(fig_name)
+        plt.plot(np.array(seq_search_exploitation_it_num[start_window:end_window-1]) * duration_of_one_sample,
+                 oracle_for_seq[start_window:end_window-1], label=f"Oracle")
+
+        plt.plot(np.array(seq_search_exploitation_it_num[start_window:end_window-1]) * duration_of_one_sample,
+                 seq_search_exploitation_reward[start_window:end_window-1], label=f"SSB period = {SSB_p}")
+
+        plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}",fontsize=14)
+        plt.ylabel('Power, W',fontsize=14)
+        plt.xlabel("Time, sec",fontsize=14)
+        # plt.yscale("log")
+        plt.grid()
+        plt.legend(prop={'size': 12})
+        plt.yticks(fontsize=12)
+        plt.xticks(fontsize=12)
+        plt.savefig(
+            f"{figures_path}/{fig_name}.pdf",
+            dpi=700, bbox_inches='tight')
+
 
         for con_type, cont_param, cont_param_sigh in zip(context_types, cont_params, cont_param_signs):
 
@@ -932,15 +996,15 @@ def plot_real_protocol():
 
                             #oracle_for_bandit_average = cumulative_window(oracle_for_bandit,window_size)
                             #oracle_for_bandit = cumulative_window(oracle_for_bandit, window_size)
-                            oracle_for_bandit = np.cumsum(oracle_for_bandit) / (
+                            oracle_for_bandit_av = np.cumsum(oracle_for_bandit) / (
                                         np.arange(len(oracle_for_bandit)) + 1)
                             #reward_exploitation = cumulative_window(reward_exploitation, window_size)
-                            reward_exploitation = np.cumsum(reward_exploitation) / (
+                            reward_exploitation_av = np.cumsum(reward_exploitation) / (
                                     np.arange(len(oracle_for_bandit)) + 1)
 
 
-                            oracle_for_bandit_dBm = 10 * np.log10(oracle_for_bandit / (10 ** (-3)))
-                            reward_exploitation_dBm = 10 * np.log10(reward_exploitation / (10 ** (-3)))
+                            oracle_for_bandit_dBm = 10 * np.log10(oracle_for_bandit_av / (10 ** (-3)))
+                            reward_exploitation_dBm = 10 * np.log10(reward_exploitation_av / (10 ** (-3)))
                             diff += oracle_for_bandit_dBm - reward_exploitation_dBm
                         diff = diff/number_of_seeds
 
@@ -967,6 +1031,31 @@ def plot_real_protocol():
                     plt.savefig(
                         f"{figures_path}/{fig_name}.pdf",
                         dpi=700, bbox_inches='tight')
+
+                    test_name = f"real_protocol_SSB_period"
+                    fig_name = f"zoom_{con_type}_{alg_name}_{p}_{cont_param}_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
+
+
+                    plt.figure(fig_name)
+
+                    plt.plot(np.array(exloitation_iterations[start_window:end_window - 1]) * duration_of_one_sample,
+                             oracle_for_bandit[start_window:end_window - 1], label=f"Oracle")
+
+                    plt.plot(np.array(exloitation_iterations[start_window:end_window - 1]) * duration_of_one_sample,
+                             reward_exploitation[start_window:end_window - 1], label=f"SSB period = {SSB_p}")
+
+                    plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}", fontsize=14)
+                    plt.ylabel('Power, W', fontsize=14)
+                    plt.xlabel("Time, sec", fontsize=14)
+                    # plt.yscale("log")
+                    plt.grid()
+                    plt.legend(prop={'size': 12})
+                    plt.yticks(fontsize=12)
+                    plt.xticks(fontsize=12)
+                    plt.savefig(
+                        f"{figures_path}/{fig_name}.pdf",
+                        dpi=700, bbox_inches='tight')
+
 
 
     test_name = f"real_protocol_SSB_period"
