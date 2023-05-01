@@ -822,25 +822,27 @@ def plot_real_protocol():
             oracle_for_seq = oracle[np.array(seq_search_exploitation_it_num)]
             #oracle_for_seq_average = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
             #oracle_for_seq_average = cumulative_window(oracle_for_seq, window_size)
-            # oracle_for_seq_average = 10 * np.log10(oracle_for_seq / (10 ** (-3)))
+            oracle_for_seq_dBm = 10 * np.log10(oracle_for_seq / (10 ** (-3)))
+            seq_search_exploitation_reward_dBm = 10 * np.log10(seq_search_exploitation_reward / (10 ** (-3)))
 
-            diff_seq_search = oracle_for_seq - seq_search_exploitation_reward
+
+            diff_seq_search = oracle_for_seq_dBm - seq_search_exploitation_reward_dBm
             # seq_search_exploitation_reward_average = np.cumsum(seq_search_exploitation_reward) / (
             #             np.arange(len(seq_search_exploitation_reward)) + 1)
 
             #seq_search_exploitation_reward_average = cumulative_window(seq_search_exploitation_reward, window_size)
 
-            diff_seq_search = cumulative_window(diff_seq_search, window_size)
+            diff_seq_search_new = cumulative_window(diff_seq_search, window_size)
             #diff_seq_search = 10 * np.log10(diff_seq_search)
 
 
-            plt.plot(np.array(seq_search_exploitation_it_num[window_size-1:len(seq_search_exploitation_it_num)])*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
+            plt.plot(np.array(seq_search_exploitation_it_num[window_size-1:len(seq_search_exploitation_it_num)])*duration_of_one_sample,diff_seq_search_new, label=f"SSB period = {SSB_p}")
 
         #plt.plot(oracle_for_seq_average, label=f"Oracle, SSB period = {SSB_p}")
 
         plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}",fontsize=14)
         plt.ylabel('Power loss, dB',fontsize=14)
-        plt.xlabel("Sample, $10^{3}$",fontsize=14)
+        plt.xlabel("Time, sec",fontsize=14)
         # plt.yscale("log")
         # plt.ylim(0,10)
         plt.grid()
