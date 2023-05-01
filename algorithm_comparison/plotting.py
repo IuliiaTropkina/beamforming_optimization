@@ -753,7 +753,7 @@ def plot_real_protocol():
 
 
     number_of_cycles = 1
-    folder_name_figures = "scenario_LOS_28"
+    folder_name_figures = "scenario_LOS_28_cum"
     # figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}"
 
     PATH = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name_figures}/output"
@@ -825,9 +825,14 @@ def plot_real_protocol():
             oracle_for_seq = oracle[np.array(seq_search_exploitation_it_num)]
             #oracle_for_seq_average = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
             #oracle_for_seq_average = cumulative_window(oracle_for_seq, window_size)
-            oracle_for_seq = cumulative_window(oracle_for_seq, window_size)
-            seq_search_exploitation_reward = cumulative_window(seq_search_exploitation_reward, window_size)
 
+
+            #oracle_for_seq = cumulative_window(oracle_for_seq, window_size)
+            oracle_for_seq = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
+
+
+            #seq_search_exploitation_reward = cumulative_window(seq_search_exploitation_reward, window_size)
+            seq_search_exploitation_reward = np.cumsum(np.array(seq_search_exploitation_reward)) / (np.arange(len(oracle_for_seq)) + 1)
 
             # plt.plot(np.array(seq_search_exploitation_it_num[
             #                   window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
@@ -921,8 +926,12 @@ def plot_real_protocol():
                             # oracle_for_bandit_average = np.cumsum(oracle_for_bandit) / (np.arange(len(oracle_for_bandit)) + 1)
 
                             #oracle_for_bandit_average = cumulative_window(oracle_for_bandit,window_size)
-                            oracle_for_bandit = cumulative_window(oracle_for_bandit, window_size)
-                            reward_exploitation = cumulative_window(reward_exploitation, window_size)
+                            #oracle_for_bandit = cumulative_window(oracle_for_bandit, window_size)
+                            oracle_for_bandit = np.cumsum(oracle_for_bandit) / (
+                                        np.arange(len(oracle_for_bandit)) + 1)
+                            #reward_exploitation = cumulative_window(reward_exploitation, window_size)
+                            reward_exploitation = np.cumsum(reward_exploitation) / (
+                                    np.arange(len(oracle_for_bandit)) + 1)
 
 
                             oracle_for_bandit_dBm = 10 * np.log10(oracle_for_bandit / (10 ** (-3)))
