@@ -861,11 +861,11 @@ def plot_real_protocol():
             #plt.plot(np.array(seq_search_exploitation_it_num[window_size-1:len(seq_search_exploitation_it_num)])*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
             plt.plot(np.array(seq_search_exploitation_it_num) * duration_of_one_sample,
                  diff_seq_search, label=f"SSB period = {SSB_p}")
-            line_3dB = np.full(len(seq_search_exploitation_it_num), 3)
-            plt.plot(np.array(seq_search_exploitation_it_num) * duration_of_one_sample, line_3dB,
-                     label=f"loss of 3dB", color="r")
-        #plt.plot(oracle_for_seq_average, label=f"Oracle, SSB period = {SSB_p}")
 
+        #plt.plot(oracle_for_seq_average, label=f"Oracle, SSB period = {SSB_p}")
+        line_3dB = np.full(len(seq_search_exploitation_it_num), 3)
+        plt.plot(np.array(seq_search_exploitation_it_num) * duration_of_one_sample, line_3dB,
+                 label=f"loss of 3dB", color="r")
         plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}",fontsize=14)
         plt.ylabel('Power loss, dB',fontsize=14)
         plt.xlabel("Time, sec",fontsize=14)
