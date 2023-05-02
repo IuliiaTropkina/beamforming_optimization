@@ -601,7 +601,7 @@ if __name__ == '__main__':
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
     #parameters = [[0.01,0.02, 0.2, 0.5]]#UCB
-    parameters = [[0.15, 0.05, 0.4, 0.8, 0.95]]  # eps greedy
+    parameters = [[0.8]]  # eps greedy
 
 
     def calc(SSB_period,num_batch):
@@ -959,8 +959,6 @@ if __name__ == '__main__':
         f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
     pickle.dump(best_beam, open(
         f"{figures_path}/best_beam_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
-
-    exit()
 
 
     pickle.dump(np.array([cir_cache.max_reward]), open(
