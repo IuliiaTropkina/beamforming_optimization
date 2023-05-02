@@ -839,7 +839,7 @@ def plot_real_protocol():
     plt.yticks(fontsize=12)
     plt.xticks(fontsize=12)
     plt.savefig(
-        f"{figures_path}/{fig_name3}.pdf",
+        f"{figures_path}/{fig_name3}.png",
         dpi=700, bbox_inches='tight')
 
     for NUMBER_OF_CONS_SSB in NUMBERs_OF_CONS_SSB:
