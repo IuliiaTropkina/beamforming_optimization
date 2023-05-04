@@ -805,10 +805,10 @@ def plot_real_protocol():
 
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
     print(f"length, {ITER_NUMBER_CIR}")
-    plt.plot(its * duration_of_one_sample, oracle_dBm)
+    plt.plot(its * duration_of_one_sample, oracle)
 
 
-    plt.ylabel('Power, dBm',fontsize=14)
+    plt.ylabel('Power, W',fontsize=14)
     plt.xlabel("Time, sec",fontsize=14)
     # plt.yscale("log")
     #plt.ylim(0,10)
