@@ -219,7 +219,7 @@ class CIR_cache:
         power[beam_number_nearest] = ((c/carrier_frequency)) / (4 * math.pi * dist) ** 2 #* 10**(antenna_gain/10)
         power[0] = ((c/carrier_frequency)) / (4 * math.pi * dist) ** 2 #* 10**(antenna_gain/10)/20
         power[1] = ((c / carrier_frequency)) / (4 * math.pi * dist) ** 2 #* 10 ** (antenna_gain / 10) / 8
-
+        return power
     def get_all_rewards(self):
         for it_num in range(ITER_NUMBER_CIR):
             for ar_num in range(ARMS_NUMBER_CIR):
