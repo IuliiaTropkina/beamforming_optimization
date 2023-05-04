@@ -549,7 +549,7 @@ if __name__ == '__main__':
 
     LOCATION_GRID_STEP = 15
 
-    frames_per_data_frame = 10000 #10000
+    frames_per_data_frame = 1 #10000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
@@ -729,6 +729,7 @@ if __name__ == '__main__':
         pickle.dump(avarage_random_choice, open(
             f"{figures_path}/cumulative_avarage_random_choice_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
+
         for con_set, con_type, cont_param in zip(context_sets,context_types, cont_params):
 
             # env = MultipathChannel( ARMS_NUMBER_CIR, len(con_set), con_set, starting_point = 0)
@@ -905,7 +906,10 @@ if __name__ == '__main__':
             info = json.load(json_file)
         RX_locations.append(info["RX_location"][0])
         TX_locations.append(info["TX_location"][0])
+
+
     TX_locations = np.array(TX_locations)
+
     RX_locations = np.array(RX_locations)
     figures_path = f"{PATH_json}/output"
     try:
@@ -964,7 +968,11 @@ if __name__ == '__main__':
     pickle.dump(np.array([cir_cache.max_reward]), open(
         f"{figures_path}/max_reward.pickle",
         'wb'))
-
+    pickle.dump(TX_locations, open(
+        f"{figures_path}/TX_locations.pickle", 'wb'))
+    pickle.dump(RX_locations, open(
+        f"{figures_path}/RX_locations.pickle", 'wb'))
+    exit()
     for SSB_period in SSB_periods:
         for n_b in NUMBERs_OF_CONS_SSB:
             calc(SSB_period,n_b)

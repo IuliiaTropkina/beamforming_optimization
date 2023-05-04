@@ -697,7 +697,7 @@ def plot_real_protocol():
     # a = [1,2,3,4,5,6,7,8,9]
     # aa = cumulative_window(a,3)
     # exit()
-    frames_per_data_frame = 10000 #10000
+    frames_per_data_frame = 1 #10000
     FRAME_NUMBER = 38
 
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
@@ -823,13 +823,11 @@ def plot_real_protocol():
     best_beam = pickle.load(open(
         f"{PATH}/best_beam_arms{int(ARMS_NUMBER_CIR)}.pickle",
         "rb"))
+
     fig_name3 = f"best_beam_{test_name}_arms{ARMS_NUMBER_CIR}_dBm"
     plt.figure(fig_name3)
-
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
     plt.plot(its * duration_of_one_sample, best_beam, ".")
-
-
     plt.ylabel('Beam number',fontsize=14)
     plt.xlabel("Time, sec",fontsize=14)
     # plt.yscale("log")
@@ -842,6 +840,37 @@ def plot_real_protocol():
         f"{figures_path}/{fig_name3}.png",
         dpi=700, bbox_inches='tight')
 
+
+    TX_locations = pickle.load(open(
+        f"{PATH}/TX_locations.pickle",
+        "rb"))
+
+    RX_locations = pickle.load(open(
+        f"{PATH}/RX_locations.pickle",
+        "rb"))
+    Dist = np.zeros(RX_locations)
+    n = 0
+    for c_RX, c_TX in zip (RX_locations, TX_locations):
+        Dist[n] = norm(c_RX-c_TX)
+        n +=1
+    fig_name3 = f"Distance"
+    plt.figure(fig_name3)
+    its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
+    plt.plot(its * duration_of_one_sample, Dist, "*")
+    plt.ylabel('Distance, m',fontsize=14)
+    plt.xlabel("Time, sec",fontsize=14)
+    # plt.yscale("log")
+    #plt.ylim(0,10)
+    plt.grid()
+    plt.legend(prop={'size': 12})
+    plt.yticks(fontsize=12)
+    plt.xticks(fontsize=12)
+    plt.savefig(
+        f"{figures_path}/{fig_name3}.png",
+        dpi=700, bbox_inches='tight')
+
+
+    exit()
     for NUMBER_OF_CONS_SSB in NUMBERs_OF_CONS_SSB:
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
         plt.figure(fig_name)
