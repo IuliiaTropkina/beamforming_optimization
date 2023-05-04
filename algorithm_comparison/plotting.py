@@ -705,10 +705,10 @@ def plot_real_protocol():
     SCENARIO_DURATION = 8
     duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_RANDOM # 20 mcs 2e-5
 
-    BS_power_dBi = 25
+    # BS_power_dBi = 25
     UE_power_dBi = 5
 
-    SUBDIVISION = 1
+    SUBDIVISION = 2
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
@@ -795,7 +795,7 @@ def plot_real_protocol():
         "rb"))
 
     oracle = oracle*max_reward
-    oracle_dBm = 10 * np.log10(oracle) + BS_power_dBi + UE_power_dBi
+    oracle_dBm = 10 * np.log10(oracle) + UE_power_dBi
     # avarage_oracle = cumulative_window(oracle, window_size)
     # avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
 
