@@ -12,7 +12,7 @@ import math
 import random
 import json
 from math import sqrt
-
+from scipy.io import loadmat
 import numpy as np
 from gym import Env
 from gym.spaces import Box, Discrete
@@ -146,10 +146,13 @@ def choose_random(arm_num, frame_num):
     point_of_max = int((frame_num / 1000) % ARMS_NUMBER_RANDOM)
     means = np.roll(np.hamming(ARMS_NUMBER_RANDOM), point_of_max)
     return np.clip(np.random.randn() + means[arm_num], 0, 1)
+ # return np.random.randn() + 3
+def find_angle_between_vectors(v1, v2):
+    return math.acos((v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]) / (norm(v1)*norm(v2))) #radians
 
 
 
-    # return np.random.randn() + 3
+
 
 
 # def transform_reward(min_limit_power, max_limit_power, min_limit_reward, max_limit_reward):
@@ -178,6 +181,7 @@ def bin_rays_by_direction(beam_dirs, ray_dirs, power) -> dict:
     return dirs_sorted_power
 
 
+
 class CIR_cache:
     def __init__(self, PATH, num_rt_frames_total, frames_per_data_frame=1000):
         self.binned_rays_by_frame = []
@@ -187,6 +191,7 @@ class CIR_cache:
         self.all_rewards_normalized = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
         self.max_reward = 0
 
+        self.antenna_pattern_3D = loadmat('hciutr@narvi.tut.fi:/home/hciutr/Training/beamforming_optimization/algorithm_comparison/antenna_pattern28GHz.mat')
         for frame_num in range(num_rt_frames_total):
             file_name = f"{PATH}/CIR_scene_frame{frame_num + 1}_grid_step{grid_step}_voxel_size{voxel_size}_freq{carrier_frequency}"
             data = pickle.load(open(f"{file_name}.pickle", "rb"))
@@ -199,6 +204,21 @@ class CIR_cache:
             Power = E2Power(E, carrier_frequency)
             d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, Power)
             self.binned_rays_by_frame.append(d)
+
+
+    def get_power(self, frame_number):
+        power = np.zeros(ARMS_NUMBER_CIR)
+
+        dir = TX_locations[frame_number] - RX_locations[frame_number]
+        beam_number_nearest = spatial.KDTree(beam_directions).query(dir)[1]
+        angle = find_angle_between_vectors(beam_directions[beam_number_nearest], dir) #radians
+        antenna_gain = self.antenna_pattern_3D[90+int(np.round(angle*180/math.pi)),int(np.round(angle*180/math.pi))]
+        dist = norm(dir)
+        c = 299792458
+        power[beam_number_nearest] = ((c/carrier_frequency)) / (4 * math.pi * dist) ** 2 * 10**(antenna_gain/10)
+        power[0] = ((c/carrier_frequency)) / (4 * math.pi * dist) ** 2 * 10**(antenna_gain/10)/20
+        power[1] = ((c / carrier_frequency)) / (4 * math.pi * dist) ** 2 * 10 ** (
+                    antenna_gain / 10) / 8
 
     def get_all_rewards(self):
         for it_num in range(ITER_NUMBER_CIR):
@@ -259,13 +279,16 @@ class CIR_cache:
         data_frame_num2 = data_frame_num1 + 1
         # data1 = self.binned_rays_by_frame[data_frame_num1] + self.get_noise()
 
-        data1 = self.binned_rays_by_frame[data_frame_num1]
-
+        #data1 = self.binned_rays_by_frame[data_frame_num1]
+        data1 = self.get_power[data_frame_num1]
 
         if data_frame_num1 == FRAME_NUMBER - 1:
             return data1[arm_num]
         # data2 = self.binned_rays_by_frame[data_frame_num2] + self.get_noise()
-        data2 = self.binned_rays_by_frame[data_frame_num2]
+        #data2 = self.binned_rays_by_frame[data_frame_num2]
+        data2 = self.get_power[data_frame_num2]
+
+
 
         d = it_num / self.frames_per_data_frame - data_frame_num1
         if d == 0:
@@ -972,7 +995,7 @@ if __name__ == '__main__':
         f"{figures_path}/TX_locations.pickle", 'wb'))
     pickle.dump(RX_locations, open(
         f"{figures_path}/RX_locations.pickle", 'wb'))
-    exit()
+
     for SSB_period in SSB_periods:
         for n_b in NUMBERs_OF_CONS_SSB:
             calc(SSB_period,n_b)

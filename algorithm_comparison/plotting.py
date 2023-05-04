@@ -898,7 +898,7 @@ def plot_real_protocol():
         dpi=700, bbox_inches='tight')
 
     print("plotted")
-    exit()
+
     for NUMBER_OF_CONS_SSB in NUMBERs_OF_CONS_SSB:
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
         plt.figure(fig_name)
