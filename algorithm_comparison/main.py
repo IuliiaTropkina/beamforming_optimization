@@ -191,7 +191,7 @@ class CIR_cache:
         self.all_rewards_normalized = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
         self.max_reward = 0
 
-        self.antenna_pattern_3D = loadmat('hciutr@narvi.tut.fi:/home/hciutr/Training/beamforming_optimization/algorithm_comparison/antenna_pattern28GHz.mat')
+        self.antenna_pattern_3D = loadmat('antenna_pattern28GHz.mat')
         for frame_num in range(num_rt_frames_total):
             file_name = f"{PATH}/CIR_scene_frame{frame_num + 1}_grid_step{grid_step}_voxel_size{voxel_size}_freq{carrier_frequency}"
             data = pickle.load(open(f"{file_name}.pickle", "rb"))
