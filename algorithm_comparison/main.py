@@ -190,8 +190,8 @@ class CIR_cache:
         self.all_rewards_dBm = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
         self.all_rewards_normalized = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
         self.max_reward = 0
-
-        self.antenna_pattern_3D = loadmat('antenna_pattern28GHz.mat')
+        antenna_data = loadmat('antenna_pattern28GHz.mat')
+        self.antenna_pattern_3D = antenna_data['a']
         for frame_num in range(num_rt_frames_total):
             file_name = f"{PATH}/CIR_scene_frame{frame_num + 1}_grid_step{grid_step}_voxel_size{voxel_size}_freq{carrier_frequency}"
             data = pickle.load(open(f"{file_name}.pickle", "rb"))
@@ -218,8 +218,7 @@ class CIR_cache:
         c = 299792458
         power[beam_number_nearest] = ((c/carrier_frequency)) / (4 * math.pi * dist) ** 2 * 10**(antenna_gain/10)
         power[0] = ((c/carrier_frequency)) / (4 * math.pi * dist) ** 2 * 10**(antenna_gain/10)/20
-        power[1] = ((c / carrier_frequency)) / (4 * math.pi * dist) ** 2 * 10 ** (
-                    antenna_gain / 10) / 8
+        power[1] = ((c / carrier_frequency)) / (4 * math.pi * dist) ** 2 * 10 ** (antenna_gain / 10) / 8
 
     def get_all_rewards(self):
         for it_num in range(ITER_NUMBER_CIR):
@@ -578,7 +577,7 @@ if __name__ == '__main__':
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
 
-    SUBDIVISION = 1
+    SUBDIVISION = 2
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
