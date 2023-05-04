@@ -870,6 +870,34 @@ def plot_real_protocol():
         dpi=700, bbox_inches='tight')
 
     print("plotted")
+    carrier_frequency = 28e9
+    file_name = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name_figures}/CIRS/CIR_scene_frame{1}_grid_step{0.1}_voxel_size{0.5}_freq{carrier_frequency}"
+    data = pickle.load(open(f"{file_name}.pickle", "rb"))
+    directions_of_arrival_RX = data[0]
+    directions_of_arrival_RX = np.array(directions_of_arrival_RX)
+    directions_of_arrival_RX_for_antenna = - directions_of_arrival_RX
+    E = data[2]  # v/m
+    E = np.array(E)
+    time_array = data[1]
+    Power = np.abs(E)**2
+
+    fig_name5 = f"CIR"
+    plt.figure(fig_name4)
+    its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
+    plt.plot(Power, "*")
+    plt.ylabel('Power, W',fontsize=14)
+    plt.xlabel("Time, sec",fontsize=14)
+    # plt.yscale("log")
+    #plt.ylim(0,10)
+    plt.grid()
+    plt.legend(prop={'size': 12})
+    plt.yticks(fontsize=12)
+    plt.xticks(fontsize=12)
+    plt.savefig(
+        f"{figures_path}/{fig_name4}.pdf",
+        dpi=700, bbox_inches='tight')
+
+    print("plotted")
     exit()
     for NUMBER_OF_CONS_SSB in NUMBERs_OF_CONS_SSB:
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
