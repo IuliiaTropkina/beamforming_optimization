@@ -210,15 +210,17 @@ class CIR_cache:
         power = np.zeros(ARMS_NUMBER_CIR)
 
         dir = TX_locations[frame_number] - RX_locations[frame_number]
+
         beam_number_nearest = spatial.KDTree(beam_directions).query(dir)[1]
+        print(f"dir {dir}, {beam_number_nearest}")
         angle = find_angle_between_vectors(beam_directions[beam_number_nearest], dir) #radians
         antenna_gain = self.antenna_pattern_3D[90+int(np.round(angle*180/math.pi)),int(np.round(angle*180/math.pi))]
         print(f"antenna gain, {frame_number}, {antenna_gain}dBi, {10**(antenna_gain/10)}")
         dist = norm(dir)
         c = 299792458
         power[beam_number_nearest] = ((c/carrier_frequency)) / (4 * math.pi * dist) ** 2 #* 10**(antenna_gain/10)
-        power[0] = ((c/carrier_frequency)) / (4 * math.pi * dist) ** 2 #* 10**(antenna_gain/10)/20
-        power[1] = ((c / carrier_frequency)) / (4 * math.pi * dist) ** 2 #* 10 ** (antenna_gain / 10) / 8
+        power[0] = ((c/carrier_frequency)) / (4 * math.pi * dist) ** 2/20 #* 10**(antenna_gain/10)/20
+        power[1] = ((c / carrier_frequency)) / (4 * math.pi * dist) ** 2/8 #* 10 ** (antenna_gain / 10) / 8
         return power
     def get_all_rewards(self):
         for it_num in range(ITER_NUMBER_CIR):
@@ -979,6 +981,7 @@ if __name__ == '__main__':
     best_beam = np.zeros(ITER_NUMBER_CIR)
     for i in range(ITER_NUMBER_CIR):
         oracle.append(max(cir_cache.all_rewards[:, i]))
+        print(f"max_reward at {i}, {max(cir_cache.all_rewards[:, i])}")
         best_beam[i] = np.argmax(cir_cache.all_rewards[:, i])
 
     avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
