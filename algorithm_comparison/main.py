@@ -213,6 +213,7 @@ class CIR_cache:
         beam_number_nearest = spatial.KDTree(beam_directions).query(dir)[1]
         angle = find_angle_between_vectors(beam_directions[beam_number_nearest], dir) #radians
         antenna_gain = self.antenna_pattern_3D[90+int(np.round(angle*180/math.pi)),int(np.round(angle*180/math.pi))]
+        print(f"antenna gain, {frame_number}, {antenna_gain}dBi, {10**(antenna_gain/10)}")
         dist = norm(dir)
         c = 299792458
         power[beam_number_nearest] = ((c/carrier_frequency)) / (4 * math.pi * dist) ** 2 * 10**(antenna_gain/10)
@@ -280,13 +281,13 @@ class CIR_cache:
         # data1 = self.binned_rays_by_frame[data_frame_num1] + self.get_noise()
 
         #data1 = self.binned_rays_by_frame[data_frame_num1]
-        data1 = self.get_power[data_frame_num1]
+        data1 = self.get_power(data_frame_num1)
 
         if data_frame_num1 == FRAME_NUMBER - 1:
             return data1[arm_num]
         # data2 = self.binned_rays_by_frame[data_frame_num2] + self.get_noise()
         #data2 = self.binned_rays_by_frame[data_frame_num2]
-        data2 = self.get_power[data_frame_num2]
+        data2 = self.get_power(data_frame_num2)
 
 
 
