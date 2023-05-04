@@ -848,7 +848,7 @@ def plot_real_protocol():
     RX_locations = pickle.load(open(
         f"{PATH}/RX_locations.pickle",
         "rb"))
-    Dist = np.zeros(RX_locations)
+    Dist = np.zeros(len(RX_locations))
     n = 0
     for c_RX, c_TX in zip (RX_locations, TX_locations):
         Dist[n] = norm(c_RX-c_TX)
