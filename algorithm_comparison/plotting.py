@@ -853,8 +853,8 @@ def plot_real_protocol():
     for c_RX, c_TX in zip (RX_locations, TX_locations):
         Dist[n] = norm(c_RX-c_TX)
         n +=1
-    fig_name3 = f"Distance"
-    plt.figure(fig_name3)
+    fig_name4 = f"Distance"
+    plt.figure(fig_name4)
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
     plt.plot(its * duration_of_one_sample, Dist, "*")
     plt.ylabel('Distance, m',fontsize=14)
@@ -866,10 +866,10 @@ def plot_real_protocol():
     plt.yticks(fontsize=12)
     plt.xticks(fontsize=12)
     plt.savefig(
-        f"{figures_path}/{fig_name3}.png",
+        f"{figures_path}/{fig_name4}.pdf",
         dpi=700, bbox_inches='tight')
 
-
+    print("plotted")
     exit()
     for NUMBER_OF_CONS_SSB in NUMBERs_OF_CONS_SSB:
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
