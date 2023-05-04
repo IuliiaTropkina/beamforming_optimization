@@ -882,7 +882,7 @@ def plot_real_protocol():
     Power = np.abs(E)**2
 
     fig_name5 = f"CIR"
-    plt.figure(fig_name4)
+    plt.figure(fig_name5)
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
     plt.plot(Power, "*")
     plt.ylabel('Power, W',fontsize=14)
@@ -894,7 +894,7 @@ def plot_real_protocol():
     plt.yticks(fontsize=12)
     plt.xticks(fontsize=12)
     plt.savefig(
-        f"{figures_path}/{fig_name4}.pdf",
+        f"{figures_path}/{fig_name5}.pdf",
         dpi=700, bbox_inches='tight')
 
     print("plotted")
