@@ -773,7 +773,7 @@ def plot_real_protocol():
 
 
     number_of_cycles = 1
-    folder_name_figures = "scenario_LOS_28"
+    folder_name_figures = "scenario_LOS_28_calib"
     # figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}"
 
     PATH = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name_figures}/output"
