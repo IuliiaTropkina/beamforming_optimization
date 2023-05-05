@@ -855,8 +855,8 @@ def plot_real_protocol():
         n +=1
     fig_name4 = f"Distance"
     plt.figure(fig_name4)
-    its = np.linspace(0,frames_per_data_frame-1,frames_per_data_frame)
-    plt.plot(its * duration_of_one_sample, Dist[0:frames_per_data_frame], "*")
+    its = np.linspace(0,FRAME_NUMBER-1,FRAME_NUMBER)
+    plt.plot(its * duration_of_one_sample, Dist[0:FRAME_NUMBER-1], "*")
     plt.ylabel('Distance, m',fontsize=14)
     plt.xlabel("Time, sec",fontsize=14)
     # plt.yscale("log")
