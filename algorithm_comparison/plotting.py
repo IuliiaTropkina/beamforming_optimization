@@ -708,7 +708,7 @@ def plot_real_protocol():
     # BS_power_dBi = 25
     UE_power_dBi = 5
 
-    SUBDIVISION = 2
+    SUBDIVISION = 3
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
