@@ -924,7 +924,7 @@ def plot_real_protocol():
 
             oracle_for_seq = oracle[np.array(seq_search_exploitation_it_num)]
             #oracle_for_seq_average = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
-            #oracle_for_seq_average = cumulative_window(oracle_for_seq, window_size)
+            oracle_for_seq_average_cum_win = cumulative_window(oracle_for_seq, window_size)
 
 
             #oracle_for_seq = cumulative_window(oracle_for_seq, window_size)
@@ -949,18 +949,22 @@ def plot_real_protocol():
 
 
             diff_seq_search = oracle_for_seq_dBm - seq_search_exploitation_reward_dBm
+
+
             # seq_search_exploitation_reward_average = np.cumsum(seq_search_exploitation_reward) / (
             #             np.arange(len(seq_search_exploitation_reward)) + 1)
 
-            #seq_search_exploitation_reward_average = cumulative_window(seq_search_exploitation_reward, window_size)
+            seq_search_exploitation_reward_cum_wind = cumulative_window(seq_search_exploitation_reward, window_size)
+            diff_seq_search_window = 10 * np.log10(oracle_for_seq_average_cum_win / (10 ** (-3))) - 10 * np.log10(seq_search_exploitation_reward_cum_wind/ (10 ** (-3)))
+
+
 
             #!!diff_seq_search_new = cumulative_window(diff_seq_search, window_size)
 
 
 
             #plt.plot(np.array(seq_search_exploitation_it_num[window_size-1:len(seq_search_exploitation_it_num)])*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
-            plt.plot(np.array(seq_search_exploitation_it_num) * duration_of_one_sample,
-                 diff_seq_search, label=f"SSB period = {SSB_p}")
+            plt.plot(np.array(seq_search_exploitation_it_num) * duration_of_one_sample, diff_seq_search, label=f"SSB period = {SSB_p}")
 
         #plt.plot(oracle_for_seq_average, label=f"Oracle, SSB period = {SSB_p}")
         line_3dB = np.full(len(seq_search_exploitation_it_num), 3)
@@ -979,57 +983,25 @@ def plot_real_protocol():
             f"{figures_path}/{fig_name}.pdf",
             dpi=700, bbox_inches='tight')
 
-
-
-
-
-
-        start_window = 25000
-        end_window = 30000
-
-        SSBs = np.zeros(end_window - start_window)
-        n = 0
-
-        iteration_zoom = np.linspace(start_window, end_window - 1, end_window - start_window)
-        for s in iteration_zoom:
-            if is_SSB(s, SSB_p, NUMBER_OF_CONS_SSB):
-                SSBs[n] = 1
-            n += 1
-
-        fig_name = f"SSB_period_{SSB_p}_{NUMBER_OF_CONS_SSB}"
-        plt.figure(fig_name)
-        plt.plot(iteration_zoom * duration_of_one_sample, SSBs, ".")
-        plt.ylabel('SSB transmission', fontsize=14)
+        fig_name2 = f"sequential_search_windows_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
+        plt.figure(fig_name2)
+        plt.plot(np.array(seq_search_exploitation_it_num[
+                          window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
+                 diff_seq_search_window, label=f"SSB period = {SSB_p}")
+        line_3dB = np.full(len(seq_search_exploitation_it_num), 3)
+        plt.plot(np.array(seq_search_exploitation_it_num) * duration_of_one_sample, line_3dB,
+                 label=f"loss of 3dB", color="r")
+        plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}", fontsize=14)
+        plt.ylabel('Power loss, dB', fontsize=14)
         plt.xlabel("Time, sec", fontsize=14)
         # plt.yscale("log")
-        plt.grid()
-        plt.legend(prop={'size': 12})
-        plt.yticks(fontsize=12)
-        plt.xticks(fontsize=12)
-
-        plt.savefig(f"{figures_path}/SSB_period{SSB_p}_{NUMBER_OF_CONS_SSB}.pdf")
-
-
-
-
-        fig_name = f"sequential_seqrch_zoom_{test_name}_arms{ARMS_NUMBER_CIR}_SSB_p{SSB_p}_numCons{NUMBER_OF_CONS_SSB}"
-        plt.figure(fig_name)
-        plt.plot(np.array(seq_search_exploitation_it_num[start_window:end_window-1]) * duration_of_one_sample,
-                 oracle_for_seq[start_window:end_window-1],".", label=f"Oracle")
-
-        plt.plot(np.array(seq_search_exploitation_it_num[start_window:end_window-1]) * duration_of_one_sample,
-                 seq_search_exploitation_reward[start_window:end_window-1],".", label=f"SSB period = {SSB_p}")
-
-        plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}",fontsize=14)
-        plt.ylabel('Power, W',fontsize=14)
-        plt.xlabel("Time, sec",fontsize=14)
-        # plt.yscale("log")
+        plt.ylim(0, 10)
         plt.grid()
         plt.legend(prop={'size': 12})
         plt.yticks(fontsize=12)
         plt.xticks(fontsize=12)
         plt.savefig(
-            f"{figures_path}/{fig_name}.pdf",
+            f"{figures_path}/{fig_name2}.pdf",
             dpi=700, bbox_inches='tight')
 
 
@@ -1122,29 +1094,8 @@ def plot_real_protocol():
                         f"{figures_path}/{fig_name}.pdf",
                         dpi=700, bbox_inches='tight')
 
-                    test_name = f"real_protocol_SSB_period"
-                    fig_name = f"zoom_{con_type}_{alg_name}_{p}_{cont_param}_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
 
 
-                    plt.figure(fig_name)
-
-                    plt.plot(np.array(exloitation_iterations[start_window:end_window - 1]) * duration_of_one_sample,
-                             oracle_for_bandit[start_window:end_window - 1],".", label=f"Oracle")
-
-                    plt.plot(np.array(exloitation_iterations[start_window:end_window - 1]) * duration_of_one_sample,
-                             reward_exploitation[start_window:end_window - 1], ".",label=f"SSB period = {SSB_p}")
-
-                    plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}", fontsize=14)
-                    plt.ylabel('Power, W', fontsize=14)
-                    plt.xlabel("Time, sec", fontsize=14)
-                    # plt.yscale("log")
-                    plt.grid()
-                    plt.legend(prop={'size': 12})
-                    plt.yticks(fontsize=12)
-                    plt.xticks(fontsize=12)
-                    plt.savefig(
-                        f"{figures_path}/{fig_name}.pdf",
-                        dpi=700, bbox_inches='tight')
 
 
 
