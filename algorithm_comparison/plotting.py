@@ -800,7 +800,7 @@ def plot_real_protocol():
     # avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
 
 
-    fig_name3 = f"oracle_{test_name}_arms{ARMS_NUMBER_CIR}_dBm"
+    fig_name3 = f"oracle_{test_name}_arms{ARMS_NUMBER_CIR}_dB"
     plt.figure(fig_name3)
 
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
@@ -808,7 +808,7 @@ def plot_real_protocol():
     plt.plot(its * duration_of_one_sample, oracle)
 
 
-    plt.ylabel('Power, W',fontsize=14)
+    plt.ylabel('Power, dB',fontsize=14)
     plt.xlabel("Time, sec",fontsize=14)
     # plt.yscale("log")
     #plt.ylim(0,10)
