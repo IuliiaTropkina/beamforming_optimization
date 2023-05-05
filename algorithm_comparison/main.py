@@ -300,7 +300,8 @@ class CIR_cache:
             v1 = data1[arm_num]
             v2 = data2[arm_num]
             val = v1 * (1 - d) + v2 * d
-
+        if it_num == 59 or it_num == 58 or it_num == 60 or it_num==61 or it_num == 62:
+            print(f"it num {it_num}, arm_num {arm_num}, data_frame_num1 {data_frame_num1}, data_frame_num2 {data_frame_num2}, d {d}, v1 {v1 }, v2 {v2}, val {val} ")
         # TODO: apply transform
 
         return val
