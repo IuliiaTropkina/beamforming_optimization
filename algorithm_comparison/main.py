@@ -981,7 +981,7 @@ if __name__ == '__main__':
     best_beam = np.zeros(ITER_NUMBER_CIR)
     for i in range(ITER_NUMBER_CIR):
         oracle.append(max(cir_cache.all_rewards[:, i]))
-        print(f"max_reward at {i}, {max(cir_cache.all_rewards[:, i])}")
+        print(f"max_reward at {i}, {max(cir_cache.all_rewards[:, i])*cir_cache.max_reward}")
         best_beam[i] = np.argmax(cir_cache.all_rewards[:, i])
 
     avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
