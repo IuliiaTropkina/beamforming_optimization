@@ -225,8 +225,21 @@ class CIR_cache:
         return power
     def get_all_rewards(self):
         for it_num in range(ITER_NUMBER_CIR):
+            data_frame_num1 = it_num // self.frames_per_data_frame
+            data_frame_num2 = data_frame_num1 + 1
+            # data1 = self.binned_rays_by_frame[data_frame_num1] + self.get_noise()
+
+            # data1 = self.binned_rays_by_frame[data_frame_num1]
+            data1 = self.get_power(data_frame_num1)
+
             for ar_num in range(ARMS_NUMBER_CIR):
-                self.all_rewards[ar_num, it_num] = self.get_reward(ar_num, it_num)
+                if data_frame_num1 == FRAME_NUMBER - 1:
+                    self.all_rewards[ar_num, it_num] = data1[ar_num]
+                else:
+                    # data2 = self.binned_rays_by_frame[data_frame_num2] + self.get_noise()
+                    # data2 = self.binned_rays_by_frame[data_frame_num2]
+                    data2 = self.get_power(data_frame_num2)
+                    self.all_rewards[ar_num, it_num] = self.get_reward(data_frame_num1, it_num, data1[ar_num], data2[ar_num])
                 if self.all_rewards[ar_num, it_num] != 0:
                     self.all_rewards_dBm[ar_num, it_num] = 10 * np.log10(
                         self.all_rewards[ar_num, it_num] / (10 ** (-3)))
@@ -235,7 +248,6 @@ class CIR_cache:
             #Normalization
             #self.all_rewards_normalized[:, it_num] = self.all_rewards[:, it_num]/np.max(self.all_rewards[:, it_num])
             self.all_rewards_normalized[:, it_num] = self.all_rewards[:, it_num]
-            print(f"it num {it_num}, {max(self.all_rewards[:, it_num])}")
         self.all_rewards = self.all_rewards_normalized
         self.max_reward = np.max(self.all_rewards)
         self.all_rewards = self.all_rewards/self.max_reward
@@ -277,35 +289,18 @@ class CIR_cache:
         plt.savefig(f"{figures_path}rewards_dBm_{ARMS_NUMBER_CIR}.png", dpi=700,
                     bbox_inches='tight')
 
-    def get_reward(self, arm_num, it_num):
-        data_frame_num1 = it_num // self.frames_per_data_frame
-        data_frame_num2 = data_frame_num1 + 1
-        # data1 = self.binned_rays_by_frame[data_frame_num1] + self.get_noise()
-
-        #data1 = self.binned_rays_by_frame[data_frame_num1]
-        data1 = self.get_power(data_frame_num1)
-
-        if data_frame_num1 == FRAME_NUMBER - 1:
-            return data1[arm_num]
-        # data2 = self.binned_rays_by_frame[data_frame_num2] + self.get_noise()
-        #data2 = self.binned_rays_by_frame[data_frame_num2]
-        data2 = self.get_power(data_frame_num2)
+    def get_reward(self,  data_frame_num1, it_num, data1, data2):
 
 
 
         d = it_num / self.frames_per_data_frame - data_frame_num1
         if d == 0:
-            val = data1[arm_num]
-            if it_num == 169 or it_num == 170 or it_num == 171 or it_num == 172 or it_num == 173:
-                print(
-                    f"it num {it_num}, arm_num {arm_num}, data_frame_num1 {data_frame_num1}, data_frame_num2 {data_frame_num2}, d {d}, val {val} ")
+            val = data1
         else:
-            v1 = data1[arm_num]
-            v2 = data2[arm_num]
+            v1 = data1
+            v2 = data2
             val = v1 * (1 - d) + v2 * d
-            if it_num == 169 or it_num == 170 or it_num == 171 or it_num == 172 or it_num == 173:
-                print(
-                    f"it num {it_num}, arm_num {arm_num}, data_frame_num1 {data_frame_num1}, data_frame_num2 {data_frame_num2}, d {d}, v1 {v1}, v2 {v2}, val {val} ")
+
 
         # TODO: apply transform
 
@@ -583,12 +578,12 @@ if __name__ == '__main__':
 
     LOCATION_GRID_STEP = 15
 
-    frames_per_data_frame = 10
+    frames_per_data_frame = 10000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
 
-    SUBDIVISION = 1
+    SUBDIVISION = 2
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])

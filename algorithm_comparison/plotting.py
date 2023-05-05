@@ -697,7 +697,7 @@ def plot_real_protocol():
     # a = [1,2,3,4,5,6,7,8,9]
     # aa = cumulative_window(a,3)
     # exit()
-    frames_per_data_frame = 10 #10000
+    frames_per_data_frame = 10000 #10000
     FRAME_NUMBER = 38
 
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
@@ -708,7 +708,7 @@ def plot_real_protocol():
     # BS_power_dBi = 25
     UE_power_dBi = 5
 
-    SUBDIVISION = 1
+    SUBDIVISION = 2
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
