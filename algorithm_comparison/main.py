@@ -235,7 +235,7 @@ class CIR_cache:
             #Normalization
             #self.all_rewards_normalized[:, it_num] = self.all_rewards[:, it_num]/np.max(self.all_rewards[:, it_num])
             self.all_rewards_normalized[:, it_num] = self.all_rewards[:, it_num]
-
+            print(f"it num {it_num}, {max(self.all_rewards[:, it_num])}")
         self.all_rewards = self.all_rewards_normalized
         self.max_reward = np.max(self.all_rewards)
         self.all_rewards = self.all_rewards/self.max_reward
@@ -302,6 +302,7 @@ class CIR_cache:
             val = v1 * (1 - d) + v2 * d
 
         # TODO: apply transform
+
         return val
 
 
@@ -553,6 +554,7 @@ class EPS_greedy:
 if __name__ == '__main__':
     folder_name = sys.argv[2]
     seed_number = sys.argv[1]
+
     #
     np.random.seed(int(seed_number))
     # PLOTTING
@@ -575,7 +577,7 @@ if __name__ == '__main__':
 
     LOCATION_GRID_STEP = 15
 
-    frames_per_data_frame = 1000
+    frames_per_data_frame = 10
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
