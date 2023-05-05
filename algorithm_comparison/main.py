@@ -296,14 +296,14 @@ class CIR_cache:
         d = it_num / self.frames_per_data_frame - data_frame_num1
         if d == 0:
             val = data1[arm_num]
-            if it_num == 59 or it_num == 58 or it_num == 60 or it_num == 61 or it_num == 62:
+            if it_num == 169 or it_num == 170 or it_num == 171 or it_num == 172 or it_num == 173:
                 print(
                     f"it num {it_num}, arm_num {arm_num}, data_frame_num1 {data_frame_num1}, data_frame_num2 {data_frame_num2}, d {d}, val {val} ")
         else:
             v1 = data1[arm_num]
             v2 = data2[arm_num]
             val = v1 * (1 - d) + v2 * d
-            if it_num == 59 or it_num == 58 or it_num == 60 or it_num == 61 or it_num == 62:
+            if it_num == 169 or it_num == 170 or it_num == 171 or it_num == 172 or it_num == 173:
                 print(
                     f"it num {it_num}, arm_num {arm_num}, data_frame_num1 {data_frame_num1}, data_frame_num2 {data_frame_num2}, d {d}, v1 {v1}, v2 {v2}, val {val} ")
 
