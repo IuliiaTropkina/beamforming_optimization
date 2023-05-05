@@ -578,7 +578,7 @@ if __name__ == '__main__':
 
     LOCATION_GRID_STEP = 15
 
-    frames_per_data_frame = 10000
+    frames_per_data_frame = 10
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
