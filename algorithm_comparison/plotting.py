@@ -697,7 +697,7 @@ def plot_real_protocol():
     # a = [1,2,3,4,5,6,7,8,9]
     # aa = cumulative_window(a,3)
     # exit()
-    frames_per_data_frame = 10 #10000
+    frames_per_data_frame = 10000 #10000
     FRAME_NUMBER = 38
 
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
@@ -855,8 +855,8 @@ def plot_real_protocol():
         n +=1
     fig_name4 = f"Distance"
     plt.figure(fig_name4)
-    its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
-    plt.plot(its * duration_of_one_sample, Dist[0:ITER_NUMBER_CIR], "*")
+    its = np.linspace(0,frames_per_data_frame-1,frames_per_data_frame)
+    plt.plot(its * duration_of_one_sample, Dist[0:frames_per_data_frame], "*")
     plt.ylabel('Distance, m',fontsize=14)
     plt.xlabel("Time, sec",fontsize=14)
     # plt.yscale("log")
@@ -898,7 +898,6 @@ def plot_real_protocol():
         dpi=700, bbox_inches='tight')
 
     print("plotted")
-    exit()
     for NUMBER_OF_CONS_SSB in NUMBERs_OF_CONS_SSB:
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
         plt.figure(fig_name)
