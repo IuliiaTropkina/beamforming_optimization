@@ -795,7 +795,7 @@ def plot_real_protocol():
         "rb"))
 
     oracle = oracle*max_reward
-    oracle_dBm = 10 * np.log10(oracle) + UE_power_dBi
+    oracle_dB = 10 * np.log10(oracle) + UE_power_dBi
     # avarage_oracle = cumulative_window(oracle, window_size)
     # avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
 
@@ -805,7 +805,7 @@ def plot_real_protocol():
 
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
     print(f"length, {ITER_NUMBER_CIR}")
-    plt.plot(its * duration_of_one_sample, oracle)
+    plt.plot(its * duration_of_one_sample, oracle_dB)
 
 
     plt.ylabel('Power, dB',fontsize=14)
