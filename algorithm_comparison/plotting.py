@@ -766,7 +766,7 @@ def plot_real_protocol():
     parameters = [[0.8]]
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
     #SSB_period = np.array([5,10,20,40,80,160])
-    SSB_period = np.array([5,10,20,40,80,160])
+    SSB_period = np.array([5])
     SSB_period = SSB_period*10**(-3)
 
     window_size = 5000
