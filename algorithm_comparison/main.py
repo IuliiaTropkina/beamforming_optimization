@@ -219,8 +219,8 @@ class CIR_cache:
         dist = norm(dir)
         c = 299792458
         power[beam_number_nearest] = ((c/carrier_frequency) / (4 * math.pi * dist)) ** 2 #* 10**(antenna_gain/10)
-        power[0] = (((c/carrier_frequency) / (4 * math.pi * dist)) ** 2)  / 20  #* 10**(antenna_gain/10) )/20
-        power[1] = (((c / carrier_frequency) / (4 * math.pi * dist) )** 2 )/ 8 #* 10 ** (antenna_gain / 10) )/ 8
+        # power[0] = (((c/carrier_frequency) / (4 * math.pi * dist)) ** 2)  / 20  #* 10**(antenna_gain/10) )/20
+        # power[1] = (((c / carrier_frequency) / (4 * math.pi * dist) )** 2 )/ 8 #* 10 ** (antenna_gain / 10) )/ 8
 
         return power
     def get_all_rewards(self):
@@ -575,7 +575,7 @@ if __name__ == '__main__':
 
     LOCATION_GRID_STEP = 15
 
-    frames_per_data_frame = 10000
+    frames_per_data_frame = 1000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
@@ -982,7 +982,6 @@ if __name__ == '__main__':
     best_beam = np.zeros(ITER_NUMBER_CIR)
     for i in range(ITER_NUMBER_CIR):
         oracle.append(max(cir_cache.all_rewards[:, i]))
-        print(f"max_reward at {i}, {max(cir_cache.all_rewards[:, i])*cir_cache.max_reward}")
         best_beam[i] = np.argmax(cir_cache.all_rewards[:, i])
 
     avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
