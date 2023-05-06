@@ -823,6 +823,8 @@ def plot_real_protocol():
         f"{PATH}/best_beam_arms{int(ARMS_NUMBER_CIR)}.pickle",
         "rb"))
 
+
+
     fig_name3 = f"best_beam_{test_name}_arms{ARMS_NUMBER_CIR}_dBm"
     plt.figure(fig_name3)
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
