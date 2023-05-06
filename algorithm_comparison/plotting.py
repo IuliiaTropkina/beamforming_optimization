@@ -478,7 +478,6 @@ def plot_location():
         plt.show()
 
 def plot_exploitation_test():
-
     frames_per_data_frame = 1000#10000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
@@ -693,7 +692,7 @@ def plot_real_protocol():
 
 
 
-
+    PLOT_WINDOW = True
     # a = [1,2,3,4,5,6,7,8,9]
     # aa = cumulative_window(a,3)
     # exit()
@@ -766,7 +765,7 @@ def plot_real_protocol():
     parameters = [[0.8]]
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
     #SSB_period = np.array([5,10,20,40,80,160])
-    SSB_period = np.array([5,10,20,40,80,160])
+    SSB_period = np.array([5])
     SSB_period = SSB_period*10**(-3)
 
     window_size = 5000
@@ -928,7 +927,8 @@ def plot_real_protocol():
 
             oracle_for_seq = oracle[np.array(seq_search_exploitation_it_num)]
             #oracle_for_seq_average = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
-            oracle_for_seq_average_cum_win = cumulative_window(oracle_for_seq, window_size)
+            if PLOT_WINDOW:
+                oracle_for_seq_average_cum_win = cumulative_window(oracle_for_seq, window_size)
 
 
             #oracle_for_seq = cumulative_window(oracle_for_seq, window_size)
@@ -957,9 +957,10 @@ def plot_real_protocol():
 
             # seq_search_exploitation_reward_average = np.cumsum(seq_search_exploitation_reward) / (
             #             np.arange(len(seq_search_exploitation_reward)) + 1)
-
-            seq_search_exploitation_reward_cum_wind = cumulative_window(seq_search_exploitation_reward, window_size)
-            diff_seq_search_window = 10 * np.log10(oracle_for_seq_average_cum_win / (10 ** (-3))) - 10 * np.log10(seq_search_exploitation_reward_cum_wind/ (10 ** (-3)))
+            if PLOT_WINDOW:
+                seq_search_exploitation_reward_cum_wind = cumulative_window(seq_search_exploitation_reward, window_size)
+            if PLOT_WINDOW:
+                diff_seq_search_window = 10 * np.log10(oracle_for_seq_average_cum_win / (10 ** (-3))) - 10 * np.log10(seq_search_exploitation_reward_cum_wind/ (10 ** (-3)))
 
 
 
@@ -986,27 +987,27 @@ def plot_real_protocol():
         plt.savefig(
             f"{figures_path}/{fig_name}.pdf",
             dpi=700, bbox_inches='tight')
-
-        fig_name2 = f"sequential_search_windows_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
-        plt.figure(fig_name2)
-        plt.plot(np.array(seq_search_exploitation_it_num[
-                          window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
-                 diff_seq_search_window, label=f"SSB period = {SSB_p}")
-        line_3dB = np.full(len(seq_search_exploitation_it_num), 3)
-        plt.plot(np.array(seq_search_exploitation_it_num) * duration_of_one_sample, line_3dB,
-                 label=f"loss of 3dB", color="r")
-        plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}", fontsize=14)
-        plt.ylabel('Power loss, dB', fontsize=14)
-        plt.xlabel("Time, sec", fontsize=14)
-        # plt.yscale("log")
-        plt.ylim(0, 10)
-        plt.grid()
-        plt.legend(prop={'size': 12})
-        plt.yticks(fontsize=12)
-        plt.xticks(fontsize=12)
-        plt.savefig(
-            f"{figures_path}/window/{fig_name2}.pdf",
-            dpi=700, bbox_inches='tight')
+        if PLOT_WINDOW:
+            fig_name2 = f"sequential_search_windows_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
+            plt.figure(fig_name2)
+            plt.plot(np.array(seq_search_exploitation_it_num[
+                              window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
+                     diff_seq_search_window, label=f"SSB period = {SSB_p}")
+            line_3dB = np.full(len(seq_search_exploitation_it_num), 3)
+            plt.plot(np.array(seq_search_exploitation_it_num) * duration_of_one_sample, line_3dB,
+                     label=f"loss of 3dB", color="r")
+            plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}", fontsize=14)
+            plt.ylabel('Power loss, dB', fontsize=14)
+            plt.xlabel("Time, sec", fontsize=14)
+            # plt.yscale("log")
+            plt.ylim(0, 10)
+            plt.grid()
+            plt.legend(prop={'size': 12})
+            plt.yticks(fontsize=12)
+            plt.xticks(fontsize=12)
+            plt.savefig(
+                f"{figures_path}/window/{fig_name2}.pdf",
+                dpi=700, bbox_inches='tight')
 
 
         for con_type, cont_param, cont_param_sigh in zip(context_types, cont_params, cont_param_signs):
