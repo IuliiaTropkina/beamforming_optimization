@@ -766,7 +766,7 @@ def plot_real_protocol():
     parameters = [[0.8]]
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
     #SSB_period = np.array([5,10,20,40,80,160])
-    SSB_period = np.array([5])
+    SSB_period = np.array([5,10,20,40,80,160])
     SSB_period = SSB_period*10**(-3)
 
     window_size = 5000
@@ -898,6 +898,10 @@ def plot_real_protocol():
         dpi=700, bbox_inches='tight')
 
     print("plotted")
+    try:
+        os.makedirs(f"{figures_path}/window")
+    except:
+        print(f"Folder {figures_path}/window exists!")
     for NUMBER_OF_CONS_SSB in NUMBERs_OF_CONS_SSB:
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
         plt.figure(fig_name)
@@ -1001,7 +1005,7 @@ def plot_real_protocol():
         plt.yticks(fontsize=12)
         plt.xticks(fontsize=12)
         plt.savefig(
-            f"{figures_path}/{fig_name2}.pdf",
+            f"{figures_path}/window/{fig_name2}.pdf",
             dpi=700, bbox_inches='tight')
 
 
