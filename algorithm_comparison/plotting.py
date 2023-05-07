@@ -696,7 +696,7 @@ def plot_real_protocol():
     # a = [1,2,3,4,5,6,7,8,9]
     # aa = cumulative_window(a,3)
     # exit()
-    frames_per_data_frame = 1 #10000
+    frames_per_data_frame = 10000 #10000
     FRAME_NUMBER = 38
 
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
