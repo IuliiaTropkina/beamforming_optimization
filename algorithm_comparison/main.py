@@ -557,8 +557,8 @@ if __name__ == '__main__':
     #
     np.random.seed(int(seed_number))
     # PLOTTING
-    PLOT_ALL_REWARDS = False
-    PLOT_CONTEXT = False
+    PLOT_ALL_REWARDS = True
+    PLOT_CONTEXT = True
     PLOT_REWARDS_DESTRIBUTION = False
     SYNTHETIC = False
 
