@@ -696,7 +696,7 @@ def plot_real_protocol():
     # a = [1,2,3,4,5,6,7,8,9]
     # aa = cumulative_window(a,3)
     # exit()
-    frames_per_data_frame = 10000 #10000
+    frames_per_data_frame = 1 #10000
     FRAME_NUMBER = 38
 
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
@@ -765,14 +765,14 @@ def plot_real_protocol():
     parameters = [[0.8]]
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
     #SSB_period = np.array([5,10,20,40,80,160])
-    SSB_period = np.array([5,10,20,40,80,160])
+    SSB_period = np.array([10,20,40,80,160])
     SSB_period = SSB_period*10**(-3)
 
     window_size = 5000
 
 
     number_of_cycles = 1
-    folder_name_figures = "scenario_LOS_28_calib"
+    folder_name_figures = "scenario_LOS_28_calib2"
     # figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}"
 
     PATH = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name_figures}/output"
@@ -899,6 +899,7 @@ def plot_real_protocol():
         dpi=700, bbox_inches='tight')
 
     print("plotted")
+    exit()
     try:
         os.makedirs(f"{figures_path}/window")
     except:
