@@ -273,7 +273,7 @@ class CIR_cache:
         # plt.xticks(fontname="Times New Roman", fontsize="16")
         # plt.yticks(fontname="Times New Roman", fontsize="16")
 
-        plt.savefig(f"{figures_path}rewards{ARMS_NUMBER_CIR}.png", dpi=700,
+        plt.savefig(f"{figures_path}/additional_inform/rewards{ARMS_NUMBER_CIR}.png", dpi=700,
                     bbox_inches='tight')
 
         fig6 = plt.figure()
@@ -286,12 +286,10 @@ class CIR_cache:
         # plt.xticks(fontname="Times New Roman", fontsize="16")
         # plt.yticks(fontname="Times New Roman", fontsize="16")
 
-        plt.savefig(f"{figures_path}rewards_dBm_{ARMS_NUMBER_CIR}.png", dpi=700,
+        plt.savefig(f"{figures_path}/additional_inform/rewards_dBm_{ARMS_NUMBER_CIR}.png", dpi=700,
                     bbox_inches='tight')
 
     def get_reward(self,  data_frame_num1, it_num, data1, data2):
-
-
 
         d = it_num / self.frames_per_data_frame - data_frame_num1
         if d == 0:
@@ -636,21 +634,21 @@ if __name__ == '__main__':
     def calc(SSB_period,num_batch):
 
 
-        data = np.zeros((1,ITER_NUMBER_RANDOM))
-        for i in range(ITER_NUMBER_RANDOM):
-            if is_SSB(i, SSB_period, num_batch):
-                data[0,i] = 1
+        # data = np.zeros((1,ITER_NUMBER_RANDOM))
+        # for i in range(ITER_NUMBER_RANDOM):
+        #     if is_SSB(i, SSB_period, num_batch):
+        #         data[0,i] = 1
 
 
-        fig7777 = plt.figure()
-        plt.imshow(data[:,0:int(ITER_NUMBER_CIR / 16)], aspect="auto")
-        plt.xlabel("Data type")
-        plt.ylabel("Iteration")
-        # plt.xticks(fontname="Times New Roman", fontsize="16")
-        # plt.yticks(fontname="Times New Roman", fontsize="16")
-
-        plt.savefig(f"{selected_beams_folder}/packet_SSB_period{SSB_period}_cons_period{num_batch}.pdf",
-                    dpi=700, bbox_inches='tight')
+        # fig7777 = plt.figure()
+        # plt.imshow(data[:,0:int(ITER_NUMBER_CIR / 16)], aspect="auto")
+        # plt.xlabel("Data type")
+        # plt.ylabel("Iteration")
+        # # plt.xticks(fontname="Times New Roman", fontsize="16")
+        # # plt.yticks(fontname="Times New Roman", fontsize="16")
+        #
+        # plt.savefig(f"{selected_beams_folder}/packet_SSB_period{SSB_period}_cons_period{num_batch}.pdf",
+        #             dpi=700, bbox_inches='tight')
 
         sequential_search_reward = []
         seq_search_exploitation_reward = []
@@ -661,7 +659,6 @@ if __name__ == '__main__':
         threshold = 0
         SEARCH = True
         iter_number_for_search = 0
-        chosen_reward = cir_cache.all_rewards[0, i]
         sequential_search_time = []
         eps_greedy_time = []
         num_it_search = 0
@@ -886,17 +883,28 @@ if __name__ == '__main__':
                         for ac_num, ac in enumerate(all_states):
                             states_for_plot[ac, ac_num] = 1
 
-                        fig20 = plt.figure()
-                        plt.imshow(actions_for_plot[:,0:len(all_actions) - 1:1000], aspect="auto")
-                        plt.xlabel("Iteration (every 1000)")
-                        plt.ylabel("Beam nubmer") #, fontname="Times New Roman", fontsize="16"
-                        # plt.xticks(fontname="Times New Roman", fontsize="16")
-                        # plt.yticks(fontname="Times New Roman", fontsize="16")
-
+                        try:
+                            os.makedirs(f"{figures_path}/additional_inform")
+                        except:
+                            print(f"Folder {figures_path} exists!")
+                        duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_RANDOM  # 20 mcs 2e-5
+                        fig_name3 = f"chosen_beam_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}"
+                        plt.figure(fig_name3)
+                        its = np.linspace(0, ITER_NUMBER_CIR - 1, ITER_NUMBER_CIR)
+                        plt.plot(its * duration_of_one_sample, actions_for_plot, ".")
+                        plt.ylabel('Selected beam', fontsize=14)
+                        plt.xlabel("Time, sec", fontsize=14)
+                        # plt.yscale("log")
+                        # plt.ylim(0,10)
+                        plt.grid()
+                        plt.legend(prop={'size': 12})
+                        plt.yticks(fontsize=12)
+                        plt.xticks(fontsize=12)
                         plt.savefig(
-                            f"{selected_beams_folder}/chosen_arm_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}.pdf",
-                            dpi=700,
-                            bbox_inches='tight')
+                            f"{figures_path}/additional_inform/{fig_name3}.png",
+                            dpi=700, bbox_inches='tight')
+
+
 
                         fig21 = plt.figure()
                         plt.imshow(states_for_plot[:,0:len(all_actions) - 1:1000], aspect="auto")
@@ -906,7 +914,7 @@ if __name__ == '__main__':
                         # plt.yticks(fontname="Times New Roman", fontsize="16")
 
                         plt.savefig(
-                            f"{selected_beams_folder}/states_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}.pdf",
+                            f"{figures_path}/additional_inform/states_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}.pdf",
                             dpi=700,
                             bbox_inches='tight')
 
