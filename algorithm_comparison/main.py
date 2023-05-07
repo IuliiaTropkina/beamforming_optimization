@@ -959,7 +959,10 @@ if __name__ == '__main__':
     except:
         print(f"Folder {selected_beams_folder} exists!")
 
-
+    try:
+        os.makedirs(f"{figures_path}/additional_inform")
+    except:
+        print(f"Folder {figures_path} exists!")
 
     cir_cache = CIR_cache(PATH, FRAME_NUMBER, frames_per_data_frame=frames_per_data_frame)
     cir_cache.get_all_rewards()
@@ -988,10 +991,7 @@ if __name__ == '__main__':
                 #          color=colors, label=names)
 
 
-    try:
-        os.makedirs(f"{figures_path}/additional_inform")
-    except:
-        print(f"Folder {figures_path} exists!")
+
     oracle = []
     best_beam = np.zeros(ITER_NUMBER_CIR)
     for i in range(ITER_NUMBER_CIR):
