@@ -692,7 +692,7 @@ def plot_real_protocol():
 
 
 
-    PLOT_WINDOW = True
+    PLOT_WINDOW = False
     # a = [1,2,3,4,5,6,7,8,9]
     # aa = cumulative_window(a,3)
     # exit()
@@ -765,7 +765,7 @@ def plot_real_protocol():
     parameters = [[0.8]]
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
     #SSB_period = np.array([5,10,20,40,80,160])
-    SSB_period = np.array([5])
+    SSB_period = np.array([5,10,20,40,80,160])
     SSB_period = SSB_period*10**(-3)
 
     window_size = 5000
@@ -1133,6 +1133,7 @@ def calc_beam_wide(ico_subdivision):
     cone_angle = math.acos((2 - (triangle_size) ** 2) / 2)
     print(cone_angle*180/math.pi, "o")
     print(len(np.array(icosphere.vertices)))
+
 
 
 #DL_channel()

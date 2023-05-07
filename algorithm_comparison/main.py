@@ -229,16 +229,16 @@ class CIR_cache:
             data_frame_num2 = data_frame_num1 + 1
             # data1 = self.binned_rays_by_frame[data_frame_num1] + self.get_noise()
 
-            # data1 = self.binned_rays_by_frame[data_frame_num1]
-            data1 = self.get_power(data_frame_num1)
+            data1 = self.binned_rays_by_frame[data_frame_num1]
+            #data1 = self.get_power(data_frame_num1)
 
             for ar_num in range(ARMS_NUMBER_CIR):
                 if data_frame_num1 == FRAME_NUMBER - 1:
                     self.all_rewards[ar_num, it_num] = data1[ar_num]
                 else:
                     # data2 = self.binned_rays_by_frame[data_frame_num2] + self.get_noise()
-                    # data2 = self.binned_rays_by_frame[data_frame_num2]
-                    data2 = self.get_power(data_frame_num2)
+                    data2 = self.binned_rays_by_frame[data_frame_num2]
+                    #data2 = self.get_power(data_frame_num2)
                     self.all_rewards[ar_num, it_num] = self.get_reward(data_frame_num1, it_num, data1[ar_num], data2[ar_num])
                 if self.all_rewards[ar_num, it_num] != 0:
                     self.all_rewards_dBm[ar_num, it_num] = 10 * np.log10(
@@ -578,12 +578,12 @@ if __name__ == '__main__':
 
     LOCATION_GRID_STEP = 15
 
-    frames_per_data_frame = 10000
+    frames_per_data_frame = 1
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
 
-    SUBDIVISION = 3
+    SUBDIVISION = 2
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
@@ -595,7 +595,7 @@ if __name__ == '__main__':
 
     SCENARIO_DURATION = 8
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
-    SSB_periods = np.array([5,10,20,40,80,160])
+    SSB_periods = np.array([10,20,40,80,160])
     SSB_periods = SSB_periods*10**(-3)
     REAL_PROTOCOL = True
     def is_SSB(iteration, SSB_period, num_batch):
@@ -1001,6 +1001,7 @@ if __name__ == '__main__':
         f"{figures_path}/TX_locations.pickle", 'wb'))
     pickle.dump(RX_locations, open(
         f"{figures_path}/RX_locations.pickle", 'wb'))
+    exit()
     for SSB_period in SSB_periods:
         for n_b in NUMBERs_OF_CONS_SSB:
             calc(SSB_period,n_b)
