@@ -883,10 +883,7 @@ if __name__ == '__main__':
                         for ac_num, ac in enumerate(all_states):
                             states_for_plot[ac, ac_num] = 1
 
-                        try:
-                            os.makedirs(f"{figures_path}/additional_inform")
-                        except:
-                            print(f"Folder {figures_path} exists!")
+
                         duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_RANDOM  # 20 mcs 2e-5
                         fig_name3 = f"chosen_beam_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}"
                         plt.figure(fig_name3)
@@ -989,6 +986,12 @@ if __name__ == '__main__':
                             bbox_inches='tight')
                 # plt.hist([x1, x2, x3, x4, x5], bins=int(180 / 15), normed=True,
                 #          color=colors, label=names)
+
+
+    try:
+        os.makedirs(f"{figures_path}/additional_inform")
+    except:
+        print(f"Folder {figures_path} exists!")
     oracle = []
     best_beam = np.zeros(ITER_NUMBER_CIR)
     for i in range(ITER_NUMBER_CIR):
