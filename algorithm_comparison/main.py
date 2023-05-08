@@ -158,7 +158,7 @@ def find_angle_between_vectors(v1, v2):
 # def transform_reward(min_limit_power, max_limit_power, min_limit_reward, max_limit_reward):
 
 
-def bin_rays_by_direction(beam_dirs, ray_dirs, power) -> dict:
+def bin_rays_by_direction(beam_dirs, ray_dirs, e_field) -> dict:
     dirs_sorted = {}
     for ray_num, ray in enumerate(ray_dirs):
         index_nearest_RX = spatial.KDTree(beam_dirs).query(ray)[1]
@@ -168,14 +168,20 @@ def bin_rays_by_direction(beam_dirs, ray_dirs, power) -> dict:
             dirs_sorted[index_nearest_RX] = [ray_num]
 
     dirs_sorted_power = np.zeros(len(beam_dirs))
+
+    max_power = max(np.abs(e_field)**2)
     for i in range(0, len(beam_dirs)):
-        power_for_dir = []
+        e_for_dir = []
         try:
             dirs = dirs_sorted[i]
             for ind in dirs:
-                power_for_dir.append(power[ind])
+                e_for_dir.append(e_field[ind])
             #dirs_sorted_power[i] = max(power_for_dir)
-            dirs_sorted_power[i] = np.abs(sum(power_for_dir))**2
+
+            if max(np.abs(e_for_dir)**2) == max_power:
+                dirs_sorted_power[i] = max_power
+            else:
+                dirs_sorted_power[i] = np.abs(sum(e_for_dir))**2
         except:
             dirs_sorted_power[i] = 0
     # dirs_sorted_power = { k:max(v) for k,v in dirs_sorted.items()}
@@ -203,7 +209,7 @@ class CIR_cache:
             E = np.array(E)
             time_array = data[1]
             Power = E2Power(E, carrier_frequency)
-            d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, Power)
+            #d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, Power)
             d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, E)
             self.binned_rays_by_frame.append(d)
 
