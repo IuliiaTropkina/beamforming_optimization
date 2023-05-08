@@ -174,7 +174,8 @@ def bin_rays_by_direction(beam_dirs, ray_dirs, power) -> dict:
             dirs = dirs_sorted[i]
             for ind in dirs:
                 power_for_dir.append(power[ind])
-            dirs_sorted_power[i] = max(power_for_dir)
+            #dirs_sorted_power[i] = max(power_for_dir)
+            dirs_sorted_power[i] = np.abs(sum(power_for_dir))**2
         except:
             dirs_sorted_power[i] = 0
     # dirs_sorted_power = { k:max(v) for k,v in dirs_sorted.items()}
@@ -203,6 +204,7 @@ class CIR_cache:
             time_array = data[1]
             Power = E2Power(E, carrier_frequency)
             d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, Power)
+            d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, E)
             self.binned_rays_by_frame.append(d)
 
 
