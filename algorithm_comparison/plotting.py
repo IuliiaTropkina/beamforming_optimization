@@ -872,7 +872,7 @@ def plot_real_protocol():
 
     print("plotted")
     carrier_frequency = 28e9
-    file_name = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name_figures}/CIRS/CIR_scene_frame{1}_grid_step{0.1}_voxel_size{0.5}_freq{carrier_frequency}"
+    file_name = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name_figures}/CIRS/CIR_scene_frame{1}_grid_step{0.5}_voxel_size{2}_freq{carrier_frequency}"
     data = pickle.load(open(f"{file_name}.pickle", "rb"))
     directions_of_arrival_RX = data[0]
     directions_of_arrival_RX = np.array(directions_of_arrival_RX)
