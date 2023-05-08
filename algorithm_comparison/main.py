@@ -197,6 +197,8 @@ class CIR_cache:
         self.all_rewards_dBm = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
         self.all_rewards_normalized = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
         self.max_reward = 0
+        self.E = []
+        self.dirs = []
         antenna_data = loadmat('antenna_pattern28GHz.mat')
         self.antenna_pattern_3D = antenna_data['a']
         for frame_num in range(num_rt_frames_total):
@@ -210,8 +212,10 @@ class CIR_cache:
             time_array = data[1]
             Power = E2Power(E, carrier_frequency)
             #d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, Power)
-            d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, E)
-            self.binned_rays_by_frame.append(d)
+            #d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, E)
+            #self.binned_rays_by_frame.append(d)
+            self.E.append(E)
+            self.dirs.append(directions_of_arrival_RX_for_antenna)
 
 
     def get_power(self, frame_number):
@@ -231,13 +235,37 @@ class CIR_cache:
         power[1] = (((c / carrier_frequency) / (4 * math.pi * dist) )** 2 * 10 ** (antenna_gain / 10) )/ 8
 
         return power
+
+
+    def get_power_based_on_dataset(self, frame_number):
+        e_sum = np.zeros(ARMS_NUMBER_CIR)
+
+        dirs = self.dirs[frame_number]
+        e_fields = self.E[frame_number]
+
+        max_power = np.abs(e_fields)**2
+
+        for d_ind, d in enumerate(dirs):
+            beam_number_nearest = spatial.KDTree(beam_directions).query(d)[1]
+            angle = find_angle_between_vectors(beam_directions[beam_number_nearest], d)  # radians
+            antenna_gain = self.antenna_pattern_3D[
+                90 + int(np.round(angle * 180 / math.pi)), int(np.round(angle * 180 / math.pi))]
+            if np.abs(e_fields[d_ind])**2 == max_power:
+                e_sum[beam_number_nearest] = e_fields[d_ind] * 10**(antenna_gain/20)
+            else:
+                e_sum[beam_number_nearest] += 10* e_fields[d_ind] * 10 ** (antenna_gain / 20)
+
+        return np.abs(e_sum)**2
+
+
     def get_all_rewards(self):
         for it_num in range(ITER_NUMBER_CIR):
             data_frame_num1 = it_num // self.frames_per_data_frame
             data_frame_num2 = data_frame_num1 + 1
             # data1 = self.binned_rays_by_frame[data_frame_num1] + self.get_noise()
 
-            data1 = self.binned_rays_by_frame[data_frame_num1]
+            #data1 = self.binned_rays_by_frame[data_frame_num1]
+            data1 = self.get_power_based_on_dataset[data_frame_num1]
             #data1 = self.get_power(data_frame_num1)
 
             for ar_num in range(ARMS_NUMBER_CIR):
@@ -245,8 +273,9 @@ class CIR_cache:
                     self.all_rewards[ar_num, it_num] = data1[ar_num]
                 else:
                     # data2 = self.binned_rays_by_frame[data_frame_num2] + self.get_noise()
-                    data2 = self.binned_rays_by_frame[data_frame_num2]
+                    #data2 = self.binned_rays_by_frame[data_frame_num2]
                     #data2 = self.get_power(data_frame_num2)
+                    data2 = self.get_power_based_on_dataset(data_frame_num2)
                     self.all_rewards[ar_num, it_num] = self.get_reward(data_frame_num1, it_num, data1[ar_num], data2[ar_num])
                 if self.all_rewards[ar_num, it_num] != 0:
                     self.all_rewards_dBm[ar_num, it_num] = 10 * np.log10(
