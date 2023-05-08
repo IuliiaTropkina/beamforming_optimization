@@ -181,7 +181,7 @@ def bin_rays_by_direction(beam_dirs, ray_dirs, e_field) -> dict:
             if max(np.abs(e_for_dir)**2) == max_power:
                 dirs_sorted_power[i] = max_power
             else:
-                dirs_sorted_power[i] = np.abs(sum(e_for_dir))**2
+                dirs_sorted_power[i] = np.abs(sum(10*e_for_dir))**2
         except:
             dirs_sorted_power[i] = 0
     # dirs_sorted_power = { k:max(v) for k,v in dirs_sorted.items()}
