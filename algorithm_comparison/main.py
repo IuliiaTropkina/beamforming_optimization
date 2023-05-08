@@ -567,8 +567,8 @@ if __name__ == '__main__':
         run_synthetic()
 
     # DATASET FROM ENGINE
-    voxel_size = 2
-    grid_step = 0.5
+    voxel_size = 0.5
+    grid_step = 0.1
 
 
     P_TX = 1
