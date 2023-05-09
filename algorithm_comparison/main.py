@@ -243,7 +243,7 @@ class CIR_cache:
         dirs = self.dirs[frame_number]
         e_fields = self.E[frame_number]
 
-        max_power = np.abs(e_fields)**2
+        max_power = max(np.abs(e_fields)**2)
 
         for d_ind, d in enumerate(dirs):
             beam_number_nearest = spatial.KDTree(beam_directions).query(d)[1]
