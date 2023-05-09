@@ -197,9 +197,9 @@ class CIR_cache:
         self.all_rewards_dBm = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
         self.all_rewards_normalized = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
         self.max_reward = 0
-        self.E = []
-        self.dirs = []
-        self.P = []
+        self.dirs_sorted_power = np.zeros((num_rt_frames_total, len(beam_directions)))
+
+
         antenna_data = loadmat(f'antenna_pattern28GHz_type{ANTENNA_TYPE}.mat')
         self.antenna_pattern_3D = antenna_data['a']
         for frame_num in range(num_rt_frames_total):
@@ -214,10 +214,8 @@ class CIR_cache:
             Power = E2Power(E, carrier_frequency)
             #d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, Power)
             #d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, E)
-            #self.binned_rays_by_frame.append(d)
-            # self.E.append(E)
-            self.dirs.append(directions_of_arrival_RX_for_antenna)
-            self.P.append(Power)
+            self.get_power_based_on_dataset(frame_num, directions_of_arrival_RX_for_antenna, Power)
+
 
 
     def get_power(self, frame_number):
@@ -239,9 +237,8 @@ class CIR_cache:
         return power
 
 
-    def get_power_based_on_dataset(self, frame_number):
-        ray_dirs = self.dirs[frame_number]
-        P = self.P[frame_number]
+    def get_power_based_on_dataset(self, frame_num, ray_dirs, P):
+
         max_power = max(P)
         dirs_sorted = {}
         for ray_num, ray in enumerate(ray_dirs):
@@ -251,7 +248,8 @@ class CIR_cache:
             except:
                 dirs_sorted[index_nearest_RX] = [ray_num]
 
-        dirs_sorted_power = np.zeros(len(beam_directions))
+
+
         for i in range(0, len(beam_directions)):
             power_for_dir = []
             indexes = []
@@ -261,18 +259,18 @@ class CIR_cache:
                     power_for_dir.append(P[ind])
                     indexes.append(ind)
                 ray_direction_for_antenna = ray_dirs[indexes[np.argmax(np.array(power_for_dir))]]
+                angle = find_angle_between_vectors(beam_directions[i], ray_direction_for_antenna)
                 antenna_gain = self.antenna_pattern_3D[
                     90 + int(np.round(angle * 180 / math.pi)), int(np.round(angle * 180 / math.pi))]
-                angle = find_angle_between_vectors(beam_directions[i], ray_direction_for_antenna)
-                dirs_sorted_power[i] = max(power_for_dir) * 10 ** (antenna_gain / 10)
+
+                self.dirs_sorted_power[frame_num, i] = max(power_for_dir) * 10 ** (antenna_gain / 10)
 
                 if max(power_for_dir) != max_power:
-                    dirs_sorted_power[i] = dirs_sorted_power[i] * 10
+                    self.dirs_sorted_power[frame_num, i] = self.dirs_sorted_power[i] * 10
 
             except:
-                dirs_sorted_power[i] = 0
+                self.dirs_sorted_power[frame_num, i] = 0
 
-        return dirs_sorted_power
 
     def get_all_rewards(self):
         for it_num in range(ITER_NUMBER_CIR):
@@ -282,18 +280,24 @@ class CIR_cache:
             # data1 = self.binned_rays_by_frame[data_frame_num1] + self.get_noise()
 
             #data1 = self.binned_rays_by_frame[data_frame_num1]
-            data1 = self.get_power_based_on_dataset(data_frame_num1)
+            data1 = self.dirs_sorted_power[data_frame_num1]
+
+
+
             #data1 = self.get_power(data_frame_num1)
 
             for ar_num in range(ARMS_NUMBER_CIR):
+
                 if data_frame_num1 == FRAME_NUMBER - 1:
                     self.all_rewards[ar_num, it_num] = data1[ar_num]
+
                 else:
                     # data2 = self.binned_rays_by_frame[data_frame_num2] + self.get_noise()
                     #data2 = self.binned_rays_by_frame[data_frame_num2]
                     #data2 = self.get_power(data_frame_num2)
-                    data2 = self.get_power_based_on_dataset(data_frame_num2)
-                    self.all_rewards[ar_num, it_num] = self.get_reward(data_frame_num1, it_num, data1[ar_num], data2[ar_num])
+                    data2 = self.dirs_sorted_power[data_frame_num2]
+                    Power = self.get_reward(data_frame_num1, it_num, data1[ar_num], data2[ar_num])
+                    self.all_rewards[ar_num, it_num] = Power
                 if self.all_rewards[ar_num, it_num] != 0:
                     self.all_rewards_dBm[ar_num, it_num] = 10 * np.log10(
                         self.all_rewards[ar_num, it_num] / (10 ** (-3)))
