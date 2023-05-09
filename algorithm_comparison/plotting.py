@@ -770,12 +770,12 @@ def plot_real_protocol():
 
     window_size = 5000
 
-    ANTENNA_TYPE = 1
+    ANTENNA_TYPE = 2
     number_of_cycles = 1
     folder_name_figures = "scenario_LOS_28_calib2"
     # figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}"
 
-    PATH = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name_figures}/output"
+    PATH = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name_figures}/output_type{ANTENNA_TYPE}"
     figures_path = f"{PATH}/figures_zoom"
     try:
         os.makedirs(figures_path)
