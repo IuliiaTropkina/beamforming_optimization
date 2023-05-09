@@ -770,7 +770,7 @@ def plot_real_protocol():
 
     window_size = 5000
 
-
+    ANTENNA_TYPE = 1
     number_of_cycles = 1
     folder_name_figures = "scenario_LOS_28_calib2"
     # figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}"
@@ -783,7 +783,7 @@ def plot_real_protocol():
         print(f"Folder {figures_path} exists!")
 
     max_reward = pickle.load(open(
-        f"{PATH}/max_reward.pickle",
+        f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name_figures}/max_reward_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle.pickle",
         "rb"))
 
 
@@ -870,7 +870,6 @@ def plot_real_protocol():
         f"{figures_path}/{fig_name4}.pdf",
         dpi=700, bbox_inches='tight')
 
-    print("plotted")
     carrier_frequency = 28e9
     file_name = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name_figures}/CIRS/CIR_scene_frame{1}_grid_step{0.1}_voxel_size{0.5}_freq{carrier_frequency}"
     data = pickle.load(open(f"{file_name}.pickle", "rb"))
@@ -899,7 +898,6 @@ def plot_real_protocol():
         dpi=700, bbox_inches='tight')
 
     print("plotted")
-    exit()
     try:
         os.makedirs(f"{figures_path}/window")
     except:
