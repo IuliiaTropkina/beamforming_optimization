@@ -158,34 +158,34 @@ def find_angle_between_vectors(v1, v2):
 # def transform_reward(min_limit_power, max_limit_power, min_limit_reward, max_limit_reward):
 
 
-def bin_rays_by_direction(beam_dirs, ray_dirs, e_field) -> dict:
-    dirs_sorted = {}
-    for ray_num, ray in enumerate(ray_dirs):
-        index_nearest_RX = spatial.KDTree(beam_dirs).query(ray)[1]
-        try:
-            dirs_sorted[index_nearest_RX].append(ray_num)
-        except:
-            dirs_sorted[index_nearest_RX] = [ray_num]
-
-    dirs_sorted_power = np.zeros(len(beam_dirs))
-
-    max_power = max(np.abs(e_field)**2)
-    for i in range(0, len(beam_dirs)):
-        e_for_dir = []
-        try:
-            dirs = dirs_sorted[i]
-            for ind in dirs:
-                e_for_dir.append(e_field[ind])
-            #dirs_sorted_power[i] = max(power_for_dir)
-
-            if max(np.abs(e_for_dir)**2) == max_power:
-                dirs_sorted_power[i] = max_power
-            else:
-                dirs_sorted_power[i] = np.abs(sum(10*e_for_dir))**2
-        except:
-            dirs_sorted_power[i] = 0
-    # dirs_sorted_power = { k:max(v) for k,v in dirs_sorted.items()}
-    return dirs_sorted_power
+# def bin_rays_by_direction(beam_dirs, ray_dirs, e_field) -> dict:
+#     dirs_sorted = {}
+#     for ray_num, ray in enumerate(ray_dirs):
+#         index_nearest_RX = spatial.KDTree(beam_dirs).query(ray)[1]
+#         try:
+#             dirs_sorted[index_nearest_RX].append(ray_num)
+#         except:
+#             dirs_sorted[index_nearest_RX] = [ray_num]
+#
+#     dirs_sorted_power = np.zeros(len(beam_dirs))
+#
+#     max_power = max(np.abs(e_field)**2)
+#     for i in range(0, len(beam_dirs)):
+#         e_for_dir = []
+#         try:
+#             dirs = dirs_sorted[i]
+#             for ind in dirs:
+#                 e_for_dir.append(e_field[ind])
+#             #dirs_sorted_power[i] = max(power_for_dir)
+#
+#             if max(np.abs(e_for_dir)**2) == max_power:
+#                 dirs_sorted_power[i] = max_power
+#             else:
+#                 dirs_sorted_power[i] = np.abs(sum(10*e_for_dir))**2
+#         except:
+#             dirs_sorted_power[i] = 0
+#     # dirs_sorted_power = { k:max(v) for k,v in dirs_sorted.items()}
+#     return dirs_sorted_power
 
 
 
@@ -276,8 +276,7 @@ class CIR_cache:
 
     def get_all_rewards(self):
         for it_num in range(ITER_NUMBER_CIR):
-            if it_num %10 == 0:
-                print(f"Reward is calculated {it_num/ITER_NUMBER_CIR *100 }")
+            print(f"Reward is calculated {it_num/ITER_NUMBER_CIR *100 }")
             data_frame_num1 = it_num // self.frames_per_data_frame
             data_frame_num2 = data_frame_num1 + 1
             # data1 = self.binned_rays_by_frame[data_frame_num1] + self.get_noise()
@@ -631,7 +630,7 @@ if __name__ == '__main__':
 
     LOCATION_GRID_STEP = 15
 
-    frames_per_data_frame = 10000
+    frames_per_data_frame = 1000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
