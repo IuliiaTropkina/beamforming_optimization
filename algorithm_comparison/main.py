@@ -264,7 +264,7 @@ class CIR_cache:
                 antenna_gain = self.antenna_pattern_3D[
                     90 + int(np.round(angle * 180 / math.pi)), int(np.round(angle * 180 / math.pi))]
                 angle = find_angle_between_vectors(beam_directions[i], ray_direction_for_antenna)
-                dirs_sorted_power[i] = max(power_for_dir) * 10 ** (antenna_gain / 20)
+                dirs_sorted_power[i] = max(power_for_dir) * 10 ** (antenna_gain / 10)
 
                 if max(power_for_dir) != max_power:
                     dirs_sorted_power[i] = dirs_sorted_power[i] * 10
@@ -276,7 +276,7 @@ class CIR_cache:
 
     def get_all_rewards(self):
         for it_num in range(ITER_NUMBER_CIR):
-            if it_num %100 == 0:
+            if it_num %10 == 0:
                 print(f"Reward is calculated {it_num/ITER_NUMBER_CIR *100 }")
             data_frame_num1 = it_num // self.frames_per_data_frame
             data_frame_num2 = data_frame_num1 + 1
@@ -1025,7 +1025,7 @@ if __name__ == '__main__':
         cir_cache.plot_all_rewards()
 
     pickle.dump(cir_cache.all_rewards, open(
-        f"/home/hciutr/Training/beamforming_optimization/algorithm_comparison/reward_antenna_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+        f"/home/hciutr/Training/beamforming_optimization/algorithm_comparison/reward_antenna_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle", 'wb'))
     if PLOT_REWARDS_DESTRIBUTION:
         # beams_to_plot = [1,5,7,11]
         beams_to_plot = np.linspace(1, ARMS_NUMBER_CIR - 1, ARMS_NUMBER_CIR)
