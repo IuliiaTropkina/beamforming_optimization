@@ -1049,7 +1049,6 @@ if __name__ == '__main__':
         f"{figures_path}/TX_locations.pickle", 'wb'))
     pickle.dump(RX_locations, open(
         f"{figures_path}/RX_locations.pickle", 'wb'))
-    exit()
     for SSB_period in SSB_periods:
         for n_b in NUMBERs_OF_CONS_SSB:
             calc(SSB_period,n_b)
