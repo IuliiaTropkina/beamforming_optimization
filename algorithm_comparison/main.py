@@ -265,7 +265,7 @@ class CIR_cache:
             # data1 = self.binned_rays_by_frame[data_frame_num1] + self.get_noise()
 
             #data1 = self.binned_rays_by_frame[data_frame_num1]
-            data1 = self.get_power_based_on_dataset[data_frame_num1]
+            data1 = self.get_power_based_on_dataset(data_frame_num1)
             #data1 = self.get_power(data_frame_num1)
 
             for ar_num in range(ARMS_NUMBER_CIR):
