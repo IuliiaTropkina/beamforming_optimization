@@ -329,18 +329,18 @@ class CIR_cache:
         plt.savefig(f"{figures_path}/additional_inform/rewards{ARMS_NUMBER_CIR}.png", dpi=700,
                     bbox_inches='tight')
 
-        fig6 = plt.figure()
-        plt.imshow(self.all_rewards_dBm[:, 0:ITER_NUMBER_CIR - 1:1000], aspect="auto")
-        col_bar3 = plt.colorbar()
-        col_bar3.set_label('Power, dBm')
-        # plt.show()
-        plt.xlabel("Iteration (every 1000)")
-        plt.ylabel("Arm nubmer")
-        # plt.xticks(fontname="Times New Roman", fontsize="16")
-        # plt.yticks(fontname="Times New Roman", fontsize="16")
-
-        plt.savefig(f"{figures_path}/additional_inform/rewards_dBm_{ARMS_NUMBER_CIR}.png", dpi=700,
-                    bbox_inches='tight')
+        # fig6 = plt.figure()
+        # plt.imshow(self.all_rewards_dBm[:, 0:ITER_NUMBER_CIR - 1:1000], aspect="auto")
+        # col_bar3 = plt.colorbar()
+        # col_bar3.set_label('Power, dBm')
+        # # plt.show()
+        # plt.xlabel("Iteration (every 1000)")
+        # plt.ylabel("Arm nubmer")
+        # # plt.xticks(fontname="Times New Roman", fontsize="16")
+        # # plt.yticks(fontname="Times New Roman", fontsize="16")
+        #
+        # plt.savefig(f"{figures_path}/additional_inform/rewards_dBm_{ARMS_NUMBER_CIR}.png", dpi=700,
+        #             bbox_inches='tight')
 
     def get_reward(self,  data_frame_num1, it_num, data1, data2):
 
