@@ -199,7 +199,8 @@ class CIR_cache:
         self.max_reward = 0
         self.E = []
         self.dirs = []
-        antenna_data = loadmat('antenna_pattern28GHz.mat')
+        self.P = []
+        antenna_data = loadmat(f'antenna_pattern28GHz_type{ANTENNA_TYPE}.mat')
         self.antenna_pattern_3D = antenna_data['a']
         for frame_num in range(num_rt_frames_total):
             file_name = f"{PATH}/CIR_scene_frame{frame_num + 1}_grid_step{grid_step}_voxel_size{voxel_size}_freq{carrier_frequency}"
@@ -214,8 +215,9 @@ class CIR_cache:
             #d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, Power)
             #d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, E)
             #self.binned_rays_by_frame.append(d)
-            self.E.append(E)
+            # self.E.append(E)
             self.dirs.append(directions_of_arrival_RX_for_antenna)
+            self.P.append(Power)
 
 
     def get_power(self, frame_number):
@@ -238,28 +240,44 @@ class CIR_cache:
 
 
     def get_power_based_on_dataset(self, frame_number):
-        e_sum = np.zeros(ARMS_NUMBER_CIR)
+        ray_dirs = self.dirs[frame_number]
+        P = self.P[frame_number]
+        max_power = max(P)
+        dirs_sorted = {}
+        for ray_num, ray in enumerate(ray_dirs):
+            index_nearest_RX = spatial.KDTree(beam_directions).query(ray)[1]
+            try:
+                dirs_sorted[index_nearest_RX].append(ray_num)
+            except:
+                dirs_sorted[index_nearest_RX] = [ray_num]
 
-        dirs = self.dirs[frame_number]
-        e_fields = self.E[frame_number]
+        dirs_sorted_power = np.zeros(len(beam_directions))
+        for i in range(0, len(beam_directions)):
+            power_for_dir = []
+            indexes = []
+            try:
+                dirs = dirs_sorted[i]
+                for ind in dirs:
+                    power_for_dir.append(P[ind])
+                    indexes.append(ind)
+                ray_direction_for_antenna = ray_dirs[indexes[np.argmax(np.array(power_for_dir))]]
+                antenna_gain = self.antenna_pattern_3D[
+                    90 + int(np.round(angle * 180 / math.pi)), int(np.round(angle * 180 / math.pi))]
+                angle = find_angle_between_vectors(beam_directions[i], ray_direction_for_antenna)
+                dirs_sorted_power[i] = max(power_for_dir) * 10 ** (antenna_gain / 20)
 
-        max_power = max(np.abs(e_fields)**2)
+                if max(power_for_dir) != max_power:
+                    dirs_sorted_power[i] = dirs_sorted_power[i] * 10
 
-        for d_ind, d in enumerate(dirs):
-            beam_number_nearest = spatial.KDTree(beam_directions).query(d)[1]
-            angle = find_angle_between_vectors(beam_directions[beam_number_nearest], d)  # radians
-            antenna_gain = self.antenna_pattern_3D[
-                90 + int(np.round(angle * 180 / math.pi)), int(np.round(angle * 180 / math.pi))]
-            if np.abs(e_fields[d_ind])**2 == max_power:
-                e_sum[beam_number_nearest] = e_fields[d_ind] * 10**(antenna_gain/20)
-            else:
-                e_sum[beam_number_nearest] += 10* e_fields[d_ind] * 10 ** (antenna_gain / 20)
+            except:
+                dirs_sorted_power[i] = 0
 
-        return np.abs(e_sum)**2
-
+        return dirs_sorted_power
 
     def get_all_rewards(self):
         for it_num in range(ITER_NUMBER_CIR):
+            if it_num %100 == 0:
+                print(f"Reward is calculated {it_num/ITER_NUMBER_CIR *100 }")
             data_frame_num1 = it_num // self.frames_per_data_frame
             data_frame_num2 = data_frame_num1 + 1
             # data1 = self.binned_rays_by_frame[data_frame_num1] + self.get_noise()
@@ -626,7 +644,7 @@ if __name__ == '__main__':
     ARMS_NUMBER_CIR = len(beam_directions)
     SUBDIVISION_2 = 2
     icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
-
+    ANTENNA_TYPE = 1
 
     SCENARIO_DURATION = 8
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
@@ -1005,6 +1023,9 @@ if __name__ == '__main__':
     cir_cache.get_all_rewards()
     if PLOT_ALL_REWARDS:
         cir_cache.plot_all_rewards()
+
+    pickle.dump(cir_cache.all_rewards, open(
+        f"/home/hciutr/Training/beamforming_optimization/algorithm_comparison/reward_antenna_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
     if PLOT_REWARDS_DESTRIBUTION:
         # beams_to_plot = [1,5,7,11]
         beams_to_plot = np.linspace(1, ARMS_NUMBER_CIR - 1, ARMS_NUMBER_CIR)
