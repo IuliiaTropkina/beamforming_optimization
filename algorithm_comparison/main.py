@@ -191,30 +191,15 @@ def find_angle_between_vectors(v1, v2):
 
 class CIR_cache:
     def __init__(self, PATH, num_rt_frames_total, frames_per_data_frame=1000):
-        self.binned_rays_by_frame = []
+        self.num_rt_frames_total = num_rt_frames_total
         self.frames_per_data_frame = frames_per_data_frame
         self.all_rewards = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
-        self.all_rewards_dBm = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
         self.all_rewards_normalized = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
         self.max_reward = 0
         self.dirs_sorted_power = np.zeros((num_rt_frames_total, len(beam_directions)))
 
 
-        antenna_data = loadmat(f'antenna_pattern28GHz_type{ANTENNA_TYPE}.mat')
-        self.antenna_pattern_3D = antenna_data['a']
-        for frame_num in range(num_rt_frames_total):
-            file_name = f"{PATH}/CIR_scene_frame{frame_num + 1}_grid_step{grid_step}_voxel_size{voxel_size}_freq{carrier_frequency}"
-            data = pickle.load(open(f"{file_name}.pickle", "rb"))
-            directions_of_arrival_RX = data[0]
-            directions_of_arrival_RX = np.array(directions_of_arrival_RX)
-            directions_of_arrival_RX_for_antenna = - directions_of_arrival_RX
-            E = data[2]  # v/m
-            E = np.array(E)
-            time_array = data[1]
-            Power = E2Power(E, carrier_frequency)
-            #d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, Power)
-            #d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, E)
-            self.get_power_based_on_dataset(frame_num, directions_of_arrival_RX_for_antenna, Power)
+
 
 
 
@@ -273,6 +258,22 @@ class CIR_cache:
 
 
     def get_all_rewards(self):
+        antenna_data = loadmat(f'antenna_pattern28GHz_type{ANTENNA_TYPE}.mat')
+        self.antenna_pattern_3D = antenna_data['a']
+        for frame_num in range(self.num_rt_frames_total):
+            file_name = f"{PATH}/CIR_scene_frame{frame_num + 1}_grid_step{grid_step}_voxel_size{voxel_size}_freq{carrier_frequency}"
+            data = pickle.load(open(f"{file_name}.pickle", "rb"))
+            directions_of_arrival_RX = data[0]
+            directions_of_arrival_RX = np.array(directions_of_arrival_RX)
+            directions_of_arrival_RX_for_antenna = - directions_of_arrival_RX
+            E = data[2]  # v/m
+            E = np.array(E)
+            time_array = data[1]
+            Power = E2Power(E, carrier_frequency)
+            #d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, Power)
+            #d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, E)
+            self.get_power_based_on_dataset(frame_num, directions_of_arrival_RX_for_antenna, Power)
+
         for it_num in range(ITER_NUMBER_CIR):
             if it_num % 100 == 0:
                 print(f"Reward is calculated {it_num/ITER_NUMBER_CIR *100 }")
@@ -299,15 +300,8 @@ class CIR_cache:
                     data2 = self.dirs_sorted_power[data_frame_num2]
                     Power = self.get_reward(data_frame_num1, it_num, data1[ar_num], data2[ar_num])
                     self.all_rewards[ar_num, it_num] = Power
-                if self.all_rewards[ar_num, it_num] != 0:
-                    self.all_rewards_dBm[ar_num, it_num] = 10 * np.log10(
-                        self.all_rewards[ar_num, it_num] / (10 ** (-3)))
-                else:
-                    self.all_rewards_dBm[ar_num, it_num] = -100
-            #Normalization
-            #self.all_rewards_normalized[:, it_num] = self.all_rewards[:, it_num]/np.max(self.all_rewards[:, it_num])
-            self.all_rewards_normalized[:, it_num] = self.all_rewards[:, it_num]
-        self.all_rewards = self.all_rewards_normalized
+
+
         self.max_reward = np.max(self.all_rewards)
         self.all_rewards = self.all_rewards/self.max_reward
         #self.all_rewards = self.all_rewards
@@ -635,7 +629,7 @@ if __name__ == '__main__':
 
     LOCATION_GRID_STEP = 15
 
-    frames_per_data_frame = 1000
+    frames_per_data_frame = 10000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
@@ -648,7 +642,7 @@ if __name__ == '__main__':
     ARMS_NUMBER_CIR = len(beam_directions)
     SUBDIVISION_2 = 2
     icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
-    ANTENNA_TYPE = 2
+    ANTENNA_TYPE = 1
 
     SCENARIO_DURATION = 8
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
@@ -1024,33 +1018,47 @@ if __name__ == '__main__':
         print(f"Folder {figures_path} exists!")
 
     cir_cache = CIR_cache(PATH, FRAME_NUMBER, frames_per_data_frame=frames_per_data_frame)
-    cir_cache.get_all_rewards()
-    if PLOT_ALL_REWARDS:
-        cir_cache.plot_all_rewards()
 
-    pickle.dump(cir_cache.all_rewards, open(
-        f"/home/hciutr/Training/beamforming_optimization/algorithm_comparison/reward_antenna_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle", 'wb'))
-    if PLOT_REWARDS_DESTRIBUTION:
-        # beams_to_plot = [1,5,7,11]
-        beams_to_plot = np.linspace(1, ARMS_NUMBER_CIR - 1, ARMS_NUMBER_CIR)
-        binwidth = 100
-        for i, b in enumerate(beams_to_plot):
-            if sum(cir_cache.all_rewards[int(b), :]) != 0:
-                # Set up the plot
-                fig, ax = plt.subplots()
+    try:
+        cir_cache.all_rewards = pickle.load(open(
+            f"{PATH_json}/reward_antenna_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
+            "rb"))
+        cir_cache.max_reward = pickle.load(open(
+            f"{PATH_json}/max_reward_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
+            "rb"))
+    except:
+        cir_cache.get_all_rewards()
+        pickle.dump(cir_cache.all_rewards, open(
+            f"{PATH_json}/reward_antenna_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
+            'wb'))
+        pickle.dump(np.array([cir_cache.max_reward]), open(
+            f"{PATH_json}/max_reward_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
+            'wb'))
+        if PLOT_ALL_REWARDS:
+            cir_cache.plot_all_rewards()
 
-                ax.hist(cir_cache.all_rewards[int(b), :], bins=int(binwidth), density=True,
-                        color='blue', edgecolor='black')
 
-                # Title and labels
-                ax.set_title(f"Beam number {i}")
-                ax.set_xlabel('Power, W')
-                ax.set_ylabel("Number of times")
-                plt.grid()
-                plt.savefig(f"{figures_path}/beam_power_PDF_arms_num_{ARMS_NUMBER_CIR}_num{i}.pdf", dpi=700,
-                            bbox_inches='tight')
-                # plt.hist([x1, x2, x3, x4, x5], bins=int(180 / 15), normed=True,
-                #          color=colors, label=names)
+        if PLOT_REWARDS_DESTRIBUTION:
+            # beams_to_plot = [1,5,7,11]
+            beams_to_plot = np.linspace(1, ARMS_NUMBER_CIR - 1, ARMS_NUMBER_CIR)
+            binwidth = 100
+            for i, b in enumerate(beams_to_plot):
+                if sum(cir_cache.all_rewards[int(b), :]) != 0:
+                    # Set up the plot
+                    fig, ax = plt.subplots()
+
+                    ax.hist(cir_cache.all_rewards[int(b), :], bins=int(binwidth), density=True,
+                            color='blue', edgecolor='black')
+
+                    # Title and labels
+                    ax.set_title(f"Beam number {i}")
+                    ax.set_xlabel('Power, W')
+                    ax.set_ylabel("Number of times")
+                    plt.grid()
+                    plt.savefig(f"{figures_path}/beam_power_PDF_arms_num_{ARMS_NUMBER_CIR}_num{i}.pdf", dpi=700,
+                                bbox_inches='tight')
+                    # plt.hist([x1, x2, x3, x4, x5], bins=int(180 / 15), normed=True,
+                    #          color=colors, label=names)
 
 
 
@@ -1067,9 +1075,7 @@ if __name__ == '__main__':
         f"{figures_path}/best_beam_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
 
-    pickle.dump(np.array([cir_cache.max_reward]), open(
-        f"{figures_path}/max_reward.pickle",
-        'wb'))
+
     pickle.dump(TX_locations, open(
         f"{figures_path}/TX_locations.pickle", 'wb'))
     pickle.dump(RX_locations, open(
