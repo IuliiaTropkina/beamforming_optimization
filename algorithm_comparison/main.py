@@ -644,7 +644,7 @@ if __name__ == '__main__':
     ARMS_NUMBER_CIR = len(beam_directions)
     SUBDIVISION_2 = 2
     icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
-    ANTENNA_TYPE = 1
+    ANTENNA_TYPE = 2
 
     SCENARIO_DURATION = 8
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
