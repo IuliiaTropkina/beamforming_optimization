@@ -998,7 +998,7 @@ if __name__ == '__main__':
     TX_locations = np.array(TX_locations)
 
     RX_locations = np.array(RX_locations)
-    figures_path = f"{PATH_json}/output"
+    figures_path = f"{PATH_json}/output_type{ANTENNA_TYPE}"
     try:
         os.makedirs(figures_path)
     except:
