@@ -647,7 +647,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
     trying_beam_number = 0
     sequential_search_reward = []
     chosen_beam_number_seq_search = []
-    chosen_beam_number_seq_search = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
+    #chosen_beam_number_seq_search = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
 
     for i in range(0, ITER_NUMBER_CIR):
         iter_from_begining_of_frame = i % (iter_per_frame * number_of_frames_between_SB_burst)
