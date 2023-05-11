@@ -637,7 +637,7 @@ def is_SB(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB
 
 
 
-def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter):
+def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter,number_of_SB_in_burst):
 
     SEARCH = True
     max_reward_search = np.zeros(ARMS_NUMBER_CIR)
@@ -688,12 +688,12 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
     pickle.dump(sequential_search_reward,
                 open(
-                    f"{figures_path}/seq_search_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
+                    f"{figures_path}/seq_search_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
                     'wb'))
 
     pickle.dump(chosen_beam_number_seq_search,
                 open(
-                    f"{figures_path}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
+                    f"{figures_path}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
                     'wb'))
     # pickle.dump(seq_search_exploitation_it_num,
     #             open(
@@ -795,7 +795,7 @@ if __name__ == '__main__':
             (iter_per_DL - dur_SB_in_iterations * number_of_SB_in_burst) / (number_of_SB_in_burst - 1))
         interval_feedback_iter = np.floor((iter_per_frame - iter_per_DL) / 2)
 
-        sequential_search(number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter)
+        sequential_search(number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter,number_of_SB_in_burst)
 
 
 
@@ -941,17 +941,17 @@ if __name__ == '__main__':
                             dpi=700,
                             bbox_inches='tight')
 
-                    pickle.dump(cumulative_average, open(
-                        f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}_seed{seed_number}.pickle",
+                    pickle.dump(reward, open(
+                        f"{figures_path}/reward_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}_seed{seed_number}.pickle",
                         'wb'))
 
                     pickle.dump(exloitation_iterations, open(
                         f"{figures_path}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}_seed{seed_number}.pickle",
                         'wb'))
 
-                    pickle.dump(reward_exploitation, open(
-                        f"{figures_path}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}_seed{seed_number}.pickle",
-                        'wb'))
+                    # pickle.dump(reward_exploitation, open(
+                    #     f"{figures_path}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}_seed{seed_number}.pickle",
+                    #     'wb'))
 
 
 
