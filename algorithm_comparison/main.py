@@ -423,7 +423,7 @@ class MultipathChannel(Env):
 
 
 class Contextual_bandit:
-    def __init__(self, alg_name, arms_number, iter_number, param, context_type, SSB_period, num_batch, context_set=[[]], data_random=False,
+    def __init__(self, alg_name, arms_number, iter_number, param, context_type, iter_from_begining_of_frame, interval_between_SB_in_iterations , interval_feedback_iter, context_set=[[]], data_random=False,
                  random_data_with_CONTEXT=False):
         self.context_type = context_type
         self.data_random = data_random
@@ -434,16 +434,18 @@ class Contextual_bandit:
         self.context_set = context_set
         self.iter_number = iter_number
         self.context_for_all_iterations = np.zeros((len(context_set), ITER_NUMBER_CIR))
-        self.chosen_beam_number = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
+        self.chosen_beam_number = []
         self.all_rewards = np.zeros((len(context_set), ITER_NUMBER_CIR))
         self.param = param
         self.arms_number = arms_number
         self.alg_name = alg_name
         self.reward_exploitation = []
         self.exploitation_iterations = []
-        self.SSB_period = SSB_period
-        self.num_batch = num_batch
-
+        self.reward_exploiration = []
+        self.context_number_exploration = []
+        self.iter_from_begining_of_frame = iter_from_begining_of_frame
+        self.interval_between_SB_in_iterations = interval_between_SB_in_iterations
+        self.interval_feedback_iter = interval_feedback_iter
         if len(context_set)!=0:
             if alg_name == "UCB":
                 for _ in self.context_set:
@@ -489,29 +491,41 @@ class Contextual_bandit:
                 elif self.context_type == "DOA":
                     context_number = cir_cache.choose_context_number(self.context_set, i)
             if REAL_PROTOCOL:
-                if is_SSB(i, self.SSB_period,self.num_batch):
-                    self.arm_num = self.MAB[context_number].get_arm()
+
+                if is_DL(self.iter_from_begining_of_frame, self.iter_per_DL):
+                    if is_SSB_start(self.iter_from_begining_of_frame, self.dur_SB_in_iterations,
+                                    self.interval_between_SB_in_iterations):
+                        self.arm_num = self.MAB[context_number].get_arm()
+                        self.MAB[context_number].arm_exploration = self.arm_num
+                        obtained_reward = cir_cache.all_rewards[self.arm_num, i]
+                        self.reward_exploiration.append(obtained_reward)
+                        self.context_number_exploration.append(context_number)
+                        self.exploitation_iterations.append(i)
+                    elif not is_SB(self.iter_from_begining_of_frame, dur_SB_in_iterations,
+                                   self.interval_between_SB_in_iterations):
+                        self.arm_num = self.MAB[context_number].arm_exploitation
+                    else:
+                        self.arm_num = self.MAB[context_number].arm_exploration
+
                 else:
-                    self.arm_num = self.MAB[context_number].arm_exploitation
+                    if is_feedback(self.iter_from_begining_of_frame, iter_per_DL, self.interval_feedback_iter):
+
+                        for r, c in zip(self.reward_exploiration, self.context_number_exploration):
+                            self.MAB[c].update(self.arm_num, r)
+                            self.arm_exploitation = self.MAB[context_number].get_arm()
+                            self.arm_num = self.arm_exploitation
+                            self.MAB[c].all_iter_count += 1
+
 
             else:
                 self.arm_num = self.MAB[context_number].get_arm()
 
-            self.chosen_beam_number[self.arm_num, i] = 1
-            #self.context_for_all_iterations[context_number, i] = 1
-            if self.data_random:
-                if self.random_data_with_CONTEXT:
-                    obtained_reward = choose_random(self.arm_num, i)
-                else:
-                    obtained_reward = choose_random_no_context(self.arm_num)
-            else:
-                obtained_reward = cir_cache.all_rewards[self.arm_num, i]
+            self.chosen_beam_number.append(self.arm_num)
 
-            if REAL_PROTOCOL:
-                if is_SSB(i,  self.SSB_period,self.num_batch):
-                    self.MAB[context_number].update(self.arm_num, obtained_reward)
-            else:
-                self.MAB[context_number].update(self.arm_num, obtained_reward)
+            obtained_reward = cir_cache.all_rewards[self.arm_num, i]
+
+            # self.MAB[context_number].update(self.arm_num, obtained_reward)
+
 
 
             # for the plot
@@ -520,14 +534,11 @@ class Contextual_bandit:
             #     self.reward_exploitation.append(obtained_reward)
             #     self.exploitation_iterations.append(i)
 
-            if not is_SSB(i,  self.SSB_period,self.num_batch):
-                self.reward_exploitation.append(obtained_reward)
-                self.exploitation_iterations.append(i)
 
-            self.MAB[context_number].all_iter_count += 1
-        cumulative_average = np.cumsum(rewards) / (np.arange(self.iter_number) + 1)
 
-        return cumulative_average, rewards, self.reward_exploitation, self.exploitation_iterations
+
+
+        return rewards, self.exploitation_iterations
 
 
 class UCB:
@@ -538,6 +549,7 @@ class UCB:
         self.arms_number = arms_number
         self.all_iter_count = 0
         self.arm_exploitation = 0
+        self.arm_exploration = 0
     # Update the action-value estimate
     def update(self, arm_num, obtained_reward):
         self.arms_iter_count[arm_num] += 1
@@ -545,9 +557,9 @@ class UCB:
             arm_num] + 1.0 / self.arms_iter_count[arm_num] * obtained_reward
 
     def get_arm(self):
-        self.arm_exploitation = np.argmax(self.arms_mean_reward + self.c * np.sqrt(
+        return np.argmax(self.arms_mean_reward + self.c * np.sqrt(
             (np.log(self.all_iter_count)) / self.arms_iter_count))
-        return self.arm_exploitation
+
 
 
 class ThompsonSampling:
@@ -602,8 +614,116 @@ class EPS_greedy:
             self.arm_exploitation = np.argmax(self.arms_mean_reward)
             return self.arm_exploitation
 
+def is_DL(iter_from_begining_of_frame, iter_per_DL):
+    if iter_from_begining_of_frame < iter_per_DL:
+        return True
+    return False
+def is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations):
+    if iter_from_begining_of_frame % (dur_SB_in_iterations+ interval_between_SB_in_iterations) == 0:
+        return True
+    return False
+
+def is_feedback(iter_from_begining_of_frame, iter_per_DL, interval_feedback_iter):
+    if iter_from_begining_of_frame == iter_per_DL + interval_feedback_iter - 1 == 0:
+        return True
+    return False
+
+
+def is_SB(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations):
+    if iter_from_begining_of_frame % (dur_SB_in_iterations+ interval_between_SB_in_iterations)  < dur_SB_in_iterations:
+        return True
+    return False
+
+
+
+
+
+def sequential_search(iter_from_begining_of_frame, interval_between_SB_in_iterations , interval_feedback_iter):
+
+    SEARCH = True
+    max_reward_search = np.zeros(ARMS_NUMBER_CIR)
+    beam_number_count = 0
+    chosen_max_beam_number = 0
+    threshold = 0
+    trying_beam_number = 0
+    sequential_search_reward = []
+    chosen_beam_number_seq_search = []
+    chosen_beam_number_seq_search = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
+
+    for i in range(0, ITER_NUMBER_CIR):
+
+        if SEARCH:
+            if is_DL(iter_from_begining_of_frame, iter_per_DL):
+                if is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations):
+                    trying_beam_number = beam_number_count
+                    chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
+                    max_reward_search[beam_number_count] = chosen_reward
+                    beam_number_count += 1
+
+                elif not is_SB(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations):
+                    trying_beam_number = chosen_max_beam_number
+                else:
+                    trying_beam_number = beam_number_count
+
+            else:
+                if is_feedback(iter_from_begining_of_frame, iter_per_DL, interval_feedback_iter):
+                    chosen_max_beam_number = np.argmax(max_reward_search)
+                    trying_beam_number = chosen_max_beam_number
+
+        else:
+            trying_beam_number = chosen_max_beam_number
+
+        chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
+        sequential_search_reward.append(chosen_reward)
+        chosen_beam_number_seq_search.append(trying_beam_number)
+
+        if beam_number_count == ARMS_NUMBER_CIR:
+            threshold = max(max_reward_search) / 2
+            SEARCH = False
+            beam_number_count = 0
+        if chosen_reward < threshold:
+            SEARCH = True
+
+
+
+
+    pickle.dump(sequential_search_reward,
+                open(
+                    f"{figures_path}/seq_search_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
+                    'wb'))
+
+    pickle.dump(chosen_beam_number_seq_search,
+                open(
+                    f"{figures_path}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
+                    'wb'))
+    # pickle.dump(seq_search_exploitation_it_num,
+    #             open(
+    #                 f"{figures_path}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
+    #                 'wb'))
+
 
 if __name__ == '__main__':
+    DUR_FRAME = 10e-3
+    DUR_DL = 5e-5
+    SHIFT_FEEDBACK = 2.5e-3
+    DUR_SB = 66.67e-6
+    DUR_FEEDBACK = 66.67e-6
+    SCENARIO_DURATION = 8
+    frames_per_data_frame = 10000
+    FRAME_NUMBER = 38
+    ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
+    ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
+
+
+
+    duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_CIR
+    iter_per_frame = np.floor(DUR_FRAME / duration_of_one_sample)
+    iter_per_DL = np.floor(DUR_DL/duration_of_one_sample)
+    dur_SB_in_iterations = np.floor(DUR_SB/duration_of_one_sample)
+
+
+
+
     folder_name = sys.argv[2]
     seed_number = sys.argv[1]
 
@@ -629,10 +749,7 @@ if __name__ == '__main__':
 
     LOCATION_GRID_STEP = 15
 
-    frames_per_data_frame = 10000
-    FRAME_NUMBER = 38
-    ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
-    ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
+
 
     SUBDIVISION = 2
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
@@ -644,23 +761,11 @@ if __name__ == '__main__':
     icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
     ANTENNA_TYPE = 2
 
-    SCENARIO_DURATION = 8
+
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
-    SSB_periods = np.array([10,20,40,80,160])
-    SSB_periods = SSB_periods*10**(-3)
+    Numbers_of_frames_between_SSB = np.array([1,2,4,8,16])
     REAL_PROTOCOL = True
-    def is_SSB(iteration, SSB_period, num_batch):
 
-        number_of_periods = SCENARIO_DURATION/SSB_period
-
-        duration_of_one_sample = SCENARIO_DURATION/ITER_NUMBER_RANDOM
-
-        number_of_iterations_between_cons_SSB = int((5*10**(-3)/num_batch)/(duration_of_one_sample))
-        max_number_of_iteration_in_set = int((num_batch-1) * number_of_iterations_between_cons_SSB)
-        number_of_iterations_per_one_SSB_period = int(SSB_period/duration_of_one_sample)
-        if (iteration % number_of_iterations_per_one_SSB_period) % number_of_iterations_between_cons_SSB == 0 and (iteration % number_of_iterations_per_one_SSB_period) <= max_number_of_iteration_in_set:
-            return True
-        return False
 
 
     NUMBER_OF_ITERATIONS_TRAINING = ITER_NUMBER_CIR #250000
@@ -684,129 +789,15 @@ if __name__ == '__main__':
     parameters = [[0.8]]  # eps greedy
 
 
-    def calc(SSB_period,num_batch):
+    def calc(number_of_frames_between_SB_burst,number_of_SB_in_burst):
 
+        iter_from_begining_of_frame = iter % (iter_per_frame * number_of_frames_between_SB_burst)
+        interval_between_SB_in_iterations = np.floor(
+            (iter_per_DL - dur_SB_in_iterations * number_of_SB_in_burst) / (number_of_SB_in_burst - 1))
+        interval_feedback_iter = np.floor((iter_per_frame - iter_per_DL) / 2)
 
-        # data = np.zeros((1,ITER_NUMBER_RANDOM))
-        # for i in range(ITER_NUMBER_RANDOM):
-        #     if is_SSB(i, SSB_period, num_batch):
-        #         data[0,i] = 1
+        sequential_search(iter_from_begining_of_frame, interval_between_SB_in_iterations , interval_feedback_iter)
 
-
-        # fig7777 = plt.figure()
-        # plt.imshow(data[:,0:int(ITER_NUMBER_CIR / 16)], aspect="auto")
-        # plt.xlabel("Data type")
-        # plt.ylabel("Iteration")
-        # # plt.xticks(fontname="Times New Roman", fontsize="16")
-        # # plt.yticks(fontname="Times New Roman", fontsize="16")
-        #
-        # plt.savefig(f"{selected_beams_folder}/packet_SSB_period{SSB_period}_cons_period{num_batch}.pdf",
-        #             dpi=700, bbox_inches='tight')
-
-        sequential_search_reward = []
-        seq_search_exploitation_reward = []
-        seq_search_exploitation_it_num = []
-
-        max_reward_search = np.zeros(ARMS_NUMBER_CIR)
-        chosen_beam_number_seq_search = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
-        threshold = 0
-        SEARCH = True
-        iter_number_for_search = 0
-        sequential_search_time = []
-        eps_greedy_time = []
-        num_it_search = 0
-        num_it_eps_greedy = 0
-        eps = 0.15
-        exp_vs_expl = False
-        trying_beam_number = 0
-        for i in range(0, ITER_NUMBER_CIR):
-            if SEARCH and not REAL_PROTOCOL:
-                trying_beam_number = iter_number_for_search
-            elif SEARCH and REAL_PROTOCOL and is_SSB(i,SSB_period, num_batch):
-                trying_beam_number = iter_number_for_search
-            else:
-                trying_beam_number = np.argmax(max_reward_search)
-
-            if exp_vs_expl:
-                eps_greedy_time.append(num_it_eps_greedy / ((i + 1) - num_it_eps_greedy))
-            else:
-                eps_greedy_time.append(num_it_eps_greedy / ((i + 1)))
-
-            p = np.random.random()
-            if p < eps:
-                num_it_eps_greedy += 1
-
-            chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
-            sequential_search_reward.append(chosen_reward)
-            chosen_beam_number_seq_search[trying_beam_number, i] = 1
-            if exp_vs_expl:
-                sequential_search_time.append(num_it_search/((i+1)-num_it_search))
-            else:
-                sequential_search_time.append(num_it_search / ((i + 1)))
-
-            if REAL_PROTOCOL:
-                SEARCH_IN_SSB = SEARCH and is_SSB(i,SSB_period,num_batch)
-
-            else:
-                SEARCH_IN_SSB = SEARCH
-
-            if SEARCH_IN_SSB:
-                max_reward_search[iter_number_for_search] = chosen_reward
-                iter_number_for_search += 1
-                num_it_search += 1
-                if iter_number_for_search == ARMS_NUMBER_CIR:
-
-                    threshold = max(max_reward_search) / 2
-                    SEARCH = False
-                    iter_number_for_search = 0
-            else:
-                seq_search_exploitation_reward.append(chosen_reward)
-                seq_search_exploitation_it_num.append(i)
-                if chosen_reward < threshold:
-                    SEARCH = True
-
-
-
-
-
-        fig75 = plt.figure()
-        plt.imshow(chosen_beam_number_seq_search[:, 0:int(ITER_NUMBER_CIR)], aspect="auto")
-        plt.xlabel("Iteration")
-        plt.ylabel("Beam nubmer")
-        # plt.xticks(fontname="Times New Roman", fontsize="16")
-        # plt.yticks(fontname="Times New Roman", fontsize="16")
-
-        plt.savefig(f"{selected_beams_folder}/chosen_arm_sequantial_search_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}.pdf",
-                    dpi=700,
-                    bbox_inches='tight')
-
-
-        avarage_sequential_search = np.cumsum(sequential_search_reward) / (np.arange(ITER_NUMBER_CIR) + 1)
-
-
-        avarage_sequential_search_dBm = 10 * np.log10(avarage_sequential_search / (10 ** (-3)))
-        pickle.dump(avarage_sequential_search, open(f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle", 'wb'))
-        pickle.dump(seq_search_exploitation_reward,
-                    open(f"{figures_path}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
-                         'wb'))
-        pickle.dump(seq_search_exploitation_it_num,
-                    open(f"{figures_path}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
-                         'wb'))
-
-
-        pickle.dump(sequential_search_time,
-                    open(f"{figures_path}/exp_expl_time_sequential_search_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
-                         'wb'))
-        pickle.dump(eps_greedy_time,
-                    open(f"{figures_path}/exp_expl_time_eps_greedy_arms{int(ARMS_NUMBER_CIR)}_eps{eps}.pickle",
-                         'wb'))
-        random_choice = []
-        for i in range(ITER_NUMBER_CIR):
-            random_num = np.random.choice(ARMS_NUMBER_CIR)
-            random_choice.append(cir_cache.all_rewards[random_num, i])
-        avarage_random_choice = np.cumsum(random_choice) / (np.arange(ITER_NUMBER_CIR) + 1)
-        pickle.dump(avarage_random_choice, open(
-            f"{figures_path}/cumulative_avarage_random_choice_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
 
 
         for con_set, con_type, cont_param in zip(context_sets,context_types, cont_params):
@@ -853,36 +844,19 @@ if __name__ == '__main__':
                 for p in pars:
                     if alg_name == "UCB" or alg_name == "EPS_greedy" or alg_name == "THS":
                         number_of_cycles = 1
-                        bandit = Contextual_bandit(alg_name, ARMS_NUMBER_CIR, ITER_NUMBER_CIR, p, con_type, SSB_period, num_batch, context_set=con_set)
-                        cumulative_average, reward, reward_exploitation, exloitation_iterations  = bandit.run_bandit()
+                        bandit = Contextual_bandit(alg_name, ARMS_NUMBER_CIR, ITER_NUMBER_CIR, p, con_type, iter_from_begining_of_frame, interval_between_SB_in_iterations , interval_feedback_iter, context_set=con_set)
+                        reward, exloitation_iterations  = bandit.run_bandit()
 
                         pickle.dump(len(bandit.existing_contexts), open(
-                            f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{SSB_period}_consSSB{num_batch}.pickle",
+                            f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
                             'wb'))
 
-                        fig7 = plt.figure()
-                        plt.imshow(bandit.chosen_beam_number[:, 0:int(ITER_NUMBER_CIR/16)], aspect="auto")
-                        plt.xlabel("Iteration")
-                        plt.ylabel("Beam nubmer")
-                        # plt.xticks(fontname="Times New Roman", fontsize="16")
-                        # plt.yticks(fontname="Times New Roman", fontsize="16")
 
-                        plt.savefig(
-                            f"{selected_beams_folder}/chosen_arm_type{con_type}_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}.pdf",
-                            dpi=700,
-                            bbox_inches='tight')
+                        pickle.dump(bandit.chosen_beam_number, open(
+                            f"{figures_path}/chosen_arm_type{con_type}_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
+                            'wb'))
 
-                        # fig89 = plt.figure()
-                        # plt.imshow(bandit.context_for_all_iterations[:, 0:ITER_NUMBER_CIR - 1:1000], aspect="auto")
-                        # plt.xlabel("Iteration (every 1000)", fontname="Times New Roman", fontsize="16")
-                        # plt.ylabel("Context nubmer", fontname="Times New Roman", fontsize="16")
-                        # plt.xticks(fontname="Times New Roman", fontsize="16")
-                        # plt.yticks(fontname="Times New Roman", fontsize="16")
-                        #
-                        # plt.savefig(
-                        #     f"{selected_beams_folder}/context_for_all_iterations_cont_type{con_type}_context{len(con_set)}.pdf",
-                        #     dpi=700,
-                        #     bbox_inches='tight')
+
 
                     elif alg_name == "DQL":
 
@@ -938,7 +912,7 @@ if __name__ == '__main__':
 
 
                         duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_RANDOM  # 20 mcs 2e-5
-                        fig_name3 = f"chosen_beam_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}"
+                        fig_name3 = f"chosen_beam_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}"
                         plt.figure(fig_name3)
                         its = np.linspace(0, ITER_NUMBER_CIR - 1, ITER_NUMBER_CIR)
                         plt.plot(its * duration_of_one_sample, actions_for_plot, ".")
@@ -964,20 +938,20 @@ if __name__ == '__main__':
                         # plt.yticks(fontname="Times New Roman", fontsize="16")
 
                         plt.savefig(
-                            f"{figures_path}/additional_inform/states_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{SSB_period}_consSSB{num_batch}.pdf",
+                            f"{figures_path}/additional_inform/states_context{len(con_set)}_{alg_name}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pdf",
                             dpi=700,
                             bbox_inches='tight')
 
                     pickle.dump(cumulative_average, open(
-                        f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{num_batch}_seed{seed_number}.pickle",
+                        f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}_seed{seed_number}.pickle",
                         'wb'))
 
                     pickle.dump(exloitation_iterations, open(
-                        f"{figures_path}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{num_batch}_seed{seed_number}.pickle",
+                        f"{figures_path}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}_seed{seed_number}.pickle",
                         'wb'))
 
                     pickle.dump(reward_exploitation, open(
-                        f"{figures_path}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_period}_consSSB{num_batch}_seed{seed_number}.pickle",
+                        f"{figures_path}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}_seed{seed_number}.pickle",
                         'wb'))
 
 
@@ -1068,7 +1042,6 @@ if __name__ == '__main__':
         oracle.append(max(cir_cache.all_rewards[:, i]))
         best_beam[i] = np.argmax(cir_cache.all_rewards[:, i])
 
-    avarage_oracle = np.cumsum(oracle) / (np.arange(ITER_NUMBER_CIR) + 1)
     pickle.dump(oracle, open(
         f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
     pickle.dump(best_beam, open(
@@ -1080,7 +1053,7 @@ if __name__ == '__main__':
         f"{figures_path}/TX_locations.pickle", 'wb'))
     pickle.dump(RX_locations, open(
         f"{figures_path}/RX_locations.pickle", 'wb'))
-    for SSB_period in SSB_periods:
+    for N_f in Numbers_of_frames_between_SSB:
         for n_b in NUMBERs_OF_CONS_SSB:
-            calc(SSB_period,n_b)
+            calc(N_f,n_b)
 
