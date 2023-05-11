@@ -423,8 +423,11 @@ class MultipathChannel(Env):
 
 
 class Contextual_bandit:
-    def __init__(self, alg_name, arms_number, iter_number, param, context_type, iter_from_begining_of_frame, interval_between_SB_in_iterations , interval_feedback_iter, context_set=[[]], data_random=False,
+    def __init__(self, alg_name, arms_number, iter_number, param, context_type, number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter, context_set=[[]], data_random=False,
                  random_data_with_CONTEXT=False):
+        self.interval_between_SB_in_iterations = interval_between_SB_in_iterations
+        self.interval_feedback_iter = interval_feedback_iter
+        self.number_of_frames_between_SB_burst = number_of_frames_between_SB_burst
         self.context_type = context_type
         self.data_random = data_random
         self.random_data_with_CONTEXT = random_data_with_CONTEXT
@@ -443,9 +446,7 @@ class Contextual_bandit:
         self.exploitation_iterations = []
         self.reward_exploiration = []
         self.context_number_exploration = []
-        self.iter_from_begining_of_frame = iter_from_begining_of_frame
-        self.interval_between_SB_in_iterations = interval_between_SB_in_iterations
-        self.interval_feedback_iter = interval_feedback_iter
+
         if len(context_set)!=0:
             if alg_name == "UCB":
                 for _ in self.context_set:
@@ -477,6 +478,7 @@ class Contextual_bandit:
     def run_bandit(self):
         rewards = np.empty(self.iter_number)
         for i in range(self.iter_number):
+            iter_from_begining_of_frame = i % (iter_per_frame * self.number_of_frames_between_SB_burst)
             if self.data_random:
                 context_number = 0
             else:
@@ -492,8 +494,8 @@ class Contextual_bandit:
                     context_number = cir_cache.choose_context_number(self.context_set, i)
             if REAL_PROTOCOL:
 
-                if is_DL(self.iter_from_begining_of_frame, self.iter_per_DL):
-                    if is_SSB_start(self.iter_from_begining_of_frame, self.dur_SB_in_iterations,
+                if is_DL(iter_from_begining_of_frame, iter_per_DL):
+                    if is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations,
                                     self.interval_between_SB_in_iterations):
                         self.arm_num = self.MAB[context_number].get_arm()
                         self.MAB[context_number].arm_exploration = self.arm_num
@@ -501,14 +503,15 @@ class Contextual_bandit:
                         self.reward_exploiration.append(obtained_reward)
                         self.context_number_exploration.append(context_number)
                         self.exploitation_iterations.append(i)
-                    elif not is_SB(self.iter_from_begining_of_frame, dur_SB_in_iterations,
+                    elif not is_SB(iter_from_begining_of_frame, dur_SB_in_iterations,
                                    self.interval_between_SB_in_iterations):
                         self.arm_num = self.MAB[context_number].arm_exploitation
                     else:
                         self.arm_num = self.MAB[context_number].arm_exploration
 
+
                 else:
-                    if is_feedback(self.iter_from_begining_of_frame, iter_per_DL, self.interval_feedback_iter):
+                    if is_feedback(iter_from_begining_of_frame, iter_per_DL, self.interval_feedback_iter):
 
                         for r, c in zip(self.reward_exploiration, self.context_number_exploration):
                             self.MAB[c].update(self.arm_num, r)
@@ -533,10 +536,6 @@ class Contextual_bandit:
             # if self.MAB[context_number].EXPLOITATION:
             #     self.reward_exploitation.append(obtained_reward)
             #     self.exploitation_iterations.append(i)
-
-
-
-
 
         return rewards, self.exploitation_iterations
 
@@ -638,7 +637,7 @@ def is_SB(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB
 
 
 
-def sequential_search(iter_from_begining_of_frame, interval_between_SB_in_iterations , interval_feedback_iter):
+def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter):
 
     SEARCH = True
     max_reward_search = np.zeros(ARMS_NUMBER_CIR)
@@ -651,7 +650,7 @@ def sequential_search(iter_from_begining_of_frame, interval_between_SB_in_iterat
     chosen_beam_number_seq_search = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
 
     for i in range(0, ITER_NUMBER_CIR):
-
+        iter_from_begining_of_frame = i % (iter_per_frame * number_of_frames_between_SB_burst)
         if SEARCH:
             if is_DL(iter_from_begining_of_frame, iter_per_DL):
                 if is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations):
@@ -791,12 +790,12 @@ if __name__ == '__main__':
 
     def calc(number_of_frames_between_SB_burst,number_of_SB_in_burst):
 
-        iter_from_begining_of_frame = iter % (iter_per_frame * number_of_frames_between_SB_burst)
+
         interval_between_SB_in_iterations = np.floor(
             (iter_per_DL - dur_SB_in_iterations * number_of_SB_in_burst) / (number_of_SB_in_burst - 1))
         interval_feedback_iter = np.floor((iter_per_frame - iter_per_DL) / 2)
 
-        sequential_search(iter_from_begining_of_frame, interval_between_SB_in_iterations , interval_feedback_iter)
+        sequential_search(number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter)
 
 
 
@@ -844,7 +843,7 @@ if __name__ == '__main__':
                 for p in pars:
                     if alg_name == "UCB" or alg_name == "EPS_greedy" or alg_name == "THS":
                         number_of_cycles = 1
-                        bandit = Contextual_bandit(alg_name, ARMS_NUMBER_CIR, ITER_NUMBER_CIR, p, con_type, iter_from_begining_of_frame, interval_between_SB_in_iterations , interval_feedback_iter, context_set=con_set)
+                        bandit = Contextual_bandit(alg_name, ARMS_NUMBER_CIR, ITER_NUMBER_CIR, p, con_type, number_of_frames_between_SB_burst,interval_between_SB_in_iterations , interval_feedback_iter, context_set=con_set)
                         reward, exloitation_iterations  = bandit.run_bandit()
 
                         pickle.dump(len(bandit.existing_contexts), open(
