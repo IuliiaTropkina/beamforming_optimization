@@ -884,6 +884,32 @@ def plot_real_protocol():
         os.makedirs(f"{figures_path}/window")
     except:
         print(f"Folder {figures_path}/window exists!")
+
+
+    chosen_beam_number_seq_search = pickle.load(open(
+        f"{figures_path}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
+        "rb"))
+
+
+
+    fig_name3 = f"chosen_beam_number_seq_search_arms{ARMS_NUMBER_CIR}_dBm"
+    plt.figure(fig_name3)
+    its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
+    plt.plot(its[0:2000] * duration_of_one_sample, chosen_beam_number_seq_search[0:2000], ".")
+    plt.ylabel('Beam number',fontsize=14)
+    plt.xlabel("Time, sec",fontsize=14)
+    # plt.yscale("log")
+    #plt.ylim(0,10)
+    plt.grid()
+    plt.legend(prop={'size': 12})
+    plt.yticks(fontsize=12)
+    plt.xticks(fontsize=12)
+    plt.savefig(
+        f"{figures_path}/{fig_name3}.png",
+        dpi=700, bbox_inches='tight')
+
+
+
     for n_b in NUMBERs_OF_CONS_SSB:
 
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{n_b}"
