@@ -478,7 +478,7 @@ def plot_location():
         plt.show()
 
 def plot_exploitation_test():
-    frames_per_data_frame = 1000#10000
+    frames_per_data_frame = 10000 #10000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
@@ -713,24 +713,8 @@ def plot_real_protocol():
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
 
     ARMS_NUMBER_CIR = len(beam_directions)
-    SUBDIVISION_2 = 2
-    icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
-
-    def is_SSB(iteration, SSB_period, num_batch):
-
-        number_of_periods = SCENARIO_DURATION/SSB_period
-
-        duration_of_one_sample = SCENARIO_DURATION/ITER_NUMBER_RANDOM
-
-        number_of_iterations_between_cons_SSB = int((5*10**(-3)/num_batch)/(duration_of_one_sample))
-        max_number_of_iteration_in_set = int((num_batch-1) * number_of_iterations_between_cons_SSB)
-        number_of_iterations_per_one_SSB_period = int(SSB_period/duration_of_one_sample)
-        if (iteration % number_of_iterations_per_one_SSB_period) % number_of_iterations_between_cons_SSB == 0 and (iteration % number_of_iterations_per_one_SSB_period) <= max_number_of_iteration_in_set:
-            return True
-        return False
-
-
-
+    # SUBDIVISION_2 = 2
+    # icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
 
 
     NUMBER_OF_ITERATIONS_TRAINING = ITER_NUMBER_CIR #250000
@@ -764,9 +748,7 @@ def plot_real_protocol():
     # parameters = [[ 0.8], [0.01]]
     parameters = [[0.8]]
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
-    #SSB_period = np.array([5,10,20,40,80,160])
-    SSB_period = np.array([10,20,40,80,160])
-    SSB_period = SSB_period*10**(-3)
+    Numbers_of_frames_between_SSB = np.array([1,2,4,8,16])
 
     window_size = 5000
 
@@ -793,8 +775,8 @@ def plot_real_protocol():
         f"{PATH}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle",
         "rb"))
 
-    oracle = oracle*max_reward
-    oracle_dB = 10 * np.log10(oracle) + UE_power_dBi
+    oracle = oracle*max_reward*10**(UE_power_dBi/10)
+    oracle_dB = 10 * np.log10(oracle)
     # avarage_oracle = cumulative_window(oracle, window_size)
     # avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
 
@@ -902,42 +884,42 @@ def plot_real_protocol():
         os.makedirs(f"{figures_path}/window")
     except:
         print(f"Folder {figures_path}/window exists!")
-    for NUMBER_OF_CONS_SSB in NUMBERs_OF_CONS_SSB:
-        fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
+    for n_b in NUMBERs_OF_CONS_SSB:
+
+        fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{n_b}"
         plt.figure(fig_name)
         its = np.linspace(0, ITER_NUMBER_CIR - 1, ITER_NUMBER_CIR)
-        print(f"length, {ITER_NUMBER_CIR}")
         oracle = np.array(oracle)
         # plt.plot(avarage_oracle, label="Oracle")
-        for SSB_p in SSB_period:
+        len_or = np.linspace(0, len(oracle) - 1, len(oracle))
+        for N_f in Numbers_of_frames_between_SSB:
             # sequential_search_reward = pickle.load(open(
             #     f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
             #     "rb"))
 
 
 
-            seq_search_exploitation_reward = pickle.load(open(
-                f"{PATH}/seq_search_exploitation_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+
+            #
+            # seq_search_exploitation_it_num = pickle.load(open(
+            #     f"{PATH}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{N_f}_consSSB{n_b}.pickle",
+            #     "rb"))
+            sequential_search_reward = pickle.load(open(
+                f"{PATH}/seq_search_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{N_f}_consSSB{n_b}",
                 "rb"))
 
-            seq_search_exploitation_it_num = pickle.load(open(
-                f"{PATH}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
-                "rb"))
-            seq_search_exploitation_reward = seq_search_exploitation_reward * max_reward
-
-
-            oracle_for_seq = oracle[np.array(seq_search_exploitation_it_num)]
+            # oracle_for_seq = oracle[np.array(seq_search_exploitation_it_num)]
             #oracle_for_seq_average = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
+            # if PLOT_WINDOW:
+            #     oracle_for_seq_average_cum_win = cumulative_window(oracle_for_seq, window_size)
+
             if PLOT_WINDOW:
-                oracle_for_seq_average_cum_win = cumulative_window(oracle_for_seq, window_size)
+                oracle_for_seq = cumulative_window(oracle, window_size)
+            oracle_for_seq_av = np.cumsum(np.array(oracle)) / (np.arange(len(oracle)) + 1)
 
-
-            #oracle_for_seq = cumulative_window(oracle_for_seq, window_size)
-            oracle_for_seq_av = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
-
-
+            sequential_search_reward = sequential_search_reward * max_reward ** (UE_power_dBi)
             #seq_search_exploitation_reward = cumulative_window(seq_search_exploitation_reward, window_size)
-            seq_search_exploitation_reward_av = np.cumsum(np.array(seq_search_exploitation_reward)) / (np.arange(len(oracle_for_seq)) + 1)
+            seq_search_exploitation_reward_av = np.cumsum(np.array(sequential_search_reward)) / (np.arange(len(sequential_search_reward)) + 1)
 
             # plt.plot(np.array(seq_search_exploitation_it_num[
             #                   window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
@@ -959,9 +941,9 @@ def plot_real_protocol():
             # seq_search_exploitation_reward_average = np.cumsum(seq_search_exploitation_reward) / (
             #             np.arange(len(seq_search_exploitation_reward)) + 1)
             if PLOT_WINDOW:
-                seq_search_exploitation_reward_cum_wind = cumulative_window(seq_search_exploitation_reward, window_size)
+                seq_search_exploitation_reward_cum_wind = cumulative_window(sequential_search_reward, window_size)
             if PLOT_WINDOW:
-                diff_seq_search_window = 10 * np.log10(oracle_for_seq_average_cum_win / (10 ** (-3))) - 10 * np.log10(seq_search_exploitation_reward_cum_wind/ (10 ** (-3)))
+                diff_seq_search_window = 10 * np.log10(oracle_for_seq / (10 ** (-3))) - 10 * np.log10(seq_search_exploitation_reward_cum_wind/ (10 ** (-3)))
 
 
 
@@ -970,13 +952,15 @@ def plot_real_protocol():
 
 
             #plt.plot(np.array(seq_search_exploitation_it_num[window_size-1:len(seq_search_exploitation_it_num)])*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
-            plt.plot(np.array(seq_search_exploitation_it_num) * duration_of_one_sample, diff_seq_search, label=f"SSB period = {SSB_p}")
+            plt.plot(len_or * duration_of_one_sample, diff_seq_search, label=f"$N_f$ = {N_f}")
 
         #plt.plot(oracle_for_seq_average, label=f"Oracle, SSB period = {SSB_p}")
-        line_3dB = np.full(len(seq_search_exploitation_it_num), 3)
-        plt.plot(np.array(seq_search_exploitation_it_num) * duration_of_one_sample, line_3dB,
+
+
+        line_3dB = np.full(len(len_or), 3)
+        plt.plot(len_or * duration_of_one_sample, line_3dB,
                  label=f"loss of 3dB", color="r")
-        plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}",fontsize=14)
+        plt.title(f"Sequential search, Number of SSB = {n_b}",fontsize=14)
         plt.ylabel('Power loss, dB',fontsize=14)
         plt.xlabel("Time, sec",fontsize=14)
         # plt.yscale("log")
@@ -989,15 +973,15 @@ def plot_real_protocol():
             f"{figures_path}/{fig_name}.pdf",
             dpi=700, bbox_inches='tight')
         if PLOT_WINDOW:
-            fig_name2 = f"sequential_search_windows_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
+            fig_name2 = f"sequential_search_windows_arms{ARMS_NUMBER_CIR}_numCons{n_b}"
             plt.figure(fig_name2)
-            plt.plot(np.array(seq_search_exploitation_it_num[
-                              window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
-                     diff_seq_search_window, label=f"SSB period = {SSB_p}")
-            line_3dB = np.full(len(seq_search_exploitation_it_num), 3)
-            plt.plot(np.array(seq_search_exploitation_it_num) * duration_of_one_sample, line_3dB,
+            plt.plot(np.array(len_or[
+                              window_size - 1:len(len_or)]) * duration_of_one_sample,
+                     diff_seq_search_window, label=f"$N_f$ = {N_f}")
+            line_3dB = np.full(len(len_or), 3)
+            plt.plot(len_or * duration_of_one_sample, line_3dB,
                      label=f"loss of 3dB", color="r")
-            plt.title(f"Sequential search, Number of SSB = {NUMBER_OF_CONS_SSB}", fontsize=14)
+            plt.title(f"Sequential search, Number of SSB = {n_b}", fontsize=14)
             plt.ylabel('Power loss, dB', fontsize=14)
             plt.xlabel("Time, sec", fontsize=14)
             # plt.yscale("log")
@@ -1015,7 +999,7 @@ def plot_real_protocol():
 
 
             try:
-                num_ex_conts = pickle.load(open(f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{SSB_period}_consSSB{NUMBER_OF_CONS_SSB}.pickle", "rb"))
+                num_ex_conts = pickle.load(open(f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{N_f}_consSSB{n_b}.pickle", "rb"))
                 print(f"Number of existing contexts for cont param {cont_param}: {num_ex_conts}")
             except:
                 print(f"Number of existing contexts for cont param {cont_param} is unknown!")
@@ -1024,33 +1008,33 @@ def plot_real_protocol():
                 for p in pars:
                     print(p)
                     test_name = f"real_protocol_SSB_period"
-                    fig_name = f"{con_type}_{alg_name}_{p}_{cont_param}_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{NUMBER_OF_CONS_SSB}"
+                    fig_name = f"{con_type}_{alg_name}_{p}_{cont_param}_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{n_b}"
 
                     plt.figure(fig_name)
                     # plt.plot(avarage_oracle, label="Oracle")
-                    for SSB_p in SSB_period:
+                    for N_f in Numbers_of_frames_between_SSB:
                         # average_reward = pickle.load(open(
                         #     f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
                         #     "rb"))
                         # #plt.plot(average_reward, label=f"{algorithm_legend_name}, {param_sign} = {p}")
                         # plt.plot(average_reward, label=f"SSB period = {SSB_p}")
-                        exloitation_iterations = pickle.load(open(
-                            f"{PATH}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}_seed{1}.pickle",
-                            "rb"))
+                        # exloitation_iterations = pickle.load(open(
+                        #     f"{PATH}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{N_f}_consSSB{n_b}_seed{1}.pickle",
+                        #     "rb"))
 
                         #diff = np.zeros(len(exloitation_iterations)-window_size+1)
-                        diff = np.zeros(len(exloitation_iterations))
+                        diff = np.zeros(len(oracle))
                         number_of_seeds = 10
                         for seed_num in range(1,number_of_seeds+1):
-                            exloitation_iterations = pickle.load(open(
-                                f"{PATH}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}_seed{seed_num}.pickle",
+                            # exloitation_iterations = pickle.load(open(
+                            #     f"{PATH}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{N_f}_consSSB{n_b}_seed{seed_num}.pickle",
+                            #     "rb"))
+
+                            reward_reward_band = pickle.load(open(
+                                f"{PATH}/reward_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{N_f}_consSSB{n_b}_seed{seed_num}.pickle",
                                 "rb"))
 
-                            reward_exploitation = pickle.load(open(
-                                f"{PATH}/reward_exploitation_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}_seed{seed_num}.pickle",
-                                "rb"))
-
-                            reward_exploitation = reward_exploitation * max_reward
+                            reward_exploitation = reward_exploitation * max_reward * 10**(UE_power_dBi)
                             # reward_exploitation_average = np.cumsum(reward_exploitation) / (np.arange(len(reward_exploitation)) + 1)
                             #reward_exploitation_average = cumulative_window(reward_exploitation,window_size)
 
@@ -1059,34 +1043,34 @@ def plot_real_protocol():
                             #     reward_exploitation_average / (10 ** (-3)))
 
 
-                            oracle_for_bandit = oracle[np.array(exloitation_iterations)]
+                            # oracle_for_bandit = oracle[np.array(exloitation_iterations)]
                             # oracle_for_bandit_average = np.cumsum(oracle_for_bandit) / (np.arange(len(oracle_for_bandit)) + 1)
 
                             #oracle_for_bandit_average = cumulative_window(oracle_for_bandit,window_size)
                             #oracle_for_bandit = cumulative_window(oracle_for_bandit, window_size)
-                            oracle_for_bandit_av = np.cumsum(oracle_for_bandit) / (
-                                        np.arange(len(oracle_for_bandit)) + 1)
+                            # oracle_for_bandit_av = np.cumsum(oracle_for_bandit) / (
+                            #             np.arange(len(oracle_for_bandit)) + 1)
                             #reward_exploitation = cumulative_window(reward_exploitation, window_size)
-                            reward_exploitation_av = np.cumsum(reward_exploitation) / (
-                                    np.arange(len(oracle_for_bandit)) + 1)
+                            reward_av = np.cumsum(reward_band) / (
+                                    np.arange(len(reward_band)) + 1)
 
 
-                            oracle_for_bandit_dBm = 10 * np.log10(oracle_for_bandit_av / (10 ** (-3)))
-                            reward_exploitation_dBm = 10 * np.log10(reward_exploitation_av / (10 ** (-3)))
-                            diff += oracle_for_bandit_dBm - reward_exploitation_dBm
+                            # oracle_for_bandit_dBm = 10 * np.log10(oracle_for_bandit_av / (10 ** (-3)))
+                            reward_dBm = 10 * np.log10(reward_av / (10 ** (-3)))
+                            diff += oracle_for_seq_dBm - reward_dBm
                         diff = diff/number_of_seeds
 
                         #plt.plot(np.array(exloitation_iterations[window_size-1:len(exloitation_iterations)])*duration_of_one_sample, diff, label=f"SSB period = {SSB_p}")
 
-                        plt.plot(np.array(exloitation_iterations) * duration_of_one_sample, diff,
-                                 label=f"SSB period = {SSB_p}")
+                        plt.plot(len_or * duration_of_one_sample, diff,
+                                 label=f"$N_f$ = {N_f}")
                     #plt.plot(oracle_for_bandit_average, label=f"Oracle, SSB period = {SSB_p}")
 
                     #plt.title(f"Grid step = {cont_params[0]}, Number of contexts = {num_ex_conts}")
-                    line_3dB = np.full(len(exloitation_iterations), 3)
-                    plt.plot(np.array(exloitation_iterations) * duration_of_one_sample, line_3dB,
+                    line_3dB = np.full(len(len_or), 3)
+                    plt.plot(len_or * duration_of_one_sample, line_3dB,
                              label=f"loss of 3dB", color="r")
-                    plt.title(f"{algorithm_legend_name}, {param_sign} = {p}, {cont_param_sigh} = {cont_param}, Number of SSB = {NUMBER_OF_CONS_SSB}",fontsize=14)
+                    plt.title(f"{algorithm_legend_name}, {param_sign} = {p}, {cont_param_sigh} = {cont_param}, Number of SSB = {n_b}",fontsize=14)
 
                     plt.ylabel('Power loss, dB',fontsize=14)
                     plt.xlabel("Time, sec",fontsize=14)
@@ -1108,7 +1092,7 @@ def plot_real_protocol():
     test_name = f"real_protocol_SSB_period"
     fig_name2 = f"oracle_{test_name}_arms{ARMS_NUMBER_CIR}"
     plt.figure(fig_name2)
-    plt.plot(np.array(exloitation_iterations) * duration_of_one_sample, oracle_for_bandit)
+    plt.plot(len_or * duration_of_one_sample, oracle_for_bandit)
 
 
     plt.ylabel('Power, dB',fontsize=14)
