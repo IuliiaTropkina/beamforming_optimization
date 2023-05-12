@@ -905,7 +905,7 @@ def plot_real_protocol():
             #     f"{PATH}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{N_f}_consSSB{n_b}.pickle",
             #     "rb"))
             sequential_search_reward = pickle.load(open(
-                f"{PATH}/seq_search_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{N_f}_consSSB{n_b}",
+                f"{PATH}/seq_search_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{N_f}_consSSB{n_b}.pickle",
                 "rb"))
 
             # oracle_for_seq = oracle[np.array(seq_search_exploitation_it_num)]
