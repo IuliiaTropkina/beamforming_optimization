@@ -1030,11 +1030,11 @@ def plot_real_protocol():
                             #     f"{PATH}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{N_f}_consSSB{n_b}_seed{seed_num}.pickle",
                             #     "rb"))
 
-                            reward_reward_band = pickle.load(open(
+                            reward_band = pickle.load(open(
                                 f"{PATH}/reward_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{N_f}_consSSB{n_b}_seed{seed_num}.pickle",
                                 "rb"))
 
-                            reward_exploitation = reward_exploitation * max_reward * 10**(UE_power_dBi)
+                            reward_band = reward_band * max_reward * 10**(UE_power_dBi)
                             # reward_exploitation_average = np.cumsum(reward_exploitation) / (np.arange(len(reward_exploitation)) + 1)
                             #reward_exploitation_average = cumulative_window(reward_exploitation,window_size)
 
