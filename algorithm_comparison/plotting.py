@@ -1088,24 +1088,24 @@ def plot_real_protocol():
 
 
 
-
-    test_name = f"real_protocol_SSB_period"
-    fig_name2 = f"oracle_{test_name}_arms{ARMS_NUMBER_CIR}"
-    plt.figure(fig_name2)
-    plt.plot(len_or * duration_of_one_sample, oracle_for_bandit)
-
-
-    plt.ylabel('Power, dB',fontsize=14)
-    plt.xlabel("Time, sec",fontsize=14)
-    # plt.yscale("log")
-    plt.ylim(0,10)
-    plt.grid()
-    plt.legend(prop={'size': 12})
-    plt.yticks(fontsize=12)
-    plt.xticks(fontsize=12)
-    plt.savefig(
-        f"{figures_path}/{fig_name2}.pdf",
-        dpi=700, bbox_inches='tight')
+    #
+    # test_name = f"real_protocol_SSB_period"
+    # fig_name2 = f"oracle_{test_name}_arms{ARMS_NUMBER_CIR}"
+    # plt.figure(fig_name2)
+    # plt.plot(len_or * duration_of_one_sample, oracle_for_bandit)
+    #
+    #
+    # plt.ylabel('Power, dB',fontsize=14)
+    # plt.xlabel("Time, sec",fontsize=14)
+    # # plt.yscale("log")
+    # plt.ylim(0,10)
+    # plt.grid()
+    # plt.legend(prop={'size': 12})
+    # plt.yticks(fontsize=12)
+    # plt.xticks(fontsize=12)
+    # plt.savefig(
+    #     f"{figures_path}/{fig_name2}.pdf",
+    #     dpi=700, bbox_inches='tight')
 
 
         # plt.show()
