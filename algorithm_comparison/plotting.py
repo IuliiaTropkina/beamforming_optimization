@@ -917,7 +917,7 @@ def plot_real_protocol():
                 oracle_for_seq = cumulative_window(oracle, window_size)
             oracle_for_seq_av = np.cumsum(np.array(oracle)) / (np.arange(len(oracle)) + 1)
 
-            sequential_search_reward = sequential_search_reward * max_reward ** (UE_power_dBi)
+            sequential_search_reward = sequential_search_reward * max_reward *10** (UE_power_dBi/10)
             #seq_search_exploitation_reward = cumulative_window(seq_search_exploitation_reward, window_size)
             seq_search_exploitation_reward_av = np.cumsum(np.array(sequential_search_reward)) / (np.arange(len(sequential_search_reward)) + 1)
 
@@ -952,7 +952,7 @@ def plot_real_protocol():
 
 
             #plt.plot(np.array(seq_search_exploitation_it_num[window_size-1:len(seq_search_exploitation_it_num)])*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
-            plt.plot(len_or * duration_of_one_sample, seq_search_exploitation_reward_dBm, label=f"$N_f$ = {N_f}")
+            plt.plot(len_or * duration_of_one_sample, diff_seq_search, label=f"$N_f$ = {N_f}")
 
         #plt.plot(oracle_for_seq_average, label=f"Oracle, SSB period = {SSB_p}")
 
@@ -1034,7 +1034,7 @@ def plot_real_protocol():
                                 f"{PATH}/reward_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{N_f}_consSSB{n_b}_seed{seed_num}.pickle",
                                 "rb"))
 
-                            reward_band = reward_band * max_reward * 10**(UE_power_dBi)
+                            reward_band = reward_band * max_reward * 10**(UE_power_dBi/10)
                             # reward_exploitation_average = np.cumsum(reward_exploitation) / (np.arange(len(reward_exploitation)) + 1)
                             #reward_exploitation_average = cumulative_window(reward_exploitation,window_size)
 
@@ -1062,7 +1062,7 @@ def plot_real_protocol():
 
                         #plt.plot(np.array(exloitation_iterations[window_size-1:len(exloitation_iterations)])*duration_of_one_sample, diff, label=f"SSB period = {SSB_p}")
 
-                        plt.plot(len_or * duration_of_one_sample, reward_dBm,
+                        plt.plot(len_or * duration_of_one_sample, diff,
                                  label=f"$N_f$ = {N_f}")
                     #plt.plot(oracle_for_bandit_average, label=f"Oracle, SSB period = {SSB_p}")
 
@@ -1070,8 +1070,8 @@ def plot_real_protocol():
                     line_3dB = np.full(len(len_or), 3)
                     plt.plot(len_or * duration_of_one_sample, line_3dB,
                              label=f"loss of 3dB", color="r")
-                    plt.plot(len_or * duration_of_one_sample, oracle_for_seq_dBm,
-                             label=f"oracle", color="r")
+                    # plt.plot(len_or * duration_of_one_sample, oracle_for_seq_dBm,
+                    #          label=f"oracle", color="r")
                     plt.title(f"{algorithm_legend_name}, {param_sign} = {p}, {cont_param_sigh} = {cont_param}, Number of SSB = {n_b}",fontsize=14)
 
                     plt.ylabel('Power loss, dB',fontsize=14)
