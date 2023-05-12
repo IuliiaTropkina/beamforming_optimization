@@ -887,7 +887,7 @@ def plot_real_protocol():
 
 
     chosen_beam_number_seq_search = pickle.load(open(
-        f"{figures_path}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
+        f"{PATH}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
         "rb"))
 
 
