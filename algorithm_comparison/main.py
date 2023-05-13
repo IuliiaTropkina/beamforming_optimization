@@ -652,25 +652,32 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
     for i in range(0, ITER_NUMBER_CIR):
         iter_from_begining_of_frame = i % (iter_per_frame * number_of_frames_between_SB_burst)
         if SEARCH:
+
             if is_DL(iter_from_begining_of_frame, iter_per_DL):
                 if is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations):
                     trying_beam_number = beam_number_count
                     chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
                     max_reward_search[beam_number_count] = chosen_reward
                     beam_number_count += 1
-
+                    print(f"{i}, this is DL and SSB start, trying_beam_number {trying_beam_number}, beam_number_count {beam_number_count}, chosen_reward {chosen_reward} ")
                 elif not is_SB(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations):
                     trying_beam_number = chosen_max_beam_number
+                    print(f"{i}, this is DL and not SSB start, trying_beam_number {trying_beam_number}")
                 else:
                     trying_beam_number = beam_number_count
+                    print(f"{i}, this is DL and SSB, trying_beam_number {trying_beam_number}")
 
             else:
                 if is_feedback(iter_from_begining_of_frame, iter_per_DL, interval_feedback_iter):
                     chosen_max_beam_number = np.argmax(max_reward_search)
                     trying_beam_number = chosen_max_beam_number
-
+                    print(f"{i}, this is UL and feedback, chosen_max_beam_number {chosen_max_beam_number}")
+                else:
+                    trying_beam_number = chosen_max_beam_number
+                    print(f"{i}, this is UL and not feedbackб trying_beam_number {trying_beam_number}")
         else:
             trying_beam_number = chosen_max_beam_number
+            print(f"{i}, not search, trying_beam_number {trying_beam_number}")
 
         chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
         sequential_search_reward.append(chosen_reward)
