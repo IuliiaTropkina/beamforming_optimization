@@ -546,9 +546,10 @@ class UCB:
         self.arms_iter_count = np.ones(arms_number)
         self.c = c
         self.arms_number = arms_number
-        self.all_iter_count = 0
         self.arm_exploitation = 0
         self.arm_exploration = 0
+        self.all_iter_count = 0
+
     # Update the action-value estimate
     def update(self, arm_num, obtained_reward):
         self.arms_iter_count[arm_num] += 1
@@ -593,6 +594,8 @@ class EPS_greedy:
 
         self.arms_mean_reward = np.zeros(arms_number)
         self.arms_iter_count = np.zeros(arms_number)
+        self.arm_exploitation = 0
+        self.arm_exploration = 0
         self.eps = eps
         self.arms_number = arms_number
         self.all_iter_count = 0
