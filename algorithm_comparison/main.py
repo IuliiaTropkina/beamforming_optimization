@@ -718,7 +718,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
 if __name__ == '__main__':
     DUR_FRAME = 10e-3
-    DUR_DL = 5e-5
+    DUR_DL = 5e-3
     SHIFT_FEEDBACK = 2.5e-3
     DUR_SB = 66.67e-6
     DUR_FEEDBACK = 66.67e-6
