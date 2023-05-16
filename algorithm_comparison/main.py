@@ -664,26 +664,24 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
                     chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
                     max_reward_search[beam_number_count] = chosen_reward
                     beam_number_count += 1
-                    if i < 2000:
-                        print(f"{i}, this is DL and SSB start, trying_beam_number {trying_beam_number}, beam_number_count {beam_number_count}, chosen_reward {chosen_reward}, iter_per_DL {iter_per_DL}, interval_feedback_iter {interval_feedback_iter}")
+                    # if i < 2000:
+                    #     print(f"{i}, this is DL and SSB start, trying_beam_number {trying_beam_number}, beam_number_count {beam_number_count}, chosen_reward {chosen_reward}, iter_per_DL {iter_per_DL}, interval_feedback_iter {interval_feedback_iter}")
                 elif not is_SB(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations):
                     trying_beam_number = copy.copy(chosen_max_beam_number)
-                    if i < 2000:
-                        print(f"{i}, this is DL and not SSB start, trying_beam_number {trying_beam_number}")
-                else:
-                    if i < 2000:
-                        print(f"{i}, this is DL and SSB, trying_beam_number {trying_beam_number}")
+                    # if i < 2000:
+                        # print(f"{i}, this is DL and not SSB start, trying_beam_number {trying_beam_number}")
+
 
             else:
                 if is_feedback(iter_from_begining_of_frame, iter_per_DL, interval_feedback_iter):
                     chosen_max_beam_number = np.argmax(max_reward_search)
                     trying_beam_number = copy.copy(chosen_max_beam_number)
                     if i < 2000:
-                        print(f"{i}, this is UL and feedback, chosen_max_beam_number {chosen_max_beam_number}")
+                        print(f"{i}, this is UL and feedback, chosen_max_beam_number {chosen_max_beam_number}, max_reward_search {max_reward_search}")
                 else:
                     trying_beam_number = copy.copy(chosen_max_beam_number)
                     if i < 2000:
-                        print(f"{i}, this is UL and not feedback trying_beam_number {trying_beam_number}")
+                        print(f"{i}, this is UL and not feedback trying_beam_number {trying_beam_number} ")
         else:
             trying_beam_number = copy.copy(chosen_max_beam_number)
             if i < 2000:
