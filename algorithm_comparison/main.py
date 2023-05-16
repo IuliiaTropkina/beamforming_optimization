@@ -659,7 +659,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
             if is_DL(iter_from_begining_of_frame, iter_per_DL):
                 if is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations):
-                    print(f"iter_from_begining_of_frame, {iter_from_begining_of_frame}, dur_SB_in_iterations {dur_SB_in_iterations}, interval_between_SB_in_iterations {interval_between_SB_in_iterations}")
+                    #print(f"iter_from_begining_of_frame, {iter_from_begining_of_frame}, dur_SB_in_iterations {dur_SB_in_iterations}, interval_between_SB_in_iterations {interval_between_SB_in_iterations}")
                     trying_beam_number = copy.copy(beam_number_count)
                     chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
                     max_reward_search[beam_number_count] = chosen_reward
@@ -673,11 +673,15 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
 
             else:
+                if i < 2000:
+                    print(
+                    f"{i}, iter_from_begining_of_frame {iter_from_begining_of_frame}, iter_per_DL {iter_per_DL}, interval_feedback_iter {interval_feedback_iter}")
                 if is_feedback(iter_from_begining_of_frame, iter_per_DL, interval_feedback_iter):
+                    print("FEEDBACK!!!!!!!!!")
                     chosen_max_beam_number = np.argmax(max_reward_search)
                     trying_beam_number = copy.copy(chosen_max_beam_number)
                     if i <  2000:
-                        print(f"{i}, this is UL and feedback, chosen_max_beam_number {chosen_max_beam_number}, max_reward_search {max_reward_search}, ")
+                        print(f"{i}, this is UL and feedback, chosen_max_beam_number {chosen_max_beam_number}, max_reward_search {max_reward_search}")
                 else:
                     trying_beam_number = copy.copy(chosen_max_beam_number)
                     if i < 2000:
@@ -720,9 +724,10 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 if __name__ == '__main__':
     DUR_FRAME = 10e-3
     DUR_DL = 5e-3
-    SHIFT_FEEDBACK = 2.5e-3
+    # SHIFT_FEEDBACK = 2.5e-3
+    # DUR_FEEDBACK = 66.67e-6
     DUR_SB = 66.67e-6
-    DUR_FEEDBACK = 66.67e-6
+
     SCENARIO_DURATION = 8
     frames_per_data_frame = 10000
     FRAME_NUMBER = 38
