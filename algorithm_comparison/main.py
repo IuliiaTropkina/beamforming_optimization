@@ -671,7 +671,6 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
                     if i < 2000:
                         print(f"{i}, this is DL and not SSB start, trying_beam_number {trying_beam_number}")
                 else:
-                    trying_beam_number = copy.copy(beam_number_count)
                     if i < 2000:
                         print(f"{i}, this is DL and SSB, trying_beam_number {trying_beam_number}")
 
