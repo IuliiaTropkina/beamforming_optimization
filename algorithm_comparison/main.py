@@ -676,7 +676,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
                 if is_feedback(iter_from_begining_of_frame, iter_per_DL, interval_feedback_iter):
                     chosen_max_beam_number = np.argmax(max_reward_search)
                     trying_beam_number = copy.copy(chosen_max_beam_number)
-                    if i < 2000:
+                    if i <  2000:
                         print(f"{i}, this is UL and feedback, chosen_max_beam_number {chosen_max_beam_number}, max_reward_search {max_reward_search}")
                 else:
                     trying_beam_number = copy.copy(chosen_max_beam_number)
