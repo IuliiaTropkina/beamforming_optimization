@@ -627,7 +627,7 @@ def is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations, interval_bet
     return False
 
 def is_feedback(iter_from_begining_of_frame, iter_per_DL, interval_feedback_iter):
-    if iter_from_begining_of_frame == iter_per_DL + interval_feedback_iter - 1 == 0:
+    if iter_from_begining_of_frame == iter_per_DL + interval_feedback_iter - 1:
         return True
     return False
 
