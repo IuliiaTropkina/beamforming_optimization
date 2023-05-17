@@ -890,12 +890,24 @@ def plot_real_protocol():
         f"{PATH}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
         "rb"))
 
+    search_true = pickle.load(open(
+        f"{PATH}/search_true_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
+        "rb"))
+
+    search_false = pickle.load(open(
+        f"{PATH}/search_false_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
+        "rb"))
+    search_false_value = np.full(len(search_false), max(chosen_beam_number_seq_search) + 3)
+    search_true_value = np.full(len(search_true), max(chosen_beam_number_seq_search) + 3)
 
 
     fig_name3 = f"chosen_beam_number_seq_search_arms{ARMS_NUMBER_CIR}_dBm"
     plt.figure(fig_name3)
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
-    plt.plot(its[0:2000] * duration_of_one_sample, chosen_beam_number_seq_search[0:2000], ".")
+    plt.plot(its * duration_of_one_sample, chosen_beam_number_seq_search, ".")
+    plt.plot(its * search_false, search_false_value, "o", color = "r")
+    plt.plot(its * search_true, search_true_value, "*", color = "g")
+
     plt.ylabel('Beam number',fontsize=14)
     plt.xlabel("Time, sec",fontsize=14)
     # plt.yscale("log")
