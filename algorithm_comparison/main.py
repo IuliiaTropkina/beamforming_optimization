@@ -651,9 +651,9 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
     trying_beam_number = 0
     sequential_search_reward = []
     chosen_beam_number_seq_search = []
-    search_true = []
+    search_true = np.zeros(ITER_NUMBER_CIR)
     #chosen_beam_number_seq_search = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
-    search_false = []
+    search_false = np.zeros(ITER_NUMBER_CIR)
     for i in range(0, ITER_NUMBER_CIR):
         iter_from_begining_of_frame = i % (iter_per_frame * number_of_frames_between_SB_burst)
         if SEARCH:
@@ -691,10 +691,10 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
         if beam_number_count == ARMS_NUMBER_CIR:
             threshold = max(max_reward_search) / 2
             SEARCH = False
-            search_false.append(i)
+            search_false[i] = ARMS_NUMBER_CIR + 3
             beam_number_count = 0
         if chosen_reward < threshold:
-            search_true.append(i)
+            search_true[i] = ARMS_NUMBER_CIR + 3
             SEARCH = True
 
 
