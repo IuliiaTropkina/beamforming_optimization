@@ -905,8 +905,8 @@ def plot_real_protocol():
     plt.figure(fig_name3)
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
     plt.plot(its * duration_of_one_sample, chosen_beam_number_seq_search, ".")
-    plt.plot(its * search_false, search_false_value, "o", color = "r")
-    plt.plot(its * search_true, search_true_value, "*", color = "g")
+    plt.plot(duration_of_one_sample * search_false, search_false_value, "o", color = "r")
+    plt.plot(duration_of_one_sample * search_true, search_true_value, "*", color = "g")
 
     plt.ylabel('Beam number',fontsize=14)
     plt.xlabel("Time, sec",fontsize=14)
