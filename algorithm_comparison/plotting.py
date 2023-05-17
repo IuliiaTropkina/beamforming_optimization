@@ -904,13 +904,14 @@ def plot_real_protocol():
     plt.figure(fig_name3)
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
     plt.plot(its[0:leng] * duration_of_one_sample, chosen_beam_number_seq_search[0:leng], ".")
-    plt.plot( its[0:leng] * duration_of_one_sample, np.array(search_false[0:leng]), "o", color = "r", label = "search = false")
-    plt.plot(  its[0:leng]  * duration_of_one_sample, np.array(search_true[0:leng]), "*", color = "g", label = "search = true")
+    plt.plot(  its[0:leng]  * duration_of_one_sample, np.array(search_true[0:leng])-2, "*", color = "g", label = "Search activated")
+    plt.plot( its[0:leng] * duration_of_one_sample, np.array(search_false[0:leng])-2, "o", color = "r", label = "Search disactivated")
+
 
     plt.ylabel('Beam number',fontsize=14)
     plt.xlabel("Time, sec",fontsize=14)
     # plt.yscale("log")
-    plt.ylim(10,ARMS_NUMBER_CIR + 3)
+    plt.ylim(0,ARMS_NUMBER_CIR + 3)
     plt.grid()
     plt.legend(prop={'size': 12})
     plt.yticks(fontsize=12)
