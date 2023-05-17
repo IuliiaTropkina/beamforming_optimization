@@ -897,22 +897,20 @@ def plot_real_protocol():
     search_false = pickle.load(open(
         f"{PATH}/search_false_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
         "rb"))
-    leng = 160
-    search_false_value = np.full(len(search_false[0:leng]), max(chosen_beam_number_seq_search) + 3)
-    search_true_value = np.full(len(search_true[0:leng]), max(chosen_beam_number_seq_search) + 3)
 
+    leng = 10000
 
     fig_name3 = f"chosen_beam_number_seq_search_arms{ARMS_NUMBER_CIR}_dBm"
     plt.figure(fig_name3)
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
-    plt.plot(its[0:int(search_true[leng])] * duration_of_one_sample, chosen_beam_number_seq_search[0:int(search_true[leng])], ".")
-    plt.plot(np.array(search_false[0:leng]) * duration_of_one_sample, search_false_value, "o", color = "r")
-    plt.plot(np.array(search_true[0:leng]) * duration_of_one_sample, search_true_value, "*", color = "g")
+    plt.plot(its[0:leng] * duration_of_one_sample, chosen_beam_number_seq_search[0:leng], ".")
+    plt.plot( its[0:leng] * duration_of_one_sample, np.array(search_false[0:leng]), "o", color = "r", label = "search = false")
+    plt.plot(  its[0:leng]  * duration_of_one_sample, np.array(search_true[0:leng]), "*", color = "g", label = "search = true")
 
     plt.ylabel('Beam number',fontsize=14)
     plt.xlabel("Time, sec",fontsize=14)
     # plt.yscale("log")
-    #plt.ylim(0,10)
+    plt.ylim(10,ARMS_NUMBER_CIR + 3)
     plt.grid()
     plt.legend(prop={'size': 12})
     plt.yticks(fontsize=12)
