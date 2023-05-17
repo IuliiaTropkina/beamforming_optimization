@@ -663,6 +663,10 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
             if is_DL(iter_from_begining_of_frame, iter_per_DL):
                 if is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations):
                     #print(f"iter_from_begining_of_frame, {iter_from_begining_of_frame}, dur_SB_in_iterations {dur_SB_in_iterations}, interval_between_SB_in_iterations {interval_between_SB_in_iterations}")
+
+                    if beam_number_count>62:
+                        print(f"SB start!!! i {i}, iter_from_begining_of_frame {iter_from_begining_of_frame}, dur_SB_in_iterations {dur_SB_in_iterations}, interval_between_SB_in_iterations {interval_between_SB_in_iterations} ")
+                        print(f"beam_number_count {beam_number_count}")
                     trying_beam_number = copy.copy(beam_number_count)
                     chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
                     max_reward_search[beam_number_count] = chosen_reward
