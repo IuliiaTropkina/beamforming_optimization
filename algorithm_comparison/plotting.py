@@ -936,7 +936,7 @@ def plot_real_protocol():
     plt.ylabel('Threshold, dB', fontsize=14)
     plt.xlabel("Time, sec", fontsize=14)
     # plt.yscale("log")
-    plt.ylim(0, ARMS_NUMBER_CIR + 3)
+    # plt.ylim(0, ARMS_NUMBER_CIR + 3)
     plt.grid()
     plt.legend(prop={'size': 12})
     plt.yticks(fontsize=12)
