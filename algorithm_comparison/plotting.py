@@ -751,7 +751,7 @@ def plot_real_protocol():
     Numbers_of_frames_between_SSB = np.array([1,2,4,8,16])
 
     window_size = 5000
-
+    leng = 10000
     ANTENNA_TYPE = 2
     number_of_cycles = 1
     folder_name_figures = "scenario_LOS_28_calib2"
@@ -786,7 +786,7 @@ def plot_real_protocol():
 
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
     print(f"length, {ITER_NUMBER_CIR}")
-    plt.plot(its * duration_of_one_sample, oracle_dB)
+    plt.plot(its[0:leng] * duration_of_one_sample, oracle_dB[0:leng])
 
 
     plt.ylabel('Power, dB',fontsize=14)
@@ -908,9 +908,6 @@ def plot_real_protocol():
 
 
 
-
-    leng = 10000
-
     fig_name3 = f"chosen_beam_number_seq_search_arms{ARMS_NUMBER_CIR}_dBm"
     plt.figure(fig_name3)
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
@@ -933,7 +930,7 @@ def plot_real_protocol():
 
     fig_name3 = f"threshold_seq_search_arms{ARMS_NUMBER_CIR}_dBm"
     plt.figure(fig_name3)
-    plt.plot(np.array(iter_threshold[0:leng]) * duration_of_one_sample, 10* np.log10(np.array(threshold_all[0:leng]) * max_reward), ".")
+    plt.plot(np.array(iter_threshold[0:leng]) * duration_of_one_sample, 10* np.log10(np.array(threshold_all[0:leng]) * max_reward*10**(UE_power_dBi/10)), ".")
 
 
     plt.ylabel('Threshold, dB', fontsize=14)
