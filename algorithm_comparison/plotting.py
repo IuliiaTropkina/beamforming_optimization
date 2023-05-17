@@ -898,6 +898,17 @@ def plot_real_protocol():
         f"{PATH}/search_false_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
         "rb"))
 
+
+    threshold_all = pickle.load(open(
+        f"{PATH}/threshold_all_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
+        "rb"))
+    iter_threshold = pickle.load(open(
+        f"{PATH}/iter_threshold_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
+        "rb"))
+
+
+
+
     leng = 10000
 
     fig_name3 = f"chosen_beam_number_seq_search_arms{ARMS_NUMBER_CIR}_dBm"
@@ -912,6 +923,23 @@ def plot_real_protocol():
     plt.xlabel("Time, sec",fontsize=14)
     # plt.yscale("log")
     plt.ylim(0,ARMS_NUMBER_CIR + 3)
+    plt.grid()
+    plt.legend(prop={'size': 12})
+    plt.yticks(fontsize=12)
+    plt.xticks(fontsize=12)
+    plt.savefig(
+        f"{figures_path}/{fig_name3}.png",
+        dpi=700, bbox_inches='tight')
+
+    fig_name3 = f"threshold_seq_search_arms{ARMS_NUMBER_CIR}_dBm"
+    plt.figure(fig_name3)
+    plt.plot(np.array(iter_threshold[0:leng]) * duration_of_one_sample, 10* np.log10(np.array(threshold_all[0:leng]) * max_reward), ".")
+
+
+    plt.ylabel('Threshold, dB', fontsize=14)
+    plt.xlabel("Time, sec", fontsize=14)
+    # plt.yscale("log")
+    plt.ylim(0, ARMS_NUMBER_CIR + 3)
     plt.grid()
     plt.legend(prop={'size': 12})
     plt.yticks(fontsize=12)
