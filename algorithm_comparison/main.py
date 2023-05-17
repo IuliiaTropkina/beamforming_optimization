@@ -651,8 +651,9 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
     trying_beam_number = 0
     sequential_search_reward = []
     chosen_beam_number_seq_search = []
+    search_true = []
     #chosen_beam_number_seq_search = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
-
+    search_false = []
     for i in range(0, ITER_NUMBER_CIR):
         iter_from_begining_of_frame = i % (iter_per_frame * number_of_frames_between_SB_burst)
         if SEARCH:
@@ -673,25 +674,16 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
 
             else:
-                if i < 2000:
-                    print(
-                    f"{i}, iter_from_begining_of_frame {iter_from_begining_of_frame}, iter_per_DL {iter_per_DL}, interval_feedback_iter {interval_feedback_iter}")
+
                 if is_feedback(iter_from_begining_of_frame, iter_per_DL, interval_feedback_iter):
-                    print("FEEDBACK!!!!!!!!!")
                     chosen_max_beam_number = np.argmax(max_reward_search)
                     trying_beam_number = copy.copy(chosen_max_beam_number)
-                    if i <  2000:
-                        print(f"{i}, this is UL and feedback, chosen_max_beam_number {chosen_max_beam_number}, max_reward_search {max_reward_search}")
+
                 else:
                     trying_beam_number = copy.copy(chosen_max_beam_number)
-                    if i < 2000:
-                        print(f"{i}, this is UL and not feedback trying_beam_number {trying_beam_number} ")
+
         else:
             trying_beam_number = copy.copy(chosen_max_beam_number)
-            if i < 2000:
-                print(f"{i}, not search, trying_beam_number {trying_beam_number}")
-        if trying_beam_number == 162:
-            print(f"162: chosen_reward {chosen_reward}")
         chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
         sequential_search_reward.append(chosen_reward)
         chosen_beam_number_seq_search.append(trying_beam_number)
@@ -699,8 +691,10 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
         if beam_number_count == ARMS_NUMBER_CIR:
             threshold = max(max_reward_search) / 2
             SEARCH = False
+            search_false.append(i)
             beam_number_count = 0
         if chosen_reward < threshold:
+            search_true.append(i)
             SEARCH = True
 
 
@@ -710,6 +704,19 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
                 open(
                     f"{figures_path}/seq_search_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
                     'wb'))
+
+
+    pickle.dump(search_true,
+                open(
+                    f"{figures_path}/search_true_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
+                    'wb'))
+
+
+    pickle.dump(search_false,
+                open(
+                    f"{figures_path}/search_false_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
+                    'wb'))
+
 
     pickle.dump(chosen_beam_number_seq_search,
                 open(
