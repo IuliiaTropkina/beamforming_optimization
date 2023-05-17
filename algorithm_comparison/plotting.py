@@ -897,16 +897,17 @@ def plot_real_protocol():
     search_false = pickle.load(open(
         f"{PATH}/search_false_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
         "rb"))
-    search_false_value = np.full(len(search_false), max(chosen_beam_number_seq_search) + 3)
-    search_true_value = np.full(len(search_true), max(chosen_beam_number_seq_search) + 3)
+    leng = 160
+    search_false_value = np.full(len(search_false[0:leng]), max(chosen_beam_number_seq_search) + 3)
+    search_true_value = np.full(len(search_true[0:leng]), max(chosen_beam_number_seq_search) + 3)
 
 
     fig_name3 = f"chosen_beam_number_seq_search_arms{ARMS_NUMBER_CIR}_dBm"
     plt.figure(fig_name3)
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
-    plt.plot(its[0:int(search_true[160])] * duration_of_one_sample, chosen_beam_number_seq_search, ".")
-    plt.plot(np.array(search_false[0:160]) * duration_of_one_sample, search_false_value, "o", color = "r")
-    plt.plot(np.array(search_true[0:160]) * duration_of_one_sample, search_true_value, "*", color = "g")
+    plt.plot(its[0:int(search_true[leng])] * duration_of_one_sample, chosen_beam_number_seq_search, ".")
+    plt.plot(np.array(search_false[0:leng]) * duration_of_one_sample, search_false_value, "o", color = "r")
+    plt.plot(np.array(search_true[0:leng]) * duration_of_one_sample, search_true_value, "*", color = "g")
 
     plt.ylabel('Beam number',fontsize=14)
     plt.xlabel("Time, sec",fontsize=14)
