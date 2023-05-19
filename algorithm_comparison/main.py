@@ -687,15 +687,13 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
                 trying_beam_number = copy.copy(chosen_max_beam_number)
 
         else:
-            if not IS_DL:
-                if is_feedback(iter_from_begining_of_frame, iter_per_DL, interval_feedback_iter):
-                    chosen_max_beam_number = np.argmax(max_reward_search)
-                    trying_beam_number = copy.copy(chosen_max_beam_number)
+            trying_beam_number = copy.copy(chosen_max_beam_number)
 
-                else:
-                    trying_beam_number = copy.copy(chosen_max_beam_number)
-            else:
+        if not IS_DL:
+            if is_feedback(iter_from_begining_of_frame, iter_per_DL, interval_feedback_iter):
+                chosen_max_beam_number = np.argmax(max_reward_search)
                 trying_beam_number = copy.copy(chosen_max_beam_number)
+
         chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
         sequential_search_reward.append(chosen_reward)
         chosen_beam_number_seq_search.append(trying_beam_number)
