@@ -751,7 +751,7 @@ def plot_real_protocol():
     Numbers_of_frames_between_SSB = np.array([1,2,4,8,16])
 
     window_size = 5000
-    leng = 20000
+    leng = 170000
     ANTENNA_TYPE = 2
     number_of_cycles = 1
     folder_name_figures = "scenario_LOS_28_calib2"
