@@ -666,7 +666,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
                     #print(f"iter_from_begining_of_frame, {iter_from_begining_of_frame}, dur_SB_in_iterations {dur_SB_in_iterations}, interval_between_SB_in_iterations {interval_between_SB_in_iterations}")
                     #
-                    if beam_number_count>62:
+                    if beam_number_count > 62 and i < 1000:
                         print(f"SB start!!! i {i}, iter_from_begining_of_frame {iter_from_begining_of_frame}, dur_SB_in_iterations {dur_SB_in_iterations}, interval_between_SB_in_iterations {interval_between_SB_in_iterations} ")
                         print(f"beam_number_count {beam_number_count}")
                     trying_beam_number = copy.copy(beam_number_count)
