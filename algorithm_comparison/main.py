@@ -844,6 +844,9 @@ if __name__ == '__main__':
 
         interval_between_SB_in_iterations = np.floor(
             (iter_per_DL - dur_SB_in_iterations * number_of_SB_in_burst) / (number_of_SB_in_burst - 1))
+
+        print(f"iter_per_DL {iter_per_DL}, dur_SB_in_iterations {dur_SB_in_iterations}, number_of_SB_in_burst {number_of_SB_in_burst}, interval_between_SB_in_iterations {interval_between_SB_in_iterations}")
+
         interval_feedback_iter = np.floor((iter_per_frame - iter_per_DL) / 2)
 
         sequential_search(number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter,number_of_SB_in_burst)
