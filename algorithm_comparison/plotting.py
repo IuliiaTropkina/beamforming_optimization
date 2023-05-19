@@ -751,7 +751,7 @@ def plot_real_protocol():
     Numbers_of_frames_between_SSB = np.array([1,2,4,8,16])
 
     window_size = 5000
-    leng = 10000
+    leng = 20000
     ANTENNA_TYPE = 2
     number_of_cycles = 1
     folder_name_figures = "scenario_LOS_28_calib2"
@@ -912,8 +912,9 @@ def plot_real_protocol():
     plt.figure(fig_name3)
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
     plt.plot(its[0:leng] * duration_of_one_sample, chosen_beam_number_seq_search[0:leng], ".")
-    plt.plot(  its[0:leng]  * duration_of_one_sample, np.array(search_true[0:leng])-2, "*", color = "g", label = "Search activated")
     plt.plot( its[0:leng] * duration_of_one_sample, np.array(search_false[0:leng])-2, "o", color = "r", label = "Search disactivated")
+    plt.plot(  its[0:leng]  * duration_of_one_sample, np.array(search_true[0:leng])-2, ".", color = "g", label = "Search activated")
+
 
 
     plt.ylabel('Beam number',fontsize=14)
