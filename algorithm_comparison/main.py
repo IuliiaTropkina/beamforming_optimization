@@ -622,7 +622,7 @@ def is_DL(iter_from_begining_of_frame, iter_per_DL):
         return True
     return False
 def is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations, last_part_of_frame_iter):
-    if iter_from_begining_of_frame % (dur_SB_in_iterations+ interval_between_SB_in_iterations) == 0 and (iter_from_begining_of_frame < iter_per_frame - last_part_of_frame_iter):
+    if iter_from_begining_of_frame % (dur_SB_in_iterations+ interval_between_SB_in_iterations) == 0 and (iter_from_begining_of_frame < iter_per_DL - last_part_of_frame_iter):
 
         return True
     return False
@@ -634,7 +634,7 @@ def is_feedback(iter_from_begining_of_frame, iter_per_DL, interval_feedback_iter
 
 
 def is_SB(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations, last_part_of_frame_iter):
-    if iter_from_begining_of_frame % (dur_SB_in_iterations+ interval_between_SB_in_iterations) < dur_SB_in_iterations and (iter_from_begining_of_frame < iter_per_frame - last_part_of_frame_iter):
+    if iter_from_begining_of_frame % (dur_SB_in_iterations+ interval_between_SB_in_iterations) < dur_SB_in_iterations and (iter_from_begining_of_frame < iter_per_DL - last_part_of_frame_iter):
         return True
     return False
 
@@ -667,10 +667,10 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
                     #print(f"iter_from_begining_of_frame, {iter_from_begining_of_frame}, dur_SB_in_iterations {dur_SB_in_iterations}, interval_between_SB_in_iterations {interval_between_SB_in_iterations}")
                     #
-                    if beam_number_count > 62 and i < 1000:
-                        t = (iter_from_begining_of_frame < iter_per_frame - last_part_of_frame_iter)
-                        print(f"SB start!!! i {i}, iter_from_begining_of_frame {iter_from_begining_of_frame}, dur_SB_in_iterations {dur_SB_in_iterations}, interval_between_SB_in_iterations {interval_between_SB_in_iterations}, last_part_of_frame_iter {last_part_of_frame_iter} , f: {iter_per_frame}, f: {t}")
-                        print(f"beam_number_count {beam_number_count}")
+                    # if beam_number_count > 62 and i < 1000:
+                    #     t = (iter_from_begining_of_frame < iter_per_frame - last_part_of_frame_iter)
+                        # print(f"SB start!!! i {i}, iter_from_begining_of_frame {iter_from_begining_of_frame}, dur_SB_in_iterations {dur_SB_in_iterations}, interval_between_SB_in_iterations {interval_between_SB_in_iterations}, last_part_of_frame_iter {last_part_of_frame_iter} , f: {iter_per_frame}, f: {t}")
+                        # print(f"beam_number_count {beam_number_count}")
                     trying_beam_number = copy.copy(beam_number_count)
                     chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
                     max_reward_search[beam_number_count] = chosen_reward
