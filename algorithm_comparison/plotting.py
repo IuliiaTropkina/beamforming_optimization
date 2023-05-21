@@ -751,7 +751,8 @@ def plot_real_protocol():
     Numbers_of_frames_between_SSB = np.array([1,2,4,8,16])
 
     window_size = 5000
-    leng = 170000
+
+
     ANTENNA_TYPE = 2
     number_of_cycles = 1
     folder_name_figures = "scenario_LOS_28_calib2"
@@ -885,38 +886,40 @@ def plot_real_protocol():
     except:
         print(f"Folder {figures_path}/window exists!")
 
+    BURST_calib = 4
+    PERIOD_calib = 2
 
+
+    start_it = 170000
+    leng = 370000 - start_it
     chosen_beam_number_seq_search = pickle.load(open(
-        f"{PATH}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
+        f"{PATH}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod2_consSSB{BURST_calib}.pickle",
         "rb"))
 
     search_true = pickle.load(open(
-        f"{PATH}/search_true_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
+        f"{PATH}/search_true_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}.pickle",
         "rb"))
 
     search_false = pickle.load(open(
-        f"{PATH}/search_false_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
+        f"{PATH}/search_false_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}.pickle",
         "rb"))
 
 
     threshold_all = pickle.load(open(
-        f"{PATH}/threshold_all_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
+        f"{PATH}/threshold_all_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}.pickle",
         "rb"))
     iter_threshold = pickle.load(open(
-        f"{PATH}/iter_threshold_arms{int(ARMS_NUMBER_CIR)}_SSBperiod1_consSSB64.pickle",
+        f"{PATH}/iter_threshold_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}.pickle",
         "rb"))
 
 
 
-    fig_name3 = f"chosen_beam_number_seq_search_arms{ARMS_NUMBER_CIR}_dBm"
+    fig_name3 = f"chosen_beam_number_seq_search_arms{ARMS_NUMBER_CIR}_dBm_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}"
     plt.figure(fig_name3)
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
-    plt.plot(its[0:leng] * duration_of_one_sample, chosen_beam_number_seq_search[0:leng], ".")
-    plt.plot( its[0:leng] * duration_of_one_sample, np.array(search_false[0:leng])-2, "o", color = "r", label = "Search disactivated")
-    plt.plot(  its[0:leng]  * duration_of_one_sample, np.array(search_true[0:leng])-2, ".", color = "g", label = "Search activated")
-
-
-
+    plt.plot(its[start_it:start_it+ leng] * duration_of_one_sample, chosen_beam_number_seq_search[start_it:start_it+ leng], ".")
+    plt.plot( its[start_it:start_it +leng] * duration_of_one_sample, np.array(search_false[start_it: start_it+ leng])-2, "o", color = "r", label = "Search disactivated")
+    plt.plot(  its[start_it:start_it + leng]  * duration_of_one_sample, np.array(search_true[start_it:start_it+ leng])-2, ".", color = "g", label = "Search activated")
     plt.ylabel('Beam number',fontsize=14)
     plt.xlabel("Time, sec",fontsize=14)
     # plt.yscale("log")
@@ -931,7 +934,7 @@ def plot_real_protocol():
 
     fig_name3 = f"threshold_seq_search_arms{ARMS_NUMBER_CIR}_dBm"
     plt.figure(fig_name3)
-    plt.plot(np.array(iter_threshold[0:leng]) * duration_of_one_sample, 10* np.log10(np.array(threshold_all[0:leng]) * max_reward*10**(UE_power_dBi/10)), ".")
+    plt.plot(np.array(iter_threshold[start_it:start_it+ leng]) * duration_of_one_sample, 10* np.log10(np.array(threshold_all[start_it:start_it+ leng]) * max_reward*10**(UE_power_dBi/10)), ".")
 
 
     plt.ylabel('Threshold, dB', fontsize=14)
