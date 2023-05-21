@@ -693,8 +693,12 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
         if not IS_DL:
             if is_feedback(iter_from_begining_of_frame, iter_per_DL, interval_feedback_iter):
+
+
                 chosen_max_beam_number = np.argmax(max_reward_search)
                 trying_beam_number = copy.copy(chosen_max_beam_number)
+                if i > 47500 and i <142500:
+                    print(f"{i}, {i/(8/380000)}, {chosen_max_beam_number}, max {max(max_reward_search)}")
 
         chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
         sequential_search_reward.append(chosen_reward)
