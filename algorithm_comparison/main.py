@@ -697,8 +697,8 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
                 chosen_max_beam_number = np.argmax(max_reward_search)
                 trying_beam_number = copy.copy(chosen_max_beam_number)
-                if i > 47500 and i <142500:
-                    print(f"{i}, {i/(8/380000)}, {chosen_max_beam_number}, max {max(max_reward_search)}")
+                if i > 47500 and i <95000:
+                    print(f"{i}, {i*(8/380000)}, {chosen_max_beam_number}, max {max(max_reward_search)}")
 
         chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
         sequential_search_reward.append(chosen_reward)
@@ -846,12 +846,12 @@ if __name__ == '__main__':
 
 
     def calc(number_of_frames_between_SB_burst,number_of_SB_in_burst):
-
+        print(f"number_of_frames_between_SB_burst {number_of_frames_between_SB_burst}, number_of_SB_in_burst {number_of_SB_in_burst}")
         data_iterations = iter_per_DL - dur_SB_in_iterations * number_of_SB_in_burst
         interval_between_SB_in_iterations = np.floor(
             (data_iterations) / (number_of_SB_in_burst - 1))
         last_part_of_frame_iter = data_iterations - interval_between_SB_in_iterations * (number_of_SB_in_burst - 1)
-        print(f"iter_per_DL {iter_per_DL}, dur_SB_in_iterations {dur_SB_in_iterations}, number_of_SB_in_burst {number_of_SB_in_burst}, interval_between_SB_in_iterations {interval_between_SB_in_iterations}")
+
 
         interval_feedback_iter = np.floor((iter_per_frame - iter_per_DL) / 2)
 
