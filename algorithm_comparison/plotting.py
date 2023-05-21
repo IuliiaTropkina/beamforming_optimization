@@ -872,8 +872,8 @@ def plot_real_protocol():
     PERIOD_calib = 2
 
 
-    start_it = 170000
-    leng = 370000 - start_it
+    start_it = 0
+    leng = 50000#370000 - start_it
     chosen_beam_number_seq_search = pickle.load(open(
         f"{PATH}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod2_consSSB{BURST_calib}.pickle",
         "rb"))
@@ -916,7 +916,8 @@ def plot_real_protocol():
 
     fig_name3 = f"threshold_seq_search_arms{ARMS_NUMBER_CIR}_dBm"
     plt.figure(fig_name3)
-    plt.plot(np.array(iter_threshold[start_it:start_it+ leng]) * duration_of_one_sample, 10* np.log10(np.array(threshold_all[start_it:start_it+ leng]) * max_reward*10**(UE_power_dBi/10)), ".")
+    print(iter_threshold[start_it:start_it+leng])
+    plt.plot(np.array(iter_threshold[start_it:start_it+leng]) * duration_of_one_sample, 10* np.log10(np.array(threshold_all[start_it:start_it+ leng]) * max_reward*10**(UE_power_dBi/10)), ".")
 
 
     plt.ylabel('Threshold, dB', fontsize=14)
