@@ -782,25 +782,7 @@ def plot_real_protocol():
     # avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
 
 
-    fig_name3 = f"oracle_{test_name}_arms{ARMS_NUMBER_CIR}_dB"
-    plt.figure(fig_name3)
 
-    its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
-    print(f"length, {ITER_NUMBER_CIR}")
-    plt.plot(its[0:leng] * duration_of_one_sample, oracle_dB[0:leng])
-
-
-    plt.ylabel('Power, dB',fontsize=14)
-    plt.xlabel("Time, sec",fontsize=14)
-    # plt.yscale("log")
-    #plt.ylim(0,10)
-    plt.grid()
-    plt.legend(prop={'size': 12})
-    plt.yticks(fontsize=12)
-    plt.xticks(fontsize=12)
-    plt.savefig(
-        f"{figures_path}/{fig_name3}.pdf",
-        dpi=700, bbox_inches='tight')
 
     best_beam = pickle.load(open(
         f"{PATH}/best_beam_arms{int(ARMS_NUMBER_CIR)}.pickle",
@@ -950,7 +932,25 @@ def plot_real_protocol():
         dpi=700, bbox_inches='tight')
 
 
+    fig_name3 = f"oracle_{test_name}_arms{ARMS_NUMBER_CIR}_dB"
+    plt.figure(fig_name3)
 
+    its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
+    print(f"length, {ITER_NUMBER_CIR}")
+    plt.plot(its[0:leng] * duration_of_one_sample, oracle_dB[0:leng])
+
+
+    plt.ylabel('Power, dB',fontsize=14)
+    plt.xlabel("Time, sec",fontsize=14)
+    # plt.yscale("log")
+    #plt.ylim(0,10)
+    plt.grid()
+    plt.legend(prop={'size': 12})
+    plt.yticks(fontsize=12)
+    plt.xticks(fontsize=12)
+    plt.savefig(
+        f"{figures_path}/{fig_name3}.pdf",
+        dpi=700, bbox_inches='tight')
     for n_b in NUMBERs_OF_CONS_SSB:
 
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{n_b}"
