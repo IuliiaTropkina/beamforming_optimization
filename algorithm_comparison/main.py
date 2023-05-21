@@ -682,7 +682,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
                     trying_beam_number = copy.copy(chosen_max_beam_number)
                 else:
                     trying_beam_number = copy.copy(beam_number_count)
-                    trying_beam_number = trying_beam_number -1
+                    trying_beam_number = trying_beam_number - 1
 
 
             else:
@@ -713,7 +713,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
             SEARCH = False
             search_false[i] = ARMS_NUMBER_CIR + 3
             beam_number_count = 0
-        elif chosen_reward < threshold and SEARCH == False:
+        elif chosen_reward <= threshold and SEARCH == False :
             # if i < 1000:
             #     print(f"{i}, {i*duration_of_one_sample}, thresh {threshold}, chosen_reward {chosen_reward}, trying_beam_number {trying_beam_number}, chosen_max_beam_number {chosen_max_beam_number} ")
             search_true[i] = ARMS_NUMBER_CIR + 3
