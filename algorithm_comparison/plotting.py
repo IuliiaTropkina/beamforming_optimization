@@ -937,7 +937,7 @@ def plot_real_protocol():
 
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
     print(f"length, {ITER_NUMBER_CIR}")
-    plt.plot(its[0:leng] * duration_of_one_sample, oracle_dB[0:leng])
+    plt.plot(its[start_it:start_it +leng] * duration_of_one_sample, oracle_dB[start_it:start_it +leng])
 
 
     plt.ylabel('Power, dB',fontsize=14)
