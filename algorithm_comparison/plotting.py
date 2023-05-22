@@ -784,27 +784,7 @@ def plot_real_protocol():
 
 
 
-    best_beam = pickle.load(open(
-        f"{PATH}/best_beam_arms{int(ARMS_NUMBER_CIR)}.pickle",
-        "rb"))
 
-
-
-    fig_name3 = f"best_beam_{test_name}_arms{ARMS_NUMBER_CIR}_dBm"
-    plt.figure(fig_name3)
-    its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
-    plt.plot(its * duration_of_one_sample, best_beam, ".")
-    plt.ylabel('Beam number',fontsize=14)
-    plt.xlabel("Time, sec",fontsize=14)
-    # plt.yscale("log")
-    #plt.ylim(0,10)
-    plt.grid()
-    plt.legend(prop={'size': 12})
-    plt.yticks(fontsize=12)
-    plt.xticks(fontsize=12)
-    plt.savefig(
-        f"{figures_path}/{fig_name3}.png",
-        dpi=700, bbox_inches='tight')
 
 
     TX_locations = pickle.load(open(
@@ -872,9 +852,9 @@ def plot_real_protocol():
     PERIOD_calib = 4
 
 
-    start_it = 251750
+    start_it = 170000#251750
 
-    leng = 299250 - start_it
+    leng = 370000 - start_it#299250 - start_it
     chosen_beam_number_seq_search = pickle.load(open(
         f"{PATH}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}.pickle",
         "rb"))
@@ -952,6 +932,26 @@ def plot_real_protocol():
     plt.xticks(fontsize=12)
     plt.savefig(
         f"{figures_path}/{fig_name3}.pdf",
+        dpi=700, bbox_inches='tight')
+
+    best_beam = pickle.load(open(
+        f"{PATH}/best_beam_arms{int(ARMS_NUMBER_CIR)}.pickle",
+        "rb"))
+
+    fig_name3 = f"best_beam_{test_name}_arms{ARMS_NUMBER_CIR}_dBm"
+    plt.figure(fig_name3)
+    its = np.linspace(0, ITER_NUMBER_CIR - 1, ITER_NUMBER_CIR)
+    plt.plot(its[start_it:start_it + leng] * duration_of_one_sample, best_beam[start_it:start_it + leng], ".")
+    plt.ylabel('Beam number', fontsize=14)
+    plt.xlabel("Time, sec", fontsize=14)
+    # plt.yscale("log")
+    # plt.ylim(0,10)
+    plt.grid()
+    plt.legend(prop={'size': 12})
+    plt.yticks(fontsize=12)
+    plt.xticks(fontsize=12)
+    plt.savefig(
+        f"{figures_path}/{fig_name3}.png",
         dpi=700, bbox_inches='tight')
     for n_b in NUMBERs_OF_CONS_SSB:
 
