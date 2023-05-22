@@ -447,7 +447,7 @@ class Contextual_bandit:
         self.exploitation_iterations = []
         self.reward_exploiration = []
         self.context_number_exploration = []
-
+        self.selected_arms = []
         if len(context_set)!=0:
             if alg_name == "UCB":
                 for _ in self.context_set:
@@ -479,7 +479,6 @@ class Contextual_bandit:
     def run_bandit(self):
         rewards = np.empty(self.iter_number)
         for i in range(self.iter_number):
-            iter_from_begining_of_frame = i % (iter_per_frame * self.number_of_frames_between_SB_burst)
             if self.data_random:
                 context_number = 0
             else:
@@ -494,8 +493,10 @@ class Contextual_bandit:
                 elif self.context_type == "DOA":
                     context_number = cir_cache.choose_context_number(self.context_set, i)
             if REAL_PROTOCOL:
+                iter_from_begining_of_frame = i % (iter_per_frame * self.number_of_frames_between_SB_burst)
+                IS_DL = is_DL(iter_from_begining_of_frame, iter_per_DL)
+                if IS_DL and (iter_from_begining_of_frame < iter_per_frame):
 
-                if is_DL(iter_from_begining_of_frame, iter_per_DL):
                     if is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations,
                                     self.interval_between_SB_in_iterations, self.last_part_of_frame_iter):
                         self.arm_num = self.MAB[context_number].get_arm()
@@ -504,6 +505,8 @@ class Contextual_bandit:
                         self.reward_exploiration.append(obtained_reward)
                         self.context_number_exploration.append(context_number)
                         self.exploitation_iterations.append(i)
+                        self.selected_arms.append(self.arm_num)
+
                     elif not is_SB(iter_from_begining_of_frame, dur_SB_in_iterations,
                                    self.interval_between_SB_in_iterations, self.last_part_of_frame_iter):
                         self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
@@ -512,14 +515,17 @@ class Contextual_bandit:
 
 
                 else:
+                    copy.copy(self.MAB[context_number].arm_exploitation)
+
+
+
+                if not IS_DL and (iter_from_begining_of_frame < iter_per_frame):
                     if is_feedback(iter_from_begining_of_frame, iter_per_DL, self.interval_feedback_iter):
-
-                        for r, c in zip(self.reward_exploiration, self.context_number_exploration):
-                            self.MAB[c].update(self.arm_num, r)
-                            self.arm_exploitation = self.MAB[context_number].get_arm()
-                            self.arm_num = copy.copy(self.arm_exploitation)
+                        for r, c, b in zip(self.reward_exploiration, self.context_number_exploration, self.selected_arms):
+                            self.MAB[c].update(b, r)
                             self.MAB[c].all_iter_count += 1
-
+                        self.arm_exploitation = self.MAB[context_number].get_arm()
+                        self.arm_num = copy.copy(self.arm_exploitation)
 
             else:
                 self.arm_num = self.MAB[context_number].get_arm()
