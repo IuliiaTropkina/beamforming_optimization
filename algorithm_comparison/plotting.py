@@ -872,9 +872,9 @@ def plot_real_protocol():
     PERIOD_calib = 4
 
 
-    start_it = 170000
+    start_it = 251750
 
-    leng = 370000 - start_it
+    leng = 299250.0 - start_it
     chosen_beam_number_seq_search = pickle.load(open(
         f"{PATH}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}.pickle",
         "rb"))
