@@ -674,7 +674,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
                     beam_number_count += 1
                     t = beam_number_count == ARMS_NUMBER_CIR
-                    print(f"{i} {i*(8/380000)} beam_number_count {beam_number_count} ARMS_NUMBER_CIR {ARMS_NUMBER_CIR} t")
+                    print(f"{i} {i*(8/380000)} beam_number_count {beam_number_count} ARMS_NUMBER_CIR {ARMS_NUMBER_CIR} {t}")
 
                     # if i < 2000:
                     #     print(f"{i}, this is DL and SSB start, trying_beam_number {trying_beam_number}, beam_number_count {beam_number_count}, chosen_reward {chosen_reward}, iter_per_DL {iter_per_DL}, interval_feedback_iter {interval_feedback_iter}")

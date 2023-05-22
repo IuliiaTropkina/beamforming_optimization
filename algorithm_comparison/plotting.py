@@ -874,7 +874,7 @@ def plot_real_protocol():
 
     start_it = 0
 
-    leng = 100000 #370000 - start_it
+    leng = 20000 #370000 - start_it
     chosen_beam_number_seq_search = pickle.load(open(
         f"{PATH}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod2_consSSB{BURST_calib}.pickle",
         "rb"))
