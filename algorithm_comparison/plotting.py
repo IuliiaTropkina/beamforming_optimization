@@ -869,11 +869,11 @@ def plot_real_protocol():
         print(f"Folder {figures_path}/window exists!")
 
     BURST_calib = 4
-    PERIOD_calib = 2
+    PERIOD_calib = 4
 
 
-    start_it = 0
-    leng = 170000#370000 - start_it
+    start_it = 170000
+    leng = 370000 - start_it
     chosen_beam_number_seq_search = pickle.load(open(
         f"{PATH}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod2_consSSB{BURST_calib}.pickle",
         "rb"))
@@ -1032,7 +1032,7 @@ def plot_real_protocol():
         plt.ylabel('Power loss, dB',fontsize=14)
         plt.xlabel("Time, sec",fontsize=14)
         # plt.yscale("log")
-        # plt.ylim(0,10)
+        plt.ylim(0,10)
         plt.grid()
         plt.legend(prop={'size': 12})
         plt.yticks(fontsize=12)
