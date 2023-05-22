@@ -816,8 +816,8 @@ if __name__ == '__main__':
     ANTENNA_TYPE = 2
 
 
-    NUMBERs_OF_CONS_SSB = np.array([4]) #[4,8,64]
-    Numbers_of_frames_between_SSB = np.array([4,8]) #1,2,4,8,16
+    NUMBERs_OF_CONS_SSB = np.array([4,8,64]) #[4,8,64]
+    Numbers_of_frames_between_SSB = np.array([1,2,4,8,16]) #1,2,4,8,16
     REAL_PROTOCOL = True
 
 
