@@ -662,10 +662,11 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
         IS_DL = is_DL(iter_from_begining_of_frame, iter_per_DL)
 
         if SEARCH:
-            if IS_DL:
+            if IS_DL and (iter_from_begining_of_frame < iter_per_frame):
+
                 if is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations, last_part_of_frame_iter):
 
-                    #print(f"iter_from_begining_of_frame, {iter_from_begining_of_frame}, dur_SB_in_iterations {dur_SB_in_iterations}, interval_between_SB_in_iterations {interval_between_SB_in_iterations}")
+                    print(f"iter_from_begining_of_frame, {iter_from_begining_of_frame}, dur_SB_in_iterations {dur_SB_in_iterations}, interval_between_SB_in_iterations {interval_between_SB_in_iterations}")
                     #
                     if beam_number_count > 62 and i < 1000:
                         t = (iter_from_begining_of_frame < iter_per_frame - last_part_of_frame_iter)
@@ -694,7 +695,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
         else:
             trying_beam_number = copy.copy(chosen_max_beam_number)
 
-        if not IS_DL:
+        if not IS_DL and (iter_from_begining_of_frame < iter_per_frame) :
             if is_feedback(iter_from_begining_of_frame, iter_per_DL, interval_feedback_iter):
 
 
