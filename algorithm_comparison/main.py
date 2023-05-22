@@ -665,19 +665,14 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
             if IS_DL and (iter_from_begining_of_frame < iter_per_frame):
 
                 if is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations, last_part_of_frame_iter):
-                    if i < 20000:
-                        print(f"{i} {i*(8/380000)} iter_per_frame {iter_per_frame} iter_from_begining_of_frame, {iter_from_begining_of_frame}, dur_SB_in_iterations {dur_SB_in_iterations}, interval_between_SB_in_iterations {interval_between_SB_in_iterations}")
+
 
                     trying_beam_number = copy.copy(beam_number_count)
                     chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
                     max_reward_search[beam_number_count] = chosen_reward
 
                     beam_number_count += 1
-                    t = beam_number_count == ARMS_NUMBER_CIR
-                    print(f"{i} {i*(8/380000)} beam_number_count {beam_number_count} ARMS_NUMBER_CIR {ARMS_NUMBER_CIR} {t}")
 
-                    # if i < 2000:
-                    #     print(f"{i}, this is DL and SSB start, trying_beam_number {trying_beam_number}, beam_number_count {beam_number_count}, chosen_reward {chosen_reward}, iter_per_DL {iter_per_DL}, interval_feedback_iter {interval_feedback_iter}")
                 elif not is_SB(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations,last_part_of_frame_iter):
                     trying_beam_number = copy.copy(chosen_max_beam_number)
                 else:
@@ -705,7 +700,6 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
         if beam_number_count == ARMS_NUMBER_CIR:
             threshold = max(max_reward_search) / 2
-            print(f"he end {i} {i*(8/380000)} ")
             threshold_all.append(threshold)
             iter_threshold.append(i)
             SEARCH = False
