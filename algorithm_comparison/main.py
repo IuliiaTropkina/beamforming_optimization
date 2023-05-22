@@ -667,14 +667,17 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
                     #print(f"iter_from_begining_of_frame, {iter_from_begining_of_frame}, dur_SB_in_iterations {dur_SB_in_iterations}, interval_between_SB_in_iterations {interval_between_SB_in_iterations}")
                     #
-                    # if beam_number_count > 62 and i < 1000:
-                    #     t = (iter_from_begining_of_frame < iter_per_frame - last_part_of_frame_iter)
-                        # print(f"SB start!!! i {i}, iter_from_begining_of_frame {iter_from_begining_of_frame}, dur_SB_in_iterations {dur_SB_in_iterations}, interval_between_SB_in_iterations {interval_between_SB_in_iterations}, last_part_of_frame_iter {last_part_of_frame_iter} , f: {iter_per_frame}, f: {t}")
-                        # print(f"beam_number_count {beam_number_count}")
+                    if beam_number_count > 62 and i < 1000:
+                        t = (iter_from_begining_of_frame < iter_per_frame - last_part_of_frame_iter)
+                        print(f"SB start!!! i {i}, iter_from_begining_of_frame {iter_from_begining_of_frame}, dur_SB_in_iterations {dur_SB_in_iterations}, interval_between_SB_in_iterations {interval_between_SB_in_iterations}, last_part_of_frame_iter {last_part_of_frame_iter} , f: {iter_per_frame}, f: {t}")
+                        print(f"beam_number_count {beam_number_count}")
                     trying_beam_number = copy.copy(beam_number_count)
                     chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
                     max_reward_search[beam_number_count] = chosen_reward
+
                     beam_number_count += 1
+                    t = beam_number_count == ARMS_NUMBER_CIR
+                    print(f"{i} {i*(8/380000)} beam_number_count {beam_number_count} ARMS_NUMBER_CIR {ARMS_NUMBER_CIR} t")
 
                     # if i < 2000:
                     #     print(f"{i}, this is DL and SSB start, trying_beam_number {trying_beam_number}, beam_number_count {beam_number_count}, chosen_reward {chosen_reward}, iter_per_DL {iter_per_DL}, interval_feedback_iter {interval_feedback_iter}")
@@ -697,8 +700,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
                 chosen_max_beam_number = np.argmax(max_reward_search)
                 trying_beam_number = copy.copy(chosen_max_beam_number)
-                if i > 47500 and i <95000:
-                    print(f"{i}, {i*(8/380000)}, {chosen_max_beam_number}, max {max(max_reward_search)}")
+
 
         chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
         sequential_search_reward.append(chosen_reward)
@@ -706,8 +708,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
         if beam_number_count == ARMS_NUMBER_CIR:
             threshold = max(max_reward_search) / 2
-
-            print(f"{i}, {i*(8/380000)}!!!!!!!!!!!!!!!!!!!!!!!!!!!! threshold {threshold}")
+            print(f"he end {i} {i*(8/380000)} ")
             threshold_all.append(threshold)
             iter_threshold.append(i)
             SEARCH = False
@@ -818,8 +819,8 @@ if __name__ == '__main__':
     ANTENNA_TYPE = 2
 
 
-    NUMBERs_OF_CONS_SSB = np.array([4,8,64])
-    Numbers_of_frames_between_SSB = np.array([1,2,4,8,16])
+    NUMBERs_OF_CONS_SSB = np.array([4]) #[4,8,64]
+    Numbers_of_frames_between_SSB = np.array([4,8]) #1,2,4,8,16
     REAL_PROTOCOL = True
 
 
