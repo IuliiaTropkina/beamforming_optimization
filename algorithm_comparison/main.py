@@ -529,7 +529,7 @@ class Contextual_bandit:
 
             else:
                 self.arm_num = self.MAB[context_number].get_arm()
-
+            print(self.arm_num)
             self.chosen_beam_number.append(self.arm_num)
 
             obtained_reward = cir_cache.all_rewards[self.arm_num, i]
@@ -816,8 +816,8 @@ if __name__ == '__main__':
     ANTENNA_TYPE = 2
 
 
-    NUMBERs_OF_CONS_SSB = np.array([4,8,64]) #[4,8,64]
-    Numbers_of_frames_between_SSB = np.array([1,2,4,8,16]) #1,2,4,8,16
+    NUMBERs_OF_CONS_SSB = np.array([4]) #[4,8,64]
+    Numbers_of_frames_between_SSB = np.array([1]) #1,2,4,8,16
     REAL_PROTOCOL = True
 
 
@@ -835,12 +835,12 @@ if __name__ == '__main__':
     #                    "THS"]
     cont_params = [len(np.array(icosphere_context.vertices)), LOCATION_GRID_STEP]
     folder_test = "real_protocol"
-    algorithm_names = ["UCB"] #"DQL","EPS_greedy"
+    algorithm_names = ["EPS_greedy"] #"DQL","EPS_greedy"
     # parameters = [[0.05, 0.1, 0.15],
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
     #parameters = [[0.01,0.02, 0.2, 0.5]]#UCB
-    parameters = [[0.01]]  # eps greedy 0.8
+    parameters = [[0.8]]  # eps greedy 0.8
 
 
     def calc(number_of_frames_between_SB_burst,number_of_SB_in_burst):

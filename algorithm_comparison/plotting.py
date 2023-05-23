@@ -967,7 +967,7 @@ def plot_real_protocol():
                         print(f"{PATH}/chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}.pickle")
                         print("chosen_arm_typelocation_context0_EPS_greedy_0.8_162_SSBperiod1_consSSB4.pickle")
                         chosen_beam_number_bandit = pickle.load(open(
-                            f"{PATH}/chosen_arm_typelocation_context0_EPS_greedy_0.8_162_SSBperiod1_consSSB4.pickle",
+                            f"{PATH}/chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}.pickle",
                             "rb"))
 
                         fig_name3 = f"chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}.pickle"
