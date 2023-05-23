@@ -729,7 +729,7 @@ def plot_real_protocol():
     #                    "UCB",
     #                    "THS"]
 
-    cont_params = [15, 162]
+    cont_params = [0, 162]
     cont_param_signs = ["Grid step", "Number of contexts"]
 
     #algorithm_names = ["EPS_greedy", "UCB"] #"DQL","EPS_greedy"
@@ -953,6 +953,36 @@ def plot_real_protocol():
     plt.savefig(
         f"{figures_path}/{fig_name3}.png",
         dpi=700, bbox_inches='tight')
+
+    try:
+        os.makedirs(f"{figures_path}/sel_beams")
+    except:
+        print(f"Folder {figures_path} exists!")
+
+    for con_type, cont_param in zip(context_types, cont_params):
+        for a, p in zip(algorithm_names, parameters):
+
+            for N_f in Numbers_of_frames_between_SSB:
+                for n_b in NUMBERs_OF_CONS_SSB:
+                    chosen_beam_number_bandit = pickle.load(open(
+                        f"{PATH}/chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}.pickle",
+                        "rb"))
+                    fig_name3 = f"chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}"
+                    plt.figure(fig_name3)
+                    its = np.linspace(0, ITER_NUMBER_CIR - 1, ITER_NUMBER_CIR)
+                    plt.plot(its[start_it:start_it + leng] * duration_of_one_sample,
+                             chosen_beam_number_bandit[start_it:start_it + leng], ".")
+                    plt.ylabel('Beam number', fontsize=14)
+                    plt.xlabel("Time, sec", fontsize=14)
+                    # plt.yscale("log")
+                    # plt.ylim(0,10)
+                    plt.grid()
+                    plt.legend(prop={'size': 12})
+                    plt.yticks(fontsize=12)
+                    plt.xticks(fontsize=12)
+                    plt.savefig(
+                        f"{figures_path}/sel_beams/{fig_name3}.png",
+                        dpi=700, bbox_inches='tight')
     for n_b in NUMBERs_OF_CONS_SSB:
 
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{n_b}"
@@ -1064,36 +1094,7 @@ def plot_real_protocol():
                 dpi=700, bbox_inches='tight')
 
 
-        try:
-            os.makedirs(f"{figures_path}/sel_beams")
-        except:
-            print(f"Folder {figures_path} exists!")
 
-
-        for con_type, cont_param in zip(context_types, cont_params):
-            for a, p in zip(algorithm_names, parameters):
-
-                for N_f in Numbers_of_frames_between_SSB:
-                    for n_b in NUMBERs_OF_CONS_SSB:
-
-                        chosen_beam_number_bandit = pickle.load(open(
-                            f"{PATH}/chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}.pickle",
-                            "rb"))
-                        fig_name3 = f"chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}"
-                        plt.figure(fig_name3)
-                        its = np.linspace(0, ITER_NUMBER_CIR - 1, ITER_NUMBER_CIR)
-                        plt.plot(its[start_it:start_it + leng] * duration_of_one_sample, chosen_beam_number_bandit[start_it:start_it + leng], ".")
-                        plt.ylabel('Beam number', fontsize=14)
-                        plt.xlabel("Time, sec", fontsize=14)
-                        # plt.yscale("log")
-                        # plt.ylim(0,10)
-                        plt.grid()
-                        plt.legend(prop={'size': 12})
-                        plt.yticks(fontsize=12)
-                        plt.xticks(fontsize=12)
-                        plt.savefig(
-                            f"{figures_path}/sel_beams/{fig_name3}.png",
-                            dpi=700, bbox_inches='tight')
 
 
         for con_type, cont_param, cont_param_sigh in zip(context_types, cont_params, cont_param_signs):
