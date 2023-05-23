@@ -1063,6 +1063,13 @@ def plot_real_protocol():
                 f"{figures_path}/window/{fig_name2}.pdf",
                 dpi=700, bbox_inches='tight')
 
+
+        try:
+            os.makedirs(f"{figures_path}/sel_beams")
+        except:
+            print(f"Folder {figures_path} exists!")
+
+
         for con_type, cont_param in zip(context_types, cont_params):
             for a, p in zip(algorithm_names, parameters):
 
@@ -1085,7 +1092,7 @@ def plot_real_protocol():
                         plt.yticks(fontsize=12)
                         plt.xticks(fontsize=12)
                         plt.savefig(
-                            f"{figures_path}/{fig_name3}.png",
+                            f"{figures_path}/sel_beams/{fig_name3}.png",
                             dpi=700, bbox_inches='tight')
 
 
