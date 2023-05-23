@@ -554,7 +554,7 @@ class UCB:
         self.c = c
         self.arms_number = arms_number
         self.all_iter_count = 0
-        self.arm_exploration = 0
+        self.arm_exploitation = 0
     # Update the action-value estimate
     def update(self, arm_num, obtained_reward):
         self.arms_iter_count[arm_num] += 1
@@ -562,9 +562,9 @@ class UCB:
             arm_num] + 1.0 / self.arms_iter_count[arm_num] * obtained_reward
 
     def get_arm(self):
-        self.arm_exploration = np.argmax(self.arms_mean_reward + self.c * np.sqrt(
+        self.arm_exploitation = np.argmax(self.arms_mean_reward + self.c * np.sqrt(
             (np.log(self.all_iter_count)) / self.arms_iter_count))
-        return self.arm_exploration
+        return self.arm_exploitation
 
 
 
