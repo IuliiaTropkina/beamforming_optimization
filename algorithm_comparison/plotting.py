@@ -729,7 +729,7 @@ def plot_real_protocol():
     #                    "UCB",
     #                    "THS"]
 
-    cont_params = [0, 162]
+    cont_params = [15, 162]
     cont_param_signs = ["Grid step", "Number of contexts"]
 
     #algorithm_names = ["EPS_greedy", "UCB"] #"DQL","EPS_greedy"
@@ -959,7 +959,7 @@ def plot_real_protocol():
     except:
         print(f"Folder {figures_path} exists!")
 
-    for con_type, cont_param in zip(context_types, cont_params):
+    for con_type, cont_param in zip(context_types, [162,  0]):
         for a, pars in zip(algorithm_names, parameters):
             for p in pars:
                 for N_f in Numbers_of_frames_between_SSB:
