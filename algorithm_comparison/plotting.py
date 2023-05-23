@@ -964,8 +964,7 @@ def plot_real_protocol():
             for p in pars:
                 for N_f in Numbers_of_frames_between_SSB:
                     for n_b in NUMBERs_OF_CONS_SSB:
-                        chosen_beam_number_bandit = pickle.load(open(f"{PATH}/chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}.pickle",
-                            "rb"))
+                        chosen_beam_number_bandit = pickle.load(open(f"{PATH}/chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}.pickle", "rb"))
                         fig_name3 = f"chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}"
                         plt.figure(fig_name3)
                         its = np.linspace(0, ITER_NUMBER_CIR - 1, ITER_NUMBER_CIR)
