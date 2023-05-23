@@ -500,7 +500,6 @@ class Contextual_bandit:
                     if is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations,
                                     self.interval_between_SB_in_iterations, self.last_part_of_frame_iter):
                         self.arm_num = self.MAB[context_number].get_arm()
-                        self.MAB[context_number].arm_exploration = copy.copy(self.arm_num)
                         obtained_reward = cir_cache.all_rewards[self.arm_num, i]
                         self.reward_exploiration.append(obtained_reward)
                         self.context_number_exploration.append(context_number)
@@ -511,7 +510,10 @@ class Contextual_bandit:
                                    self.interval_between_SB_in_iterations, self.last_part_of_frame_iter):
                         self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
                     else:
-                        self.arm_num = copy.copy(self.MAB[context_number].arm_exploration)
+                        try:
+                            self.arm_num = copy.copy(self.MAB[context_number].arm_exploration)
+                        except:
+                            self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
 
 
                 else:
@@ -524,12 +526,10 @@ class Contextual_bandit:
                         for r, c, b in zip(self.reward_exploiration, self.context_number_exploration, self.selected_arms):
                             self.MAB[c].update(b, r)
                             self.MAB[c].all_iter_count += 1
-                        self.arm_exploitation = self.MAB[context_number].get_arm()
-                        self.arm_num = copy.copy(self.arm_exploitation)
+                        self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
 
             else:
                 self.arm_num = self.MAB[context_number].get_arm()
-            print(self.arm_num)
             self.chosen_beam_number.append(self.arm_num)
 
             obtained_reward = cir_cache.all_rewards[self.arm_num, i]
@@ -553,10 +553,8 @@ class UCB:
         self.arms_iter_count = np.ones(arms_number)
         self.c = c
         self.arms_number = arms_number
-        self.arm_exploitation = 0
-        self.arm_exploration = 0
         self.all_iter_count = 0
-
+        self.arm_exploration = 0
     # Update the action-value estimate
     def update(self, arm_num, obtained_reward):
         self.arms_iter_count[arm_num] += 1
@@ -564,8 +562,9 @@ class UCB:
             arm_num] + 1.0 / self.arms_iter_count[arm_num] * obtained_reward
 
     def get_arm(self):
-        return np.argmax(self.arms_mean_reward + self.c * np.sqrt(
+        self.arm_exploration = np.argmax(self.arms_mean_reward + self.c * np.sqrt(
             (np.log(self.all_iter_count)) / self.arms_iter_count))
+        return self.arm_exploration
 
 
 
@@ -601,13 +600,12 @@ class EPS_greedy:
 
         self.arms_mean_reward = np.zeros(arms_number)
         self.arms_iter_count = np.zeros(arms_number)
-        self.arm_exploitation = 0
-        self.arm_exploration = 0
         self.eps = eps
         self.arms_number = arms_number
         self.all_iter_count = 0
         self.EXPLOITATION = False
         self.arm_exploitation = 0
+        self.arm_exploration = 0
     def update(self, arm_num, obtained_reward):
         self.arms_iter_count[arm_num] += 1
         self.arms_mean_reward[arm_num] = (1 - 1.0 / self.arms_iter_count[arm_num]) * self.arms_mean_reward[
@@ -617,7 +615,8 @@ class EPS_greedy:
         p = np.random.random()
         if p < self.eps:
             self.EXPLOITATION = False
-            return np.random.choice(self.arms_number)
+            self.arm_exploration = np.random.choice(self.arms_number)
+            return self.arm_exploration
         else:
             self.EXPLOITATION = True
             self.arm_exploitation = np.argmax(self.arms_mean_reward)
@@ -816,8 +815,8 @@ if __name__ == '__main__':
     ANTENNA_TYPE = 2
 
 
-    NUMBERs_OF_CONS_SSB = np.array([4]) #[4,8,64]
-    Numbers_of_frames_between_SSB = np.array([1]) #1,2,4,8,16
+    NUMBERs_OF_CONS_SSB = np.array([4,8,64]) #[4,8,64]
+    Numbers_of_frames_between_SSB = np.array([1,2,4,8,16]) #1,2,4,8,16
     REAL_PROTOCOL = True
 
 
