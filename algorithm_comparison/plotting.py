@@ -959,7 +959,7 @@ def plot_real_protocol():
     except:
         print(f"Folder {figures_path} exists!")
 
-    for con_type, cont_param in zip(context_types, [162,  0]):
+    for con_type, cont_param in zip(context_types, [0,  162]):
         for a, pars in zip(algorithm_names, parameters):
             for p in pars:
                 for N_f in Numbers_of_frames_between_SSB:
