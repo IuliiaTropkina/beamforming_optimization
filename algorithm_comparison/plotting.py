@@ -733,7 +733,7 @@ def plot_real_protocol():
     cont_param_signs = ["Grid step", "Number of contexts"]
 
     #algorithm_names = ["EPS_greedy", "UCB"] #"DQL","EPS_greedy"
-    algorithm_names = ["UCB"]  # "DQL","EPS_greedy"
+    algorithm_names = ["EPS_greedy"]  # "DQL","EPS_greedy"
 
     #algorithm_legend_names = ["$\epsilon$-Greedy", "UCB"]
     algorithm_legend_names = ["UCB"]
@@ -746,7 +746,7 @@ def plot_real_protocol():
     #               [0.2, 0.5]]
     #parameters = [[0.15, 0.05, 0.4, 0.8, 0.95], [0.01,0.02, 0.2, 0.5]]
     # parameters = [[ 0.8], [0.01]]
-    parameters = [[0.01]]
+    parameters = [[0.8]]
     NUMBERs_OF_CONS_SSB = np.array([4,8,64])
     Numbers_of_frames_between_SSB = np.array([1,2,4,8,16])
 
@@ -964,7 +964,7 @@ def plot_real_protocol():
             for p in pars:
                 for N_f in Numbers_of_frames_between_SSB:
                     for n_b in NUMBERs_OF_CONS_SSB:
-
+                        print(f"{PATH}/chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}.pickle")
                         chosen_beam_number_bandit = pickle.load(open(
                             f"{PATH}/chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}.pickle",
                             "rb"))
