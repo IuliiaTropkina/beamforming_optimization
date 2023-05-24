@@ -500,6 +500,8 @@ class Contextual_bandit:
 
                     if is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations,
                                     self.interval_between_SB_in_iterations, self.last_part_of_frame_iter):
+
+
                         self.arm_num = self.MAB[context_number].get_arm()
                         self.arm_SSB = copy.copy(self.arm_num)
                         obtained_reward = cir_cache.all_rewards[self.arm_num, i]
@@ -509,28 +511,37 @@ class Contextual_bandit:
                         self.selected_arms.append(self.arm_num)
                         self.MAB[context_number].update(self.arm_num, obtained_reward)
                         self.MAB[context_number].all_iter_count += 1
-
+                        if i < 2000:
+                            print(f"SB start self.arm_num {self.arm_num} obtained_reward {obtained_reward} arm_exploitation {self.MAB[context_number].arm_exploitation}")
                     elif not is_SB(iter_from_begining_of_frame, dur_SB_in_iterations,
                                    self.interval_between_SB_in_iterations, self.last_part_of_frame_iter):
                         self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
+                        if i < 2000:
+                            print(f"not SB self.arm_num {self.arm_num}  arm_exploitation {self.MAB[context_number].arm_exploitation}")
                     else:
                         # try:
                         #     self.arm_num = copy.copy(self.MAB[context_number].arm_exploration)
                         # except:
                         #     self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
-                        self.arm_num = copy.copy(self.arm_SSB)
 
+                        self.arm_num = copy.copy(self.arm_SSB)
+                        if i < 2000:
+                            print(f"SB self.arm_num {self.arm_num} self.arm_SSB {self.arm_SSB}")
 
                 else:
                     self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
-
+                    if i<2000:
+                        print(f"not DL self.arm_num {self.arm_num}  arm_exploitation {self.MAB[context_number].arm_exploitation}")
 
 
                 if not IS_DL and (iter_from_begining_of_frame < iter_per_frame):
                     if is_feedback(iter_from_begining_of_frame, iter_per_DL, self.interval_feedback_iter):
                         # for r, c, b in zip(self.reward_exploiration, self.context_number_exploration, self.selected_arms):
+
                         self.MAB[context_number].update_arm_exploitation()
                         self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
+                        if i < 2000:
+                            print(f"fedback {self.MAB[context_number].arm_exploitation}")
 
             else:
                 self.arm_num = self.MAB[context_number].get_arm()
@@ -822,8 +833,8 @@ if __name__ == '__main__':
     ANTENNA_TYPE = 2
 
 
-    NUMBERs_OF_CONS_SSB = np.array([4,8,64]) #[4,8,64]
-    Numbers_of_frames_between_SSB = np.array([1,2,4,8,16]) #1,2,4,8,16
+    NUMBERs_OF_CONS_SSB = np.array([64]) #[4,8,64]
+    Numbers_of_frames_between_SSB = np.array([1]) #1,2,4,8,16
     REAL_PROTOCOL = True
 
 
