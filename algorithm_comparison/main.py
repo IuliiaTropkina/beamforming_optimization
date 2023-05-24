@@ -505,6 +505,7 @@ class Contextual_bandit:
                         self.context_number_exploration.append(context_number)
                         self.exploitation_iterations.append(i)
                         self.selected_arms.append(self.arm_num)
+                        self.MAB[context_number].all_iter_count += 1
 
                     elif not is_SB(iter_from_begining_of_frame, dur_SB_in_iterations,
                                    self.interval_between_SB_in_iterations, self.last_part_of_frame_iter):
@@ -525,7 +526,7 @@ class Contextual_bandit:
                     if is_feedback(iter_from_begining_of_frame, iter_per_DL, self.interval_feedback_iter):
                         for r, c, b in zip(self.reward_exploiration, self.context_number_exploration, self.selected_arms):
                             self.MAB[c].update(b, r)
-                            self.MAB[c].all_iter_count += 1
+
                         self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
 
             else:
