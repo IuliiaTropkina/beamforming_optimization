@@ -434,6 +434,7 @@ class Contextual_bandit:
         self.random_data_with_CONTEXT = random_data_with_CONTEXT
         self.MAB = []
         self.arm_num = 0
+        self.arm_SSB = 0
         self.existing_contexts = np.array([])
         self.context_set = context_set
         self.iter_number = iter_number
@@ -500,21 +501,24 @@ class Contextual_bandit:
                     if is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations,
                                     self.interval_between_SB_in_iterations, self.last_part_of_frame_iter):
                         self.arm_num = self.MAB[context_number].get_arm()
+                        self.arm_SSB = copy.copy(self.arm_num)
                         obtained_reward = cir_cache.all_rewards[self.arm_num, i]
                         self.reward_exploiration.append(obtained_reward)
                         self.context_number_exploration.append(context_number)
                         self.exploitation_iterations.append(i)
                         self.selected_arms.append(self.arm_num)
+                        self.MAB[context_number].update(self.arm_num, obtained_reward)
                         self.MAB[context_number].all_iter_count += 1
 
                     elif not is_SB(iter_from_begining_of_frame, dur_SB_in_iterations,
                                    self.interval_between_SB_in_iterations, self.last_part_of_frame_iter):
                         self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
                     else:
-                        try:
-                            self.arm_num = copy.copy(self.MAB[context_number].arm_exploration)
-                        except:
-                            self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
+                        # try:
+                        #     self.arm_num = copy.copy(self.MAB[context_number].arm_exploration)
+                        # except:
+                        #     self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
+                        self.arm_num = copy.copy(self.arm_SSB)
 
 
                 else:
@@ -524,9 +528,8 @@ class Contextual_bandit:
 
                 if not IS_DL and (iter_from_begining_of_frame < iter_per_frame):
                     if is_feedback(iter_from_begining_of_frame, iter_per_DL, self.interval_feedback_iter):
-                        for r, c, b in zip(self.reward_exploiration, self.context_number_exploration, self.selected_arms):
-                            self.MAB[c].update(b, r)
-
+                        # for r, c, b in zip(self.reward_exploiration, self.context_number_exploration, self.selected_arms):
+                        self.MAB[context_number].update_arm_exploitation()
                         self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
 
             else:
@@ -561,7 +564,8 @@ class UCB:
         self.arms_iter_count[arm_num] += 1
         self.arms_mean_reward[arm_num] = (1 - 1.0 / self.arms_iter_count[arm_num]) * self.arms_mean_reward[
             arm_num] + 1.0 / self.arms_iter_count[arm_num] * obtained_reward
-
+    def update_arm_exploitation(self):
+        self.arm_exploitation = np.argmax(self.arms_mean_reward)
     def get_arm(self):
         self.arm_exploitation = np.argmax(self.arms_mean_reward + self.c * np.sqrt(
             (np.log(self.all_iter_count)) / self.arms_iter_count))
@@ -612,6 +616,8 @@ class EPS_greedy:
         self.arms_mean_reward[arm_num] = (1 - 1.0 / self.arms_iter_count[arm_num]) * self.arms_mean_reward[
             arm_num] + 1.0 / self.arms_iter_count[arm_num] * obtained_reward
 
+    def update_arm_exploitation(self):
+        self.arm_exploitation = np.argmax(self.arms_mean_reward)
     def get_arm(self):
         p = np.random.random()
         if p < self.eps:
