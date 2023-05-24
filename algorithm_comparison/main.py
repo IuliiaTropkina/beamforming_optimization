@@ -517,7 +517,7 @@ class Contextual_bandit:
 
 
                 else:
-                    copy.copy(self.MAB[context_number].arm_exploitation)
+                    self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
 
 
 
