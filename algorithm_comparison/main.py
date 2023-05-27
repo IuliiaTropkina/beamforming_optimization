@@ -198,11 +198,6 @@ class CIR_cache:
         self.max_reward = 0
         self.dirs_sorted_power = np.zeros((num_rt_frames_total, len(beam_directions)))
 
-
-
-
-
-
     def get_power(self, frame_number):
         power = np.zeros(ARMS_NUMBER_CIR)
 
@@ -511,13 +506,11 @@ class Contextual_bandit:
                         self.selected_arms.append(self.arm_num)
                         self.MAB[context_number].update(self.arm_num, obtained_reward)
                         self.MAB[context_number].all_iter_count += 1
-                        if i < 2000:
-                            print(f"SB start self.arm_num {self.arm_num} obtained_reward {obtained_reward} arm_exploitation {self.MAB[context_number].arm_exploitation}")
+
                     elif not is_SB(iter_from_begining_of_frame, dur_SB_in_iterations,
                                    self.interval_between_SB_in_iterations, self.last_part_of_frame_iter):
                         self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
-                        if i < 2000:
-                            print(f"not SB self.arm_num {self.arm_num}  arm_exploitation {self.MAB[context_number].arm_exploitation}")
+
                     else:
                         # try:
                         #     self.arm_num = copy.copy(self.MAB[context_number].arm_exploration)
@@ -525,13 +518,11 @@ class Contextual_bandit:
                         #     self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
 
                         self.arm_num = copy.copy(self.arm_SSB)
-                        if i < 2000:
-                            print(f"SB self.arm_num {self.arm_num} self.arm_SSB {self.arm_SSB}")
+
 
                 else:
                     self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
-                    if i<2000:
-                        print(f"not DL self.arm_num {self.arm_num}  arm_exploitation {self.MAB[context_number].arm_exploitation}")
+
 
 
                 if not IS_DL and (iter_from_begining_of_frame < iter_per_frame):
@@ -540,8 +531,7 @@ class Contextual_bandit:
 
                         self.MAB[context_number].update_arm_exploitation()
                         self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
-                        if i < 2000:
-                            print(f"fedback {self.MAB[context_number].arm_exploitation}")
+
 
             else:
                 self.arm_num = self.MAB[context_number].get_arm()
@@ -780,9 +770,10 @@ if __name__ == '__main__':
     DUR_SB = 66.67e-6
 
     SCENARIO_DURATION = 8
+    NUM_CYCLE = 3
     frames_per_data_frame = 10000
     FRAME_NUMBER = 38
-    ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
+    ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER * NUM_CYCLE
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
 
 
@@ -833,8 +824,8 @@ if __name__ == '__main__':
     ANTENNA_TYPE = 2
 
 
-    NUMBERs_OF_CONS_SSB = np.array([64]) #[4,8,64]
-    Numbers_of_frames_between_SSB = np.array([1]) #1,2,4,8,16
+    NUMBERs_OF_CONS_SSB = np.array([4,8,64]) #[4,8,64]
+    Numbers_of_frames_between_SSB = np.array([1,2,4,8,16]) #1,2,4,8,16
     REAL_PROTOCOL = True
 
 
@@ -852,12 +843,12 @@ if __name__ == '__main__':
     #                    "THS"]
     cont_params = [len(np.array(icosphere_context.vertices)), LOCATION_GRID_STEP]
     folder_test = "real_protocol"
-    algorithm_names = ["EPS_greedy"] #"DQL","EPS_greedy"
+    algorithm_names = ["UCB"] #"DQL","EPS_greedy"
     # parameters = [[0.05, 0.1, 0.15],
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
     #parameters = [[0.01,0.02, 0.2, 0.5]]#UCB
-    parameters = [[0.8]]  # eps greedy 0.8
+    parameters = [[0.01]]  # eps greedy 0.8
 
 
     def calc(number_of_frames_between_SB_burst,number_of_SB_in_burst):
@@ -1041,11 +1032,13 @@ if __name__ == '__main__':
             info = json.load(json_file)
         RX_locations.append(info["RX_location"][0])
         TX_locations.append(info["TX_location"][0])
-
-
     TX_locations = np.array(TX_locations)
 
     RX_locations = np.array(RX_locations)
+
+    for c in range(0,NUM_CYCLE-1):
+        RX_locations = np.concatenate((RX_locations, RX_locations),axis=0 )
+        TX_locations = np.concatenate((TX_locations, TX_locations), axis=0)
     figures_path = f"{PATH_json}/output_type{ANTENNA_TYPE}"
     try:
         os.makedirs(figures_path)
@@ -1082,8 +1075,10 @@ if __name__ == '__main__':
         pickle.dump(np.array([cir_cache.max_reward]), open(
             f"{PATH_json}/max_reward_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
             'wb'))
-        if PLOT_ALL_REWARDS:
-            cir_cache.plot_all_rewards()
+    for c in range(0, NUM_CYCLE - 1):
+        cir_cache.all_rewards = np.concatenate((cir_cache.all_rewards, cir_cache.all_rewards), axis=1)
+    if PLOT_ALL_REWARDS:
+        cir_cache.plot_all_rewards()
 
 
         if PLOT_REWARDS_DESTRIBUTION:
