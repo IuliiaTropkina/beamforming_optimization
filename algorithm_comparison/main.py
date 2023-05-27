@@ -773,7 +773,7 @@ if __name__ == '__main__':
     NUM_CYCLE = 3
     frames_per_data_frame = 10000
     FRAME_NUMBER = 38
-    ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER * NUM_CYCLE
+    ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
 
 
@@ -1075,6 +1075,8 @@ if __name__ == '__main__':
         pickle.dump(np.array([cir_cache.max_reward]), open(
             f"{PATH_json}/max_reward_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
             'wb'))
+
+    ITER_NUMBER_CIR = ITER_NUMBER_CIR*NUM_CYCLE
     for c in range(0, NUM_CYCLE - 1):
         cir_cache.all_rewards = np.concatenate((cir_cache.all_rewards, cir_cache.all_rewards), axis=1)
     if PLOT_ALL_REWARDS:
