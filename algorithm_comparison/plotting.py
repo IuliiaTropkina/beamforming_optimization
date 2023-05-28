@@ -704,8 +704,8 @@ def plot_real_protocol():
     # exit()
     frames_per_data_frame = 10000 #10000
     FRAME_NUMBER = 38
-
-    ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
+    NUM_CYCLE = 3
+    ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER * NUM_CYCLE
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
     SCENARIO_DURATION = 8
     duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_RANDOM # 20 mcs 2e-5
