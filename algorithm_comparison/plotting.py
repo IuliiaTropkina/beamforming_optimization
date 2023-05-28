@@ -679,11 +679,11 @@ def plot_exploitation_test():
 
 def calculate_act_throughput(reward, exp_iterations, BAND_COEF,BANDWIDTH, noize_dB):
     inst_throughput = BANDWIDTH*np.log2(1 + reward/(10**(noize_dB/10)))
-    reward_exploration = reward[exp_iterations]
-    actual_throughput = sum(reward_exploration) *BAND_COEF
-    reward[exp_iterations] = 0
-    actual_throughput += sum(reward)
-    return actual_throughput/len(reward)
+    inst_throughput_exploration = inst_throughput[exp_iterations]
+    actual_throughput = sum(inst_throughput_exploration) *BAND_COEF
+    inst_throughput[exp_iterations] = 0
+    actual_throughput += sum(inst_throughput)
+    return actual_throughput/len(inst_throughput)
 
 def plot_real_protocol():
 
@@ -998,6 +998,8 @@ def plot_real_protocol():
                             dpi=700, bbox_inches='tight')
 
     r_act_bandit = np.zeros((len(NUMBERs_OF_CONS_SSB), len(context_types), len(algorithm_names), len(Numbers_of_frames_between_SSB)  ))
+    r_act_seq = np.zeros(
+        (len(NUMBERs_OF_CONS_SSB), len(Numbers_of_frames_between_SSB)))
     for n_b_i, n_b in enumerate(NUMBERs_OF_CONS_SSB):
 
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{n_b}"
@@ -1049,9 +1051,14 @@ def plot_real_protocol():
             oracle_for_seq_dBm = 10 * np.log10(oracle_for_seq_av / (10 ** (-3)))
             seq_search_exploitation_reward_dBm = 10 * np.log10(seq_search_exploitation_reward_av / (10 ** (-3)))
 
+            exloitation_iterations_seq = sequential_search_reward = pickle.load(open(
+                f"{PATH}/sequential_search_exploitation_itarations_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{N_f}_consSSB{n_b}.pickle",
+                "rb"))
 
             diff_seq_search = oracle_for_seq_dBm - seq_search_exploitation_reward_dBm
 
+            r_a_seq_ser = calculate_act_throughput(sequential_search_reward, exloitation_iterations_seq, BAND_COEF, BANDWIDTH, noize_dB)
+            r_act_seq[n_b_i, N_f_i] = r_a_seq_ser
 
             # seq_search_exploitation_reward_average = np.cumsum(seq_search_exploitation_reward) / (
             #             np.arange(len(seq_search_exploitation_reward)) + 1)
@@ -1225,10 +1232,11 @@ def plot_real_protocol():
                 plt.plot( Numbers_of_frames_between_SSB,
                          r_act_bandit[n_b_i, con_type_i, a_i, :], label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
 
+
             # plt.plot(Numbers_of_frames_between_SSB,
             #          np.full((len(Numbers_of_frames_between_SSB)), r_a_or), label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
             plt.ylabel('Avarage throughput, bit/s', fontsize=14)
-            plt.xlabel("Time, sec", fontsize=14)
+            plt.xlabel("Burst period, frames", fontsize=14)
             # plt.yscale("log")
             # plt.ylim(0, 10)
             plt.grid()
@@ -1240,6 +1248,25 @@ def plot_real_protocol():
                 dpi=700, bbox_inches='tight')
 
 
+    fig_name28= f"throughput_seq_search_arms{ARMS_NUMBER_CIR}_cycle3"
+    plt.figure(fig_name28)
+    for n_b_i in range(0, len(NUMBERs_OF_CONS_SSB)):
+        plt.plot(Numbers_of_frames_between_SSB,
+                 r_act_seq[n_b_i, :], label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
+
+    # plt.plot(Numbers_of_frames_between_SSB,
+    #          np.full((len(Numbers_of_frames_between_SSB)), r_a_or), label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
+    plt.ylabel('Avarage throughput, bit/s', fontsize=14)
+    plt.xlabel("Burst period, frames", fontsize=14)
+    # plt.yscale("log")
+    # plt.ylim(0, 10)
+    plt.grid()
+    plt.legend(prop={'size': 12})
+    plt.yticks(fontsize=12)
+    plt.xticks(fontsize=12)
+    plt.savefig(
+        f"{figures_path}/window/{fig_name28}.pdf",
+        dpi=700, bbox_inches='tight')
 
     #
     # test_name = f"real_protocol_SSB_period"
