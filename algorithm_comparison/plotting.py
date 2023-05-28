@@ -677,7 +677,13 @@ def plot_exploitation_test():
 
     plt.show()
 
-
+def calculate_act_throughput(reward, exp_iterations, BAND_COEF,BANDWIDTH, noize_dB):
+    inst_throughput = BANDWIDTH*np.log2(1 + reward/(10**(noize_dB/10)))
+    reward_exploration = reward[exp_iterations]
+    actual_throughput = sum(reward_exploration) *BAND_COEF
+    reward[exp_iterations] = 0
+    actual_throughput += sum(reward)
+    return actual_throughput/len(reward)
 
 def plot_real_protocol():
 
@@ -706,8 +712,11 @@ def plot_real_protocol():
 
     # BS_power_dBi = 25
     UE_power_dBi = 5
-
+    BAND_COEF = 0.036
+    BANDWIDTH = 100e6
+    noize_dB = -120
     SUBDIVISION = 2
+
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
@@ -782,7 +791,7 @@ def plot_real_protocol():
     # avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
 
 
-
+    r_a_or = calculate_act_throughput(oracle, np.array([]), BAND_COEF,BANDWIDTH, noize_dB)
 
 
 
@@ -986,7 +995,9 @@ def plot_real_protocol():
                         plt.savefig(
                             f"{figures_path}/sel_beams/{fig_name3}.png",
                             dpi=700, bbox_inches='tight')
-    for n_b in NUMBERs_OF_CONS_SSB:
+
+    r_act_bandit = np.zeros((len(NUMBERs_OF_CONS_SSB), len(context_types), len(algorithm_names), len(Numbers_of_frames_between_SSB)  ))
+    for n_b_i, n_b in enumerate(NUMBERs_OF_CONS_SSB):
 
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{n_b}"
         plt.figure(fig_name)
@@ -994,6 +1005,7 @@ def plot_real_protocol():
         oracle = np.array(oracle)
         # plt.plot(avarage_oracle, label="Oracle")
         len_or = np.linspace(0, len(oracle) - 1, len(oracle))
+
         for N_f in Numbers_of_frames_between_SSB:
             # sequential_search_reward = pickle.load(open(
             #     f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
@@ -1096,10 +1108,7 @@ def plot_real_protocol():
                 f"{figures_path}/window/{fig_name2}.pdf",
                 dpi=700, bbox_inches='tight')
 
-
-
-
-
+        con_type_i = 0
         for con_type, cont_param, cont_param_sigh in zip(context_types, cont_params, cont_param_signs):
 
 
@@ -1108,6 +1117,7 @@ def plot_real_protocol():
                 print(f"Number of existing contexts for cont param {cont_param}: {num_ex_conts}")
             except:
                 print(f"Number of existing contexts for cont param {cont_param} is unknown!")
+            alg_name_i = 0
             for alg_name, pars, algorithm_legend_name, param_sign in zip(algorithm_names, parameters, algorithm_legend_names, param_signs):
 
                 for p in pars:
@@ -1117,7 +1127,7 @@ def plot_real_protocol():
 
                     plt.figure(fig_name)
                     # plt.plot(avarage_oracle, label="Oracle")
-                    for N_f in Numbers_of_frames_between_SSB:
+                    for N_f_i, N_f in enumerate(Numbers_of_frames_between_SSB):
                         # average_reward = pickle.load(open(
                         #     f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
                         #     "rb"))
@@ -1130,10 +1140,15 @@ def plot_real_protocol():
                         #diff = np.zeros(len(exloitation_iterations)-window_size+1)
                         diff = np.zeros(len(oracle))
                         number_of_seeds = 10
+
                         for seed_num in range(1,number_of_seeds+1):
                             # exloitation_iterations = pickle.load(open(
                             #     f"{PATH}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{N_f}_consSSB{n_b}_seed{seed_num}.pickle",
                             #     "rb"))
+                            exloitation_iterations = pickle.load(open(
+                                f"{PATH}/exloitation_iterations_bandit_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{N_f}_consSSB{n_b}_seed{seed_num}.pickle",
+                                "rb"))
+
 
                             reward_band = pickle.load(open(
                                 f"{PATH}/reward_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{N_f}_consSSB{n_b}_seed{seed_num}.pickle",
@@ -1163,9 +1178,12 @@ def plot_real_protocol():
                             # oracle_for_bandit_dBm = 10 * np.log10(oracle_for_bandit_av / (10 ** (-3)))
                             reward_dBm = 10 * np.log10(reward_av / (10 ** (-3)))
                             diff += oracle_for_seq_dBm - reward_dBm
+
                         diff = diff/number_of_seeds
+                        r_a = calculate_act_throughput(reward_band, exloitation_iterations, BAND_COEF,BANDWIDTH, noize_dB)
 
                         #plt.plot(np.array(exloitation_iterations[window_size-1:len(exloitation_iterations)])*duration_of_one_sample, diff, label=f"SSB period = {SSB_p}")
+                        r_act_bandit[n_b_i, con_type_i, alg_name_i, N_f_i] = r_a
 
                         plt.plot(len_or * duration_of_one_sample, diff,
                                  label=f"$N_f$ = {N_f}")
@@ -1190,8 +1208,33 @@ def plot_real_protocol():
                     plt.savefig(
                         f"{figures_path}/{fig_name}.pdf",
                         dpi=700, bbox_inches='tight')
+                alg_name_i += 1
+            con_type_i += 1
 
 
+    for con_type_i in range(0, len(context_types)):
+        for a_i in range(0,len(algorithm_names)):
+            fig_name2 = f"throughput_arms{ARMS_NUMBER_CIR}_context_type_{context_types[con_type_i]}_algorithm_name{algorithm_names[a_i]}_cycle3"
+            plt.figure(fig_name2)
+            for n_b_i in range(0,NUMBERs_OF_CONS_SSB):
+
+
+                plt.plot( Numbers_of_frames_between_SSB,
+                         r_act_bandit[n_b_i, con_type_i, a_i, :], label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
+
+            plt.plot(Numbers_of_frames_between_SSB,
+                     np.full((len(Numbers_of_frames_between_SSB)), r_a_or), label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
+            plt.ylabel('Avarage throughput, bit/s', fontsize=14)
+            plt.xlabel("Time, sec", fontsize=14)
+            # plt.yscale("log")
+            # plt.ylim(0, 10)
+            plt.grid()
+            plt.legend(prop={'size': 12})
+            plt.yticks(fontsize=12)
+            plt.xticks(fontsize=12)
+            plt.savefig(
+                f"{figures_path}/window/{fig_name2}.pdf",
+                dpi=700, bbox_inches='tight')
 
 
 

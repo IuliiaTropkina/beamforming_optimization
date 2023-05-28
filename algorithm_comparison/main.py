@@ -665,6 +665,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
     trying_beam_number = 0
     sequential_search_reward = []
     chosen_beam_number_seq_search = []
+    sequential_search_exploitation_itarations = []
     search_true = np.zeros(ITER_NUMBER_CIR)
     #chosen_beam_number_seq_search = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
     search_false = np.zeros(ITER_NUMBER_CIR)
@@ -683,6 +684,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
                     trying_beam_number = copy.copy(beam_number_count)
                     chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
                     max_reward_search[beam_number_count] = chosen_reward
+                    sequential_search_exploitation_itarations.append(i)
 
                     beam_number_count += 1
 
@@ -752,6 +754,10 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
                     'wb'))
 
 
+    pickle.dump(sequential_search_exploitation_itarations,
+                open(
+                    f"{figures_path}/sequential_search_exploitation_itarations_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
+                    'wb'))
     pickle.dump(chosen_beam_number_seq_search,
                 open(
                     f"{figures_path}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
