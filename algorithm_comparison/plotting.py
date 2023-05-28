@@ -775,7 +775,7 @@ def plot_real_protocol():
         print(f"Folder {figures_path} exists!")
 
     max_reward = pickle.load(open(
-        f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name_figures}/max_reward_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
+        f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name_figures}/max_reward_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR/NUM_CYCLE}.pickle",
         "rb"))
 
 
