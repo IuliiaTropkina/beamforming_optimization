@@ -791,7 +791,7 @@ def plot_real_protocol():
     # avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
 
 
-    r_a_or = calculate_act_throughput(oracle, np.array([]), BAND_COEF,BANDWIDTH, noize_dB)
+    # r_a_or = calculate_act_throughput(oracle, np.array([]), BAND_COEF,BANDWIDTH, noize_dB)
 
 
 
@@ -1222,8 +1222,8 @@ def plot_real_protocol():
                 plt.plot( Numbers_of_frames_between_SSB,
                          r_act_bandit[n_b_i, con_type_i, a_i, :], label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
 
-            plt.plot(Numbers_of_frames_between_SSB,
-                     np.full((len(Numbers_of_frames_between_SSB)), r_a_or), label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
+            # plt.plot(Numbers_of_frames_between_SSB,
+            #          np.full((len(Numbers_of_frames_between_SSB)), r_a_or), label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
             plt.ylabel('Avarage throughput, bit/s', fontsize=14)
             plt.xlabel("Time, sec", fontsize=14)
             # plt.yscale("log")
