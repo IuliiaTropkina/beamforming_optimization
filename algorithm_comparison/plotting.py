@@ -1212,7 +1212,9 @@ def plot_real_protocol():
                 alg_name_i += 1
             con_type_i += 1
 
-
+    pickle.dump(r_act_bandit, open(
+        f"{figures_path}/r_act_bandit_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
+        'wb'))
     for con_type_i in range(0, len(context_types)):
         for a_i in range(0,len(algorithm_names)):
             fig_name2 = f"throughput_arms{ARMS_NUMBER_CIR}_context_type_{context_types[con_type_i]}_algorithm_name{algorithm_names[a_i]}_cycle3"
