@@ -679,6 +679,7 @@ def plot_exploitation_test():
 
 def calculate_act_throughput(reward, exp_iterations, BAND_COEF,BANDWIDTH, noize_dB):
     inst_throughput = BANDWIDTH*np.log2(1 + np.array(reward)/(10**(noize_dB/10)))
+    print(f"len {len(inst_throughput)}")
     inst_throughput_exploration = inst_throughput[exp_iterations]
     actual_throughput = sum(inst_throughput_exploration) *BAND_COEF
     inst_throughput[exp_iterations] = 0
