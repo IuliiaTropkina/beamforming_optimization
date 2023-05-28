@@ -1011,7 +1011,7 @@ def plot_real_protocol():
         # plt.plot(avarage_oracle, label="Oracle")
         len_or = np.linspace(0, len(oracle) - 1, len(oracle))
 
-        for N_f in Numbers_of_frames_between_SSB:
+        for nfi, N_f in enumerate(Numbers_of_frames_between_SSB):
             # sequential_search_reward = pickle.load(open(
             #     f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
             #     "rb"))
@@ -1060,7 +1060,7 @@ def plot_real_protocol():
             diff_seq_search = oracle_for_seq_dBm - seq_search_exploitation_reward_dBm
 
             r_a_seq_ser = calculate_act_throughput(sequential_search_reward, exloitation_iterations_seq, BAND_COEF, BANDWIDTH, noize_dB)
-            r_act_seq[n_b_i, N_f_i] = r_a_seq_ser
+            r_act_seq[n_b_i, nfi] = r_a_seq_ser
 
             # seq_search_exploitation_reward_average = np.cumsum(seq_search_exploitation_reward) / (
             #             np.arange(len(seq_search_exploitation_reward)) + 1)
