@@ -1216,7 +1216,7 @@ def plot_real_protocol():
         for a_i in range(0,len(algorithm_names)):
             fig_name2 = f"throughput_arms{ARMS_NUMBER_CIR}_context_type_{context_types[con_type_i]}_algorithm_name{algorithm_names[a_i]}_cycle3"
             plt.figure(fig_name2)
-            for n_b_i in range(0,NUMBERs_OF_CONS_SSB):
+            for n_b_i in range(0,len(NUMBERs_OF_CONS_SSB)):
 
 
                 plt.plot( Numbers_of_frames_between_SSB,
