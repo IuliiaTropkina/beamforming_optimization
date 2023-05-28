@@ -1053,7 +1053,7 @@ def plot_real_protocol():
             oracle_for_seq_dBm = 10 * np.log10(oracle_for_seq_av / (10 ** (-3)))
             seq_search_exploitation_reward_dBm = 10 * np.log10(seq_search_exploitation_reward_av / (10 ** (-3)))
 
-            exloitation_iterations_seq = sequential_search_reward = pickle.load(open(
+            exloitation_iterations_seq =  pickle.load(open(
                 f"{PATH}/sequential_search_exploitation_itarations_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{N_f}_consSSB{n_b}.pickle",
                 "rb"))
 
