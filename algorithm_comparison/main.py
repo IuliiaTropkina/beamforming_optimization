@@ -1041,11 +1041,13 @@ if __name__ == '__main__':
     TX_locations = np.array(TX_locations)
 
     RX_locations = np.array(RX_locations)
-
+    print(f"before {RX_locations}")
     for c in range(0,NUM_CYCLE-1):
         RX_locations = np.concatenate((RX_locations, RX_locations),axis=0 )
         TX_locations = np.concatenate((TX_locations, TX_locations), axis=0)
     figures_path = f"{PATH_json}/output_type{ANTENNA_TYPE}"
+
+    print(f"afer {RX_locations}")
     try:
         os.makedirs(figures_path)
     except:
@@ -1083,6 +1085,7 @@ if __name__ == '__main__':
             'wb'))
 
     ITER_NUMBER_CIR = ITER_NUMBER_CIR*NUM_CYCLE
+    SCENARIO_DURATION = SCENARIO_DURATION* NUM_CYCLE
     for c in range(0, NUM_CYCLE - 1):
         cir_cache.all_rewards = np.concatenate((cir_cache.all_rewards, cir_cache.all_rewards), axis=1)
     if PLOT_ALL_REWARDS:

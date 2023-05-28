@@ -708,6 +708,7 @@ def plot_real_protocol():
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER * NUM_CYCLE
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
     SCENARIO_DURATION = 8
+    SCENARIO_DURATION = SCENARIO_DURATION * NUM_CYCLE
     duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_RANDOM # 20 mcs 2e-5
 
     # BS_power_dBi = 25
