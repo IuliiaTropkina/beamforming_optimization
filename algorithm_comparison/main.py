@@ -518,7 +518,7 @@ class Contextual_bandit:
                         #     self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
 
                         self.arm_num = copy.copy(self.arm_SSB)
-
+                        self.exploitation_iterations.append(i)
 
                 else:
                     self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
@@ -693,7 +693,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
                 else:
                     trying_beam_number = copy.copy(beam_number_count)
                     trying_beam_number = trying_beam_number - 1
-
+                    sequential_search_exploitation_itarations.append(i)
 
             else:
                 trying_beam_number = copy.copy(chosen_max_beam_number)
