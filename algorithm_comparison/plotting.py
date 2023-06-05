@@ -788,7 +788,7 @@ def plot_real_protocol():
         f"{PATH}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle",
         "rb"))
 
-    oracle = oracle*max_reward*10**(UE_power_dBi/10)
+    oracle = oracle * max_reward * 10**(UE_power_dBi/10)
     oracle_dB = 10 * np.log10(oracle)
     # avarage_oracle = cumulative_window(oracle, window_size)
     # avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
@@ -1165,6 +1165,8 @@ def plot_real_protocol():
                             reward_band = pickle.load(open(
                                 f"{PATH}/reward_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{N_f}_consSSB{n_b}_seed{seed_num}.pickle",
                                 "rb"))
+                            print(f"reward_band {len(reward_band)}")
+                            print(f"oracle_for_seq_dBm {len(oracle_for_seq_dBm)}")
 
                             reward_band = reward_band * max_reward * 10**(UE_power_dBi/10)
                             # reward_exploitation_average = np.cumsum(reward_exploitation) / (np.arange(len(reward_exploitation)) + 1)
