@@ -745,20 +745,20 @@ def plot_real_protocol():
     cont_param_signs = ["Grid step", "Number of contexts"]
 
     #algorithm_names = ["EPS_greedy", "UCB"] #"DQL","EPS_greedy"
-    algorithm_names = ["EPS_greedy"]  # "DQL","EPS_greedy"
+    algorithm_names = ["UCB"]  # "DQL","EPS_greedy"
 
     #algorithm_legend_names = ["$\epsilon$-Greedy", "UCB"]
-    algorithm_legend_names = ["$\epsilon$-Greedy"]
+    algorithm_legend_names = ["UCB"]
 
 
     #param_signs = ["$\epsilon$","c"]
-    param_signs = ["$\epsilon$"]
+    param_signs = ["c"]
     # parameters = [[0.05, 0.1, 0.15],
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
     #parameters = [[0.15, 0.05, 0.4, 0.8, 0.95], [0.01,0.02, 0.2, 0.5]]
     # parameters = [[ 0.8], [0.01]]
-    parameters = [[0.8]]
+    parameters = [[0.01]]
     NUMBERs_OF_CONS_SSB = np.array([4,8,64]) # 4,8,64
     Numbers_of_frames_between_SSB = np.array([1,2,4,8,16]) #1,2,4,8,16
 
@@ -1012,7 +1012,7 @@ def plot_real_protocol():
         len_or = np.linspace(0, len(oracle) - 1, len(oracle))
 
         for nfi, N_f in enumerate(Numbers_of_frames_between_SSB):
-            print(f"bandit N_f {N_f}")
+            print(f"N_f {N_f}")
             # sequential_search_reward = pickle.load(open(
             #     f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
             #     "rb"))
