@@ -1003,7 +1003,7 @@ def plot_real_protocol():
     r_act_seq = np.zeros(
         (len(NUMBERs_OF_CONS_SSB), len(Numbers_of_frames_between_SSB)))
     for n_b_i, n_b in enumerate(NUMBERs_OF_CONS_SSB):
-
+        print(f"n_b {n_b}")
         fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{n_b}"
         plt.figure(fig_name)
         its = np.linspace(0, ITER_NUMBER_CIR - 1, ITER_NUMBER_CIR)
@@ -1012,6 +1012,7 @@ def plot_real_protocol():
         len_or = np.linspace(0, len(oracle) - 1, len(oracle))
 
         for nfi, N_f in enumerate(Numbers_of_frames_between_SSB):
+            print(f"bandit N_f {N_f}")
             # sequential_search_reward = pickle.load(open(
             #     f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
             #     "rb"))
@@ -1058,7 +1059,7 @@ def plot_real_protocol():
                 "rb"))
 
             diff_seq_search = oracle_for_seq_dBm - seq_search_exploitation_reward_dBm
-
+            print(f"exloitation_iterations_seq {len(exloitation_iterations_seq)}")
             r_a_seq_ser = calculate_act_throughput(sequential_search_reward, exloitation_iterations_seq, BAND_COEF, BANDWIDTH, noize_dB)
             r_act_seq[n_b_i, nfi] = r_a_seq_ser
 
@@ -1138,6 +1139,7 @@ def plot_real_protocol():
                     plt.figure(fig_name)
                     # plt.plot(avarage_oracle, label="Oracle")
                     for N_f_i, N_f in enumerate(Numbers_of_frames_between_SSB):
+                        print(f"bandit N_f {N_f}")
                         # average_reward = pickle.load(open(
                         #     f"{figures_path}/cumulative_average_{alg_name}_cont_type{con_type}_cont_param{cont_param}_arms{int(ARMS_NUMBER_CIR)}_{p}_num_cycle{number_of_cycles}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
                         #     "rb"))
@@ -1190,6 +1192,8 @@ def plot_real_protocol():
                             diff += oracle_for_seq_dBm - reward_dBm
 
                         diff = diff/number_of_seeds
+
+                        len(f"exloitation_iterations bandit {len(exloitation_iterations)}")
                         r_a = calculate_act_throughput(reward_band, exloitation_iterations, BAND_COEF,BANDWIDTH, noize_dB)
 
                         #plt.plot(np.array(exloitation_iterations[window_size-1:len(exloitation_iterations)])*duration_of_one_sample, diff, label=f"SSB period = {SSB_p}")
