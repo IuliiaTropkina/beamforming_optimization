@@ -1243,7 +1243,7 @@ def plot_real_protocol():
             # plt.plot(Numbers_of_frames_between_SSB,
             #          np.full((len(Numbers_of_frames_between_SSB)), r_a_or), label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
             plt.ylabel('Avarage throughput, bit/s', fontsize=14)
-            plt.xlabel("Burst period, frames", fontsize=14)
+            plt.xlabel("$N_f$, frames", fontsize=14)
             # plt.yscale("log")
             # plt.ylim(0, 10)
             plt.ylim(0.1e9, 1.6e9)
@@ -1265,7 +1265,7 @@ def plot_real_protocol():
     # plt.plot(Numbers_of_frames_between_SSB,
     #          np.full((len(Numbers_of_frames_between_SSB)), r_a_or), label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
     plt.ylabel('Avarage throughput, bit/s', fontsize=14)
-    plt.xlabel("N_{f}, frames", fontsize=14)
+    plt.xlabel("$N_f$, frames", fontsize=14)
     # plt.yscale("log")
     plt.ylim(0.1e9, 1.6e9)
     plt.grid()
