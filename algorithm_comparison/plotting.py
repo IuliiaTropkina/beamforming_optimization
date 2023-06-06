@@ -1237,7 +1237,7 @@ def plot_real_protocol():
 
 
                 plt.plot( Numbers_of_frames_between_SSB,
-                         r_act_bandit[n_b_i, con_type_i, a_i, :], label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
+                         r_act_bandit[n_b_i, con_type_i, a_i, :], label=f"Number of SSB= {NUMBERs_OF_CONS_SSB[n_b_i]}")
 
 
             # plt.plot(Numbers_of_frames_between_SSB,
