@@ -1215,7 +1215,7 @@ def plot_real_protocol():
                     plt.ylabel('Power loss, dB',fontsize=14)
                     plt.xlabel("Time, sec",fontsize=14)
                     # plt.yscale("log")
-                    # plt.ylim(0,10)
+                    plt.ylim(0,10)
                     plt.grid()
                     plt.legend(prop={'size': 12})
                     plt.yticks(fontsize=12)
@@ -1246,6 +1246,7 @@ def plot_real_protocol():
             plt.xlabel("Burst period, frames", fontsize=14)
             # plt.yscale("log")
             # plt.ylim(0, 10)
+            plt.ylim(0.1e9, 1.6e9)
             plt.grid()
             plt.legend(prop={'size': 12})
             plt.yticks(fontsize=12)
@@ -1259,14 +1260,14 @@ def plot_real_protocol():
     plt.figure(fig_name28)
     for n_b_i in range(0, len(NUMBERs_OF_CONS_SSB)):
         plt.plot(Numbers_of_frames_between_SSB,
-                 r_act_seq[n_b_i, :], label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
+                 r_act_seq[n_b_i, :], label=f"Number of SSB = {NUMBERs_OF_CONS_SSB[n_b_i]}")
 
     # plt.plot(Numbers_of_frames_between_SSB,
     #          np.full((len(Numbers_of_frames_between_SSB)), r_a_or), label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
     plt.ylabel('Avarage throughput, bit/s', fontsize=14)
-    plt.xlabel("Burst period, frames", fontsize=14)
+    plt.xlabel("N_{f}, frames", fontsize=14)
     # plt.yscale("log")
-    # plt.ylim(0, 10)
+    plt.ylim(0.1e9, 1.6e9)
     plt.grid()
     plt.legend(prop={'size': 12})
     plt.yticks(fontsize=12)
