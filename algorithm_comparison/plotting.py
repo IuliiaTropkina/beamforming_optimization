@@ -789,6 +789,10 @@ def plot_real_protocol():
         "rb"))
 
     oracle = oracle * max_reward * 10**(UE_power_dBi/10)
+
+
+    r_a_oracle = calculate_act_throughput(oracle, np.array([0]), BAND_COEF, BANDWIDTH,
+                                           noize_dB)
     oracle_dB = 10 * np.log10(oracle)
     # avarage_oracle = cumulative_window(oracle, window_size)
     # avarage_oracle_dBm = 10 * np.log10(avarage_oracle / (10 ** (-3)))
@@ -1239,14 +1243,13 @@ def plot_real_protocol():
                 plt.plot( Numbers_of_frames_between_SSB,
                          r_act_bandit[n_b_i, con_type_i, a_i, :], label=f"Number of SSB= {NUMBERs_OF_CONS_SSB[n_b_i]}")
 
-
-            # plt.plot(Numbers_of_frames_between_SSB,
-            #          np.full((len(Numbers_of_frames_between_SSB)), r_a_or), label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
+            plt.plot(Numbers_of_frames_between_SSB,
+                     np.full((len(Numbers_of_frames_between_SSB)), r_a_oracle), label=f"Oracle")
             plt.ylabel('Avarage throughput, bit/s', fontsize=14)
             plt.xlabel("$N_f$, frames", fontsize=14)
             # plt.yscale("log")
             # plt.ylim(0, 10)
-            plt.ylim(0.1e9, 1.6e9)
+            #plt.ylim(0.1e9, 1.6e9)
             plt.grid()
             plt.legend(prop={'size': 12})
             plt.yticks(fontsize=12)
@@ -1261,13 +1264,14 @@ def plot_real_protocol():
     for n_b_i in range(0, len(NUMBERs_OF_CONS_SSB)):
         plt.plot(Numbers_of_frames_between_SSB,
                  r_act_seq[n_b_i, :], label=f"Number of SSB = {NUMBERs_OF_CONS_SSB[n_b_i]}")
-
+    plt.plot(Numbers_of_frames_between_SSB,
+             np.full((len(Numbers_of_frames_between_SSB)), r_a_oracle), label=f"Oracle")
     # plt.plot(Numbers_of_frames_between_SSB,
     #          np.full((len(Numbers_of_frames_between_SSB)), r_a_or), label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
     plt.ylabel('Avarage throughput, bit/s', fontsize=14)
     plt.xlabel("$N_f$, frames", fontsize=14)
     # plt.yscale("log")
-    plt.ylim(0.1e9, 1.6e9)
+    # plt.ylim(0.1e9, 1.6e9)
     plt.grid()
     plt.legend(prop={'size': 12})
     plt.yticks(fontsize=12)
