@@ -1048,6 +1048,8 @@ if __name__ == '__main__':
     figures_path = f"{PATH_json}/output_type{ANTENNA_TYPE}"
 
     print(f"afer {RX_locations}")
+
+    exit()
     try:
         os.makedirs(figures_path)
     except:
