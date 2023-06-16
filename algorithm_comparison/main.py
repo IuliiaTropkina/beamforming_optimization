@@ -1091,7 +1091,7 @@ if __name__ == '__main__':
     if PLOT_ALL_REWARDS:
         cir_cache.plot_all_rewards()
 
-    print("concatination is done")
+
         if PLOT_REWARDS_DESTRIBUTION:
             # beams_to_plot = [1,5,7,11]
             beams_to_plot = np.linspace(1, ARMS_NUMBER_CIR - 1, ARMS_NUMBER_CIR)
@@ -1113,6 +1113,8 @@ if __name__ == '__main__':
                                 bbox_inches='tight')
                     # plt.hist([x1, x2, x3, x4, x5], bins=int(180 / 15), normed=True,
                     #          color=colors, label=names)
+
+    print("concatination is done")
 
 
 
