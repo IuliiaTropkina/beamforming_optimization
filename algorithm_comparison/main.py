@@ -1087,6 +1087,7 @@ if __name__ == '__main__':
     ITER_NUMBER_CIR = ITER_NUMBER_CIR*NUM_CYCLE
     SCENARIO_DURATION = SCENARIO_DURATION* NUM_CYCLE
     for c in range(0, NUM_CYCLE - 1):
+        print(c)
         cir_cache.all_rewards = np.concatenate((cir_cache.all_rewards, cir_cache.all_rewards), axis=1)
     if PLOT_ALL_REWARDS:
         cir_cache.plot_all_rewards()
