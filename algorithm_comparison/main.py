@@ -399,7 +399,7 @@ class MultipathChannel(Env):
         else:
             self.state = self.reset()
 
-        reward = cir_cache.all_rewards[action, self.iter_count]
+        reward = cir_cache.all_rewards[action, int(i % np.size(cir_cache.all_rewards, 1))]
         self.iter_count += 1
         self.record_rewards.append(reward)
         self.record_actions.append(action)
@@ -499,7 +499,7 @@ class Contextual_bandit:
 
                         self.arm_num = self.MAB[context_number].get_arm()
                         self.arm_SSB = copy.copy(self.arm_num)
-                        obtained_reward = cir_cache.all_rewards[self.arm_num, i]
+                        obtained_reward = cir_cache.all_rewards[self.arm_num, int(i % np.size(cir_cache.all_rewards, 1))]
                         self.reward_exploiration.append(obtained_reward)
                         self.context_number_exploration.append(context_number)
                         self.exploitation_iterations.append(i)
@@ -537,7 +537,7 @@ class Contextual_bandit:
                 self.arm_num = self.MAB[context_number].get_arm()
             self.chosen_beam_number.append(self.arm_num)
 
-            obtained_reward = cir_cache.all_rewards[self.arm_num, i]
+            obtained_reward = cir_cache.all_rewards[self.arm_num, int(i % np.size(cir_cache.all_rewards, 1))]
 
             # self.MAB[context_number].update(self.arm_num, obtained_reward)
 
@@ -682,7 +682,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
 
                     trying_beam_number = copy.copy(beam_number_count)
-                    chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
+                    chosen_reward = cir_cache.all_rewards[trying_beam_number, int(i % np.size(cir_cache.all_rewards, 1))]
                     max_reward_search[beam_number_count] = chosen_reward
                     sequential_search_exploitation_itarations.append(i)
 
@@ -709,7 +709,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
                 trying_beam_number = copy.copy(chosen_max_beam_number)
 
 
-        chosen_reward = cir_cache.all_rewards[trying_beam_number, i]
+        chosen_reward = cir_cache.all_rewards[trying_beam_number, int(i % np.size(cir_cache.all_rewards, 1))]
         sequential_search_reward.append(chosen_reward)
         chosen_beam_number_seq_search.append(trying_beam_number)
 
@@ -776,7 +776,7 @@ if __name__ == '__main__':
     DUR_SB = 66.67e-6
 
     SCENARIO_DURATION = 8
-    NUM_CYCLE = 10
+    NUM_CYCLE = 30
     frames_per_data_frame = 10000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
@@ -1088,11 +1088,7 @@ if __name__ == '__main__':
 
     ITER_NUMBER_CIR = ITER_NUMBER_CIR*NUM_CYCLE
     SCENARIO_DURATION = SCENARIO_DURATION* NUM_CYCLE
-    for c in range(0, NUM_CYCLE - 1):
-        print(c)
 
-        cir_cache.all_rewards = np.concatenate((cir_cache.all_rewards, cir_cache.all_rewards), axis=1)
-    exit()
     if PLOT_ALL_REWARDS:
         cir_cache.plot_all_rewards()
 
@@ -1119,15 +1115,15 @@ if __name__ == '__main__':
                     # plt.hist([x1, x2, x3, x4, x5], bins=int(180 / 15), normed=True,
                     #          color=colors, label=names)
 
-    print("concatination is done")
+
 
 
 
     oracle = []
     best_beam = np.zeros(ITER_NUMBER_CIR)
     for i in range(ITER_NUMBER_CIR):
-        oracle.append(max(cir_cache.all_rewards[:, i]))
-        best_beam[i] = np.argmax(cir_cache.all_rewards[:, i])
+        oracle.append(max(cir_cache.all_rewards[:, int(i % np.size(cir_cache.all_rewards, 1))]))
+        best_beam[i] = np.argmax(cir_cache.all_rewards[:, int(i % np.size(cir_cache.all_rewards, 1))])
 
     pickle.dump(oracle, open(
         f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
