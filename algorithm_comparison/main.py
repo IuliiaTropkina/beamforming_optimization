@@ -798,7 +798,7 @@ if __name__ == '__main__':
     #
     np.random.seed(int(seed_number))
     # PLOTTING
-    PLOT_ALL_REWARDS = True
+    PLOT_ALL_REWARDS = False
     PLOT_CONTEXT = False
     PLOT_REWARDS_DESTRIBUTION = False
     SYNTHETIC = False
@@ -1091,7 +1091,7 @@ if __name__ == '__main__':
     if PLOT_ALL_REWARDS:
         cir_cache.plot_all_rewards()
 
-
+    print("concatination is done")
         if PLOT_REWARDS_DESTRIBUTION:
             # beams_to_plot = [1,5,7,11]
             beams_to_plot = np.linspace(1, ARMS_NUMBER_CIR - 1, ARMS_NUMBER_CIR)
