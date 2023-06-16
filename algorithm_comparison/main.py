@@ -776,7 +776,7 @@ if __name__ == '__main__':
     DUR_SB = 66.67e-6
 
     SCENARIO_DURATION = 8
-    NUM_CYCLE = 30
+    NUM_CYCLE = 10
     frames_per_data_frame = 10000
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
