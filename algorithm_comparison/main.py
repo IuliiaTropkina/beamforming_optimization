@@ -474,6 +474,8 @@ class Contextual_bandit:
 
     def run_bandit(self):
         rewards = np.empty(self.iter_number)
+        print("POINT")
+        exit()
         for i in range(self.iter_number):
             if self.data_random:
                 context_number = 0
