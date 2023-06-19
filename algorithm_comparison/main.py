@@ -479,7 +479,7 @@ class Contextual_bandit:
             if self.data_random:
                 context_number = 0
             else:
-                context = cir_cache.choose_context(i, self.context_type)
+                context = cir_cache.choose_context(int(i % np.size(cir_cache.all_rewards, 1)), self.context_type)
                 if self.context_type == "location":
                     if i == 0:
                         self.existing_contexts = np.array([context])
@@ -488,7 +488,7 @@ class Contextual_bandit:
                     else:
                         context_number = self.add_context(context)
                 elif self.context_type == "DOA":
-                    context_number = cir_cache.choose_context_number(self.context_set, i)
+                    context_number = cir_cache.choose_context_number(self.context_set, int(i % np.size(cir_cache.all_rewards, 1)))
             if REAL_PROTOCOL:
                 iter_from_begining_of_frame = i % (iter_per_frame * self.number_of_frames_between_SB_burst)
                 IS_DL = is_DL(iter_from_begining_of_frame, iter_per_DL)
@@ -1042,15 +1042,8 @@ if __name__ == '__main__':
     TX_locations = np.array(TX_locations)
 
     RX_locations = np.array(RX_locations)
-    print(f"before {RX_locations}")
-    for c in range(0,NUM_CYCLE-1):
-        RX_locations = np.concatenate((RX_locations, RX_locations),axis=0 )
-        TX_locations = np.concatenate((TX_locations, TX_locations), axis=0)
-    print("POINT")
-    exit()
-    figures_path = f"{PATH_json}/output_type{ANTENNA_TYPE}"
 
-    print(f"afer {RX_locations}")
+    figures_path = f"{PATH_json}/output_type{ANTENNA_TYPE}"
 
 
     try:
