@@ -474,8 +474,7 @@ class Contextual_bandit:
 
     def run_bandit(self):
         rewards = np.empty(self.iter_number)
-        print("POINT")
-        exit()
+
         for i in range(self.iter_number):
             if self.data_random:
                 context_number = 0
@@ -1047,6 +1046,8 @@ if __name__ == '__main__':
     for c in range(0,NUM_CYCLE-1):
         RX_locations = np.concatenate((RX_locations, RX_locations),axis=0 )
         TX_locations = np.concatenate((TX_locations, TX_locations), axis=0)
+    print("POINT")
+    exit()
     figures_path = f"{PATH_json}/output_type{ANTENNA_TYPE}"
 
     print(f"afer {RX_locations}")
@@ -1140,5 +1141,6 @@ if __name__ == '__main__':
         f"{figures_path}/RX_locations.pickle", 'wb'))
     for N_f in Numbers_of_frames_between_SSB:
         for n_b in NUMBERs_OF_CONS_SSB:
+
             calc(N_f,n_b)
 
