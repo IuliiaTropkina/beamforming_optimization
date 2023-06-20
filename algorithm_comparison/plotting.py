@@ -742,7 +742,8 @@ def plot_real_protocol():
     #                    "THS"]
 
     cont_params = [162] #[15, 162]
-    cont_param_signs = ["Grid step", "Number of contexts"]
+    con_pars = [162] # [0,  162]
+    cont_param_signs = ["Grid step"] #["Grid step", "Number of contexts"]
 
     #algorithm_names = ["EPS_greedy", "UCB"] #"DQL","EPS_greedy"
     algorithm_names = ["EPS_greedy"]  # "DQL","EPS_greedy"
@@ -975,13 +976,12 @@ def plot_real_protocol():
     except:
         print(f"Folder {figures_path} exists!")
 
-    for con_type, cont_param in zip(context_types, [0,  162]):
+    for con_type, cont_param in zip(context_types, con_pars):
         for a, pars in zip(algorithm_names, parameters):
             for p in pars:
                 for N_f in Numbers_of_frames_between_SSB:
                     for n_b in NUMBERs_OF_CONS_SSB:
-                        print(f"{PATH}/chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}.pickle")
-                        print("chosen_arm_typelocation_context0_EPS_greedy_0.8_162_SSBperiod1_consSSB4.pickle")
+
                         chosen_beam_number_bandit = pickle.load(open(
                             f"{PATH}/chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}.pickle",
                             "rb"))
