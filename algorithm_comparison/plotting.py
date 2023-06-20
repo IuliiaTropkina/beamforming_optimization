@@ -706,7 +706,7 @@ def plot_real_protocol():
     # exit()
     frames_per_data_frame = 10000 #10000
     FRAME_NUMBER = 38
-    NUM_CYCLE = 3
+    NUM_CYCLE = 30
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER * NUM_CYCLE
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
     SCENARIO_DURATION = 8
