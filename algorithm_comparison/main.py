@@ -855,7 +855,7 @@ if __name__ == '__main__':
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
     #parameters = [[0.01,0.02, 0.2, 0.5]]#UCB
-    parameters = [[0.8]]  # eps greedy 0.8
+    parameters = [[0.15]]  # eps greedy 0.8
 
 
     def calc(number_of_frames_between_SB_burst,number_of_SB_in_burst):
