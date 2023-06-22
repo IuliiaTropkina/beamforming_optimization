@@ -871,9 +871,9 @@ def plot_real_protocol():
     start_it = 0 #170000#251750
 
     leng = 370000 #370000 - start_it#299250 - start_it
-    chosen_beam_number_seq_search = pickle.load(open(
-        f"{PATH}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}.pickle",
-        "rb"))
+    # chosen_beam_number_seq_search = pickle.load(open(
+    #     f"{PATH}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}.pickle",
+    #     "rb"))
 
     search_true = pickle.load(open(
         f"{PATH}/search_true_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}.pickle",
@@ -893,23 +893,23 @@ def plot_real_protocol():
 
 
 
-    fig_name3 = f"chosen_beam_number_seq_search_arms{ARMS_NUMBER_CIR}_dBm_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}"
-    plt.figure(fig_name3)
-    its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
-    plt.plot(its[start_it:start_it+ leng] * duration_of_one_sample, chosen_beam_number_seq_search[start_it:start_it+ leng], ".")
-    plt.plot( its[start_it:start_it +leng] * duration_of_one_sample, np.array(search_false[start_it: start_it+ leng])-2, "o", color = "r", label = "Search disactivated")
-    plt.plot(  its[start_it:start_it + leng]  * duration_of_one_sample, np.array(search_true[start_it:start_it+ leng])-2, ".", color = "g", label = "Search activated")
-    plt.ylabel('Beam number',fontsize=14)
-    plt.xlabel("Time, sec",fontsize=14)
-    # plt.yscale("log")
-    plt.ylim(0,ARMS_NUMBER_CIR + 3)
-    plt.grid()
-    plt.legend(prop={'size': 12})
-    plt.yticks(fontsize=12)
-    plt.xticks(fontsize=12)
-    plt.savefig(
-        f"{figures_path}/{fig_name3}.png",
-        dpi=700, bbox_inches='tight')
+    # fig_name3 = f"chosen_beam_number_seq_search_arms{ARMS_NUMBER_CIR}_dBm_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}"
+    # plt.figure(fig_name3)
+    # its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
+    # plt.plot(its[start_it:start_it+ leng] * duration_of_one_sample, chosen_beam_number_seq_search[start_it:start_it+ leng], ".")
+    # plt.plot( its[start_it:start_it +leng] * duration_of_one_sample, np.array(search_false[start_it: start_it+ leng])-2, "o", color = "r", label = "Search disactivated")
+    # plt.plot(  its[start_it:start_it + leng]  * duration_of_one_sample, np.array(search_true[start_it:start_it+ leng])-2, ".", color = "g", label = "Search activated")
+    # plt.ylabel('Beam number',fontsize=14)
+    # plt.xlabel("Time, sec",fontsize=14)
+    # # plt.yscale("log")
+    # plt.ylim(0,ARMS_NUMBER_CIR + 3)
+    # plt.grid()
+    # plt.legend(prop={'size': 12})
+    # plt.yticks(fontsize=12)
+    # plt.xticks(fontsize=12)
+    # plt.savefig(
+    #     f"{figures_path}/{fig_name3}.png",
+    #     dpi=700, bbox_inches='tight')
 
     fig_name3 = f"threshold_seq_search_arms{ARMS_NUMBER_CIR}_dBm"
     plt.figure(fig_name3)
