@@ -975,32 +975,32 @@ def plot_real_protocol():
     except:
         print(f"Folder {figures_path} exists!")
 
-    for con_type, cont_param in zip(context_types, con_pars):
-        for a, pars in zip(algorithm_names, parameters):
-            for p in pars:
-                for N_f in Numbers_of_frames_between_SSB:
-                    for n_b in NUMBERs_OF_CONS_SSB:
-
-                        # chosen_beam_number_bandit = pickle.load(open(
-                        #     f"{PATH}/chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}.pickle",
-                        #     "rb"))
-
-                        # fig_name3 = f"chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}.pickle"
-                        # plt.figure(fig_name3)
-                        # its = np.linspace(0, ITER_NUMBER_CIR - 1, ITER_NUMBER_CIR)
-                        # plt.plot(its[start_it:start_it + leng] * duration_of_one_sample,
-                        #          chosen_beam_number_bandit[start_it:start_it + leng], ".")
-                        # plt.ylabel('Beam number', fontsize=14)
-                        # plt.xlabel("Time, sec", fontsize=14)
-                        # # plt.yscale("log")
-                        # # plt.ylim(0,10)
-                        # plt.grid()
-                        # plt.legend(prop={'size': 12})
-                        # plt.yticks(fontsize=12)
-                        # plt.xticks(fontsize=12)
-                        # plt.savefig(
-                        #     f"{figures_path}/sel_beams/{fig_name3}.png",
-                        #     dpi=700, bbox_inches='tight')
+    # for con_type, cont_param in zip(context_types, con_pars):
+    #     for a, pars in zip(algorithm_names, parameters):
+    #         for p in pars:
+    #             for N_f in Numbers_of_frames_between_SSB:
+    #                 for n_b in NUMBERs_OF_CONS_SSB:
+    #
+    #                     chosen_beam_number_bandit = pickle.load(open(
+    #                         f"{PATH}/chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}.pickle",
+    #                         "rb"))
+    #
+    #                     fig_name3 = f"chosen_arm_type{con_type}_context{cont_param}_{a}_{p}_{ARMS_NUMBER_CIR}_SSBperiod{N_f}_consSSB{n_b}.pickle"
+    #                     plt.figure(fig_name3)
+    #                     its = np.linspace(0, ITER_NUMBER_CIR - 1, ITER_NUMBER_CIR)
+    #                     plt.plot(its[start_it:start_it + leng] * duration_of_one_sample,
+    #                              chosen_beam_number_bandit[start_it:start_it + leng], ".")
+    #                     plt.ylabel('Beam number', fontsize=14)
+    #                     plt.xlabel("Time, sec", fontsize=14)
+    #                     # plt.yscale("log")
+    #                     # plt.ylim(0,10)
+    #                     plt.grid()
+    #                     plt.legend(prop={'size': 12})
+    #                     plt.yticks(fontsize=12)
+    #                     plt.xticks(fontsize=12)
+    #                     plt.savefig(
+    #                         f"{figures_path}/sel_beams/{fig_name3}.png",
+    #                         dpi=700, bbox_inches='tight')
 
     r_act_bandit = np.zeros((len(NUMBERs_OF_CONS_SSB), len(context_types), len(algorithm_names), len(Numbers_of_frames_between_SSB)  ))
     r_act_seq = np.zeros(
