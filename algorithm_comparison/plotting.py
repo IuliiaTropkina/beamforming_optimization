@@ -742,7 +742,7 @@ def plot_real_protocol():
 
     cont_params = [162] #[15, 162]
     con_pars = [162] # [0,  162]
-    cont_param_signs = ["Grid step"] #["Grid step", "Number of contexts"]
+    cont_param_signs = ["Number of contexts"] #["Grid step", "Number of contexts"]
 
     #algorithm_names = ["EPS_greedy", "UCB"] #"DQL","EPS_greedy"
     algorithm_names = ["EPS_greedy"]  # "DQL","EPS_greedy"
