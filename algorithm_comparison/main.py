@@ -820,7 +820,7 @@ if __name__ == '__main__':
 
 
 
-    SUBDIVISION = 2
+    SUBDIVISION = 3
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
@@ -828,10 +828,10 @@ if __name__ == '__main__':
     ARMS_NUMBER_CIR = len(beam_directions)
     SUBDIVISION_2 = 2
     icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
-    ANTENNA_TYPE = 2
+    ANTENNA_TYPE = 3
 
 
-    NUMBERs_OF_CONS_SSB = np.array([4,8,16,32,64]) #[4,8,64]
+    NUMBERs_OF_CONS_SSB = np.array([4,16,64]) #[4,8,64]
     Numbers_of_frames_between_SSB = np.array([1,2,4,8,16]) #1,2,4,8,16
     REAL_PROTOCOL = True
 
@@ -855,7 +855,7 @@ if __name__ == '__main__':
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
     #parameters = [[0.01,0.02, 0.2, 0.5]]#UCB
-    parameters = [[0.15]]  # eps greedy 0.8
+    parameters = [[0.8]]  # eps greedy 0.8
 
 
     def calc(number_of_frames_between_SB_burst,number_of_SB_in_burst):

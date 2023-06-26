@@ -717,7 +717,7 @@ def plot_real_protocol():
     BAND_COEF = 0.036
     BANDWIDTH = 100e6
     noize_dB = -120
-    SUBDIVISION = 2
+    SUBDIVISION = 3
 
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
@@ -758,14 +758,14 @@ def plot_real_protocol():
     #               [0.2, 0.5]]
     #parameters = [[0.15, 0.05, 0.4, 0.8, 0.95], [0.01,0.02, 0.2, 0.5]]
     # parameters = [[ 0.8], [0.01]]
-    parameters = [[0.15]]
+    parameters = [[0.8]]
     NUMBERs_OF_CONS_SSB = np.array([4,8, 64]) # 4,8,64    4,8,16,32,64
     Numbers_of_frames_between_SSB = np.array([1,2,4,8,16]) #1,2,4,8,16
 
     window_size = 5000
 
 
-    ANTENNA_TYPE = 2
+    ANTENNA_TYPE = 3
     number_of_cycles = 1
     folder_name_figures = "scenario_LOS_28_calib2"
     # figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}"
