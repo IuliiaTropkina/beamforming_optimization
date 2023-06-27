@@ -870,7 +870,7 @@ def plot_real_protocol():
 
     start_it = 0 #170000#251750
 
-    leng = 370000 #370000 - start_it#299250 - start_it
+    leng = 100000 #370000 - start_it#299250 - start_it
     # chosen_beam_number_seq_search = pickle.load(open(
     #     f"{PATH}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}.pickle",
     #     "rb"))
@@ -935,7 +935,7 @@ def plot_real_protocol():
 
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
     print(f"length, {ITER_NUMBER_CIR}")
-    plt.plot(its * duration_of_one_sample, oracle_dB)
+    plt.plot(its[start_it:start_it + leng] * duration_of_one_sample, oracle_dB[start_it:start_it + leng])
 
 
     plt.ylabel('Power, dB',fontsize=14)
@@ -961,7 +961,7 @@ def plot_real_protocol():
     plt.ylabel('Beam number', fontsize=14)
     plt.xlabel("Time, sec", fontsize=14)
     # plt.yscale("log")
-    # plt.ylim(0,10)
+    plt.ylim(550,700)
     plt.grid()
     plt.legend(prop={'size': 12})
     plt.yticks(fontsize=12)
