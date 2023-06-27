@@ -759,7 +759,7 @@ def plot_real_protocol():
     #parameters = [[0.15, 0.05, 0.4, 0.8, 0.95], [0.01,0.02, 0.2, 0.5]]
     # parameters = [[ 0.8], [0.01]]
     parameters = [[0.8]]
-    NUMBERs_OF_CONS_SSB = np.array([4,8, 64]) # 4,8,64    4,8,16,32,64
+    NUMBERs_OF_CONS_SSB = np.array([4,16, 64]) # 4,8,64    4,8,16,32,64
     Numbers_of_frames_between_SSB = np.array([1,2,4,8,16]) #1,2,4,8,16
 
     window_size = 5000
