@@ -831,7 +831,7 @@ if __name__ == '__main__':
     ANTENNA_TYPE = 3
 
 
-    NUMBERs_OF_CONS_SSB = np.array([4,16,64]) #[4,8,64]
+    NUMBERs_OF_CONS_SSB = np.array([64]) #[4,8,64]
     Numbers_of_frames_between_SSB = np.array([1,2,4,8,16]) #1,2,4,8,16
     REAL_PROTOCOL = True
 
@@ -855,7 +855,7 @@ if __name__ == '__main__':
     #               [10 ** (-7), 10 ** (-7) * 2, 10 ** (-7) / 2],
     #               [0.2, 0.5]]
     #parameters = [[0.01,0.02, 0.2, 0.5]]#UCB
-    parameters = [[0.8]]  # eps greedy 0.8
+    parameters = [[0.2, 0.4, 0.6, 0.7, 0.8, 0.9]]  # eps greedy 0.8
 
 
     def calc(number_of_frames_between_SB_burst,number_of_SB_in_burst):
