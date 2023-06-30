@@ -758,8 +758,8 @@ def plot_real_protocol():
     #               [0.2, 0.5]]
     #parameters = [[0.15, 0.05, 0.4, 0.8, 0.95], [0.01,0.02, 0.2, 0.5]]
     # parameters = [[ 0.8], [0.01]]
-    parameters = [[0.8]]
-    NUMBERs_OF_CONS_SSB = np.array([4,16,64]) # 4,8,64    4,8,16,32,64
+    parameters = [[0.2, 0.4, 0.6, 0.7, 0.8, 0.9]]
+    NUMBERs_OF_CONS_SSB = np.array([64]) # 4,8,64    4,8,16,32,64
     Numbers_of_frames_between_SSB = np.array([1,2,4,8,16]) #1,2,4,8,16
 
     window_size = 5000
@@ -1002,7 +1002,7 @@ def plot_real_protocol():
     #                         f"{figures_path}/sel_beams/{fig_name3}.png",
     #                         dpi=700, bbox_inches='tight')
 
-    r_act_bandit = np.zeros((len(NUMBERs_OF_CONS_SSB), len(context_types), len(algorithm_names), len(Numbers_of_frames_between_SSB)  ))
+
     r_act_seq = np.zeros(
         (len(NUMBERs_OF_CONS_SSB), len(Numbers_of_frames_between_SSB)))
     for n_b_i, n_b in enumerate(NUMBERs_OF_CONS_SSB):
@@ -1122,24 +1122,28 @@ def plot_real_protocol():
                 f"{figures_path}/window/{fig_name2}.pdf",
                 dpi=700, bbox_inches='tight')
 
-        con_type_i = 0
-        for con_type, cont_param, cont_param_sigh in zip(context_types, cont_params, cont_param_signs):
+        alg_name_i = 0
+        for alg_name, pars, algorithm_legend_name, param_sign in zip(algorithm_names, parameters,
+                                                                     algorithm_legend_names, param_signs):
 
 
-            try:
-                num_ex_conts = pickle.load(open(f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{N_f}_consSSB{n_b}.pickle", "rb"))
-                print(f"Number of existing contexts for cont param {cont_param}: {num_ex_conts}")
-            except:
-                print(f"Number of existing contexts for cont param {cont_param} is unknown!")
-            alg_name_i = 0
-            for alg_name, pars, algorithm_legend_name, param_sign in zip(algorithm_names, parameters, algorithm_legend_names, param_signs):
+            con_type_i = 0
+            for con_type, cont_param, cont_param_sigh in zip(context_types, cont_params, cont_param_signs):
+                try:
+                    num_ex_conts = pickle.load(open(
+                        f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{N_f}_consSSB{n_b}.pickle",
+                        "rb"))
+                    print(f"Number of existing contexts for cont param {cont_param}: {num_ex_conts}")
+                except:
+                    print(f"Number of existing contexts for cont param {cont_param} is unknown!")
+                test_name = f"real_protocol_SSB_period"
+                r_act_bandit = np.zeros(len(pars),len(NUMBERs_OF_CONS_SSB), len(context_types), len(Numbers_of_frames_between_SSB))
+                fig_name = f"{con_type}_{alg_name}_{cont_param}_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{n_b}"
 
-                for p in pars:
+                plt.figure(fig_name)
+                for p_i, p in enumerate(pars):
                     print(p)
-                    test_name = f"real_protocol_SSB_period"
-                    fig_name = f"{con_type}_{alg_name}_{p}_{cont_param}_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{n_b}"
 
-                    plt.figure(fig_name)
                     # plt.plot(avarage_oracle, label="Oracle")
                     for N_f_i, N_f in enumerate(Numbers_of_frames_between_SSB):
                         print(f"bandit N_f {N_f}")
@@ -1201,10 +1205,10 @@ def plot_real_protocol():
                         r_a = calculate_act_throughput(reward_band, exloitation_iterations, BAND_COEF,BANDWIDTH, noize_dB)
 
                         #plt.plot(np.array(exloitation_iterations[window_size-1:len(exloitation_iterations)])*duration_of_one_sample, diff, label=f"SSB period = {SSB_p}")
-                        r_act_bandit[n_b_i, con_type_i, alg_name_i, N_f_i] = r_a
+                        r_act_bandit[p_i, n_b_i, con_type_i, N_f_i] = r_a
 
                         plt.plot(len_or * duration_of_one_sample, diff,
-                                 label=f"$N_f$ = {N_f}")
+                                 label=f"$N_f$ = {N_f}, {param_sign} = {p}")
                     #plt.plot(oracle_for_bandit_average, label=f"Oracle, SSB period = {SSB_p}")
 
                     #plt.title(f"Grid step = {cont_params[0]}, Number of contexts = {num_ex_conts}")
@@ -1213,8 +1217,8 @@ def plot_real_protocol():
                              label=f"loss of 3dB", color="r")
                     # plt.plot(len_or * duration_of_one_sample, oracle_for_seq_dBm,
                     #          label=f"oracle", color="r")
-                    plt.title(f"{algorithm_legend_name}, {param_sign} = {p}, {cont_param_sigh} = {cont_param}, Number of SSB = {n_b}",fontsize=14)
-
+                    # plt.title(f"{algorithm_legend_name}, {param_sign} = {p}, {cont_param_sigh} = {cont_param}, Number of SSB = {n_b}",fontsize=14)
+                    plt.title(f"{algorithm_legend_name}, {cont_param_sigh} = {cont_param}, Number of SSB = {n_b}",fontsize=14)
                     plt.ylabel('Power loss, dB',fontsize=14)
                     plt.xlabel("Time, sec",fontsize=14)
                     # plt.yscale("log")
@@ -1226,21 +1230,22 @@ def plot_real_protocol():
                     plt.savefig(
                         f"{figures_path}/{fig_name}.pdf",
                         dpi=700, bbox_inches='tight')
-                alg_name_i += 1
-            con_type_i += 1
+                con_type_i += 1
+            alg_name_i += 1
+        pickle.dump(r_act_bandit, open(
+            f"{figures_path}/r_act_bandit_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
+            'wb'))
 
-    pickle.dump(r_act_bandit, open(
-        f"{figures_path}/r_act_bandit_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
-        'wb'))
-    for con_type_i in range(0, len(context_types)):
-        for a_i in range(0,len(algorithm_names)):
+        for con_type_i in range(0, len(context_types)):
+
             fig_name2 = f"throughput_arms{ARMS_NUMBER_CIR}_context_type_{context_types[con_type_i]}_algorithm_name{algorithm_names[a_i]}_cycle3"
             plt.figure(fig_name2)
-            for n_b_i in range(0,len(NUMBERs_OF_CONS_SSB)):
 
-
-                plt.plot( Numbers_of_frames_between_SSB,
-                         r_act_bandit[n_b_i, con_type_i, a_i, :], label=f"Number of SSB= {NUMBERs_OF_CONS_SSB[n_b_i]}")
+            for p_i in range(0, len(pars)):
+                for n_b_i in range(0, len(NUMBERs_OF_CONS_SSB)):
+                    plt.plot(Numbers_of_frames_between_SSB,
+                             r_act_bandit[p_i, n_b_i, con_type_i, :],
+                             label=f"Number of SSB= {NUMBERs_OF_CONS_SSB[n_b_i]}, ")
 
             plt.plot(Numbers_of_frames_between_SSB,
                      np.full((len(Numbers_of_frames_between_SSB)), r_a_oracle), label=f"Oracle")
@@ -1248,7 +1253,7 @@ def plot_real_protocol():
             plt.xlabel("$N_f$, frames", fontsize=14)
             # plt.yscale("log")
             # plt.ylim(0, 10)
-            #plt.ylim(0.1e9, 1.6e9)
+            # plt.ylim(0.1e9, 1.6e9)
             plt.grid()
             plt.legend(prop={'size': 12})
             plt.yticks(fontsize=12)
@@ -1256,6 +1261,8 @@ def plot_real_protocol():
             plt.savefig(
                 f"{figures_path}/window/{fig_name2}.pdf",
                 dpi=700, bbox_inches='tight')
+
+
 
 
     fig_name28= f"throughput_seq_search_arms{ARMS_NUMBER_CIR}_cycle3"
