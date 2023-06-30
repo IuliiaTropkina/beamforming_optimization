@@ -1238,7 +1238,7 @@ def plot_real_protocol():
 
         for con_type_i in range(0, len(context_types)):
 
-            fig_name2 = f"throughput_arms{ARMS_NUMBER_CIR}_context_type_{context_types[con_type_i]}_algorithm_name{algorithm_names[a_i]}_cycle3"
+            fig_name2 = f"throughput_arms{ARMS_NUMBER_CIR}_context_type_{context_types[con_type_i]}_algorithm_name{alg_name}_cycle3"
             plt.figure(fig_name2)
 
             for p_i in range(0, len(pars)):
