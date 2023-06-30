@@ -1137,7 +1137,7 @@ def plot_real_protocol():
                 except:
                     print(f"Number of existing contexts for cont param {cont_param} is unknown!")
                 test_name = f"real_protocol_SSB_period"
-                r_act_bandit = np.zeros(len(pars),len(NUMBERs_OF_CONS_SSB), len(context_types), len(Numbers_of_frames_between_SSB))
+                r_act_bandit = np.zeros((len(pars),len(NUMBERs_OF_CONS_SSB), len(context_types), len(Numbers_of_frames_between_SSB)))
                 fig_name = f"{con_type}_{alg_name}_{cont_param}_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{n_b}"
 
                 plt.figure(fig_name)
