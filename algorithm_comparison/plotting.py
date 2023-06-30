@@ -1241,11 +1241,11 @@ def plot_real_protocol():
             fig_name2 = f"throughput_arms{ARMS_NUMBER_CIR}_context_type_{context_types[con_type_i]}_algorithm_name{alg_name}_cycle3"
             plt.figure(fig_name2)
 
-            for p_i in range(0, len(pars)):
+            for p_i, p in enumerate(pars):
                 for n_b_i in range(0, len(NUMBERs_OF_CONS_SSB)):
                     plt.plot(Numbers_of_frames_between_SSB,
                              r_act_bandit[p_i, n_b_i, con_type_i, :],
-                             label=f"Number of SSB= {NUMBERs_OF_CONS_SSB[n_b_i]}, ")
+                             label=f"{param_sign} = {p}") #label=f"Number of SSB= {NUMBERs_OF_CONS_SSB[n_b_i]}
 
             plt.plot(Numbers_of_frames_between_SSB,
                      np.full((len(Numbers_of_frames_between_SSB)), r_a_oracle), label=f"Oracle")
