@@ -817,8 +817,8 @@ def plot_real_protocol():
         n +=1
     fig_name4 = f"Distance"
     plt.figure(fig_name4)
-    its = np.linspace(0,FRAME_NUMBER-1,FRAME_NUMBER)
-    plt.plot(its * duration_of_one_sample, Dist[0:FRAME_NUMBER], "*")
+    frames = frames_per_data_frame* np.linspace(0,FRAME_NUMBER-1,FRAME_NUMBER)
+    plt.plot(frames*duration_of_one_sample, Dist[0:FRAME_NUMBER], "*")
     plt.ylabel('Distance, m',fontsize=14)
     plt.xlabel("Time, sec",fontsize=14)
     # plt.yscale("log")
@@ -1088,7 +1088,7 @@ def plot_real_protocol():
         line_3dB = np.full(len(len_or), 3)
         plt.plot(len_or * duration_of_one_sample, line_3dB,
                  label=f"loss of 3dB", color="r")
-        plt.title(f"Sequential search, Number of SSB = {n_b}",fontsize=14)
+        plt.title("Sequential search, $I_{SB}$ = " + f"{n_b}",fontsize=14)
         plt.ylabel('Power loss, dB',fontsize=14)
         plt.xlabel("Time, sec",fontsize=14)
         # plt.yscale("log")
@@ -1109,7 +1109,7 @@ def plot_real_protocol():
             line_3dB = np.full(len(len_or), 3)
             plt.plot(len_or * duration_of_one_sample, line_3dB,
                      label=f"loss of 3dB", color="r")
-            plt.title(f"Sequential search, Number of SSB = {n_b}", fontsize=14)
+            plt.title("Sequential search, $I_{SB}$ = " + f"{n_b}", fontsize=14)
             plt.ylabel('Power loss, dB', fontsize=14)
             plt.xlabel("Time, sec", fontsize=14)
             # plt.yscale("log")
@@ -1218,7 +1218,7 @@ def plot_real_protocol():
                     # plt.plot(len_or * duration_of_one_sample, oracle_for_seq_dBm,
                     #          label=f"oracle", color="r")
                     # plt.title(f"{algorithm_legend_name}, {param_sign} = {p}, {cont_param_sigh} = {cont_param}, Number of SSB = {n_b}",fontsize=14)
-                    plt.title(f"{algorithm_legend_name}, {cont_param_sigh} = {cont_param}, Number of SSB = {n_b}",fontsize=14)
+                    plt.title(f"{algorithm_legend_name}, {cont_param_sigh} = {cont_param}, Number of SB = {n_b}",fontsize=14)
                     plt.ylabel('Power loss, dB',fontsize=14)
                     plt.xlabel("Time, sec",fontsize=14)
                     # plt.yscale("log")
@@ -1269,12 +1269,12 @@ def plot_real_protocol():
     plt.figure(fig_name28)
     for n_b_i in range(0, len(NUMBERs_OF_CONS_SSB)):
         plt.plot(Numbers_of_frames_between_SSB,
-                 r_act_seq[n_b_i, :], label=f"Number of SSB = {NUMBERs_OF_CONS_SSB[n_b_i]}")
+                 r_act_seq[n_b_i, :]/1e9, label=f"Number of SB = {NUMBERs_OF_CONS_SSB[n_b_i]}")
     plt.plot(Numbers_of_frames_between_SSB,
-             np.full((len(Numbers_of_frames_between_SSB)), r_a_oracle), label=f"Oracle")
+             np.full((len(Numbers_of_frames_between_SSB)), r_a_oracle/1e9), label=f"Oracle")
     # plt.plot(Numbers_of_frames_between_SSB,
     #          np.full((len(Numbers_of_frames_between_SSB)), r_a_or), label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
-    plt.ylabel('Avarage throughput, bit/s', fontsize=14)
+    plt.ylabel('Average throughput, Gbps', fontsize=14)
     plt.xlabel("$N_f$, frames", fontsize=14)
     # plt.yscale("log")
     # plt.ylim(0.1e9, 1.6e9)
