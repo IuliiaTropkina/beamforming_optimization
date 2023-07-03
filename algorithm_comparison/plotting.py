@@ -870,7 +870,7 @@ def plot_real_protocol():
 
     start_it = 0 #170000#251750
 
-    leng = 100000 #370000 - start_it#299250 - start_it
+    leng = ITER_NUMBER_CIR #370000 - start_it#299250 - start_it
     # chosen_beam_number_seq_search = pickle.load(open(
     #     f"{PATH}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}.pickle",
     #     "rb"))
@@ -1244,11 +1244,11 @@ def plot_real_protocol():
             for p_i, p in enumerate(pars):
                 for n_b_i in range(0, len(NUMBERs_OF_CONS_SSB)):
                     plt.plot(Numbers_of_frames_between_SSB,
-                             r_act_bandit[p_i, n_b_i, con_type_i, :],
+                             r_act_bandit[p_i, n_b_i, con_type_i, :]/1e9,
                              label=f"{param_sign} = {p}") #label=f"Number of SSB= {NUMBERs_OF_CONS_SSB[n_b_i]}
 
             plt.plot(Numbers_of_frames_between_SSB,
-                     np.full((len(Numbers_of_frames_between_SSB)), r_a_oracle), label=f"Oracle")
+                     np.full((len(Numbers_of_frames_between_SSB)), r_a_oracle/1e9), label=f"Oracle")
             plt.ylabel('Average throughput, Gbps', fontsize=14)
             plt.xlabel("$N_f$, frames", fontsize=14)
             # plt.yscale("log")
