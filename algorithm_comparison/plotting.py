@@ -870,7 +870,7 @@ def plot_real_protocol():
 
     start_it = 0 #170000#251750
 
-    leng = ITER_NUMBER_CIR #370000 - start_it#299250 - start_it
+    leng = frames_per_data_frame * FRAME_NUMBER  #370000 - start_it#299250 - start_it
     # chosen_beam_number_seq_search = pickle.load(open(
     #     f"{PATH}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}.pickle",
     #     "rb"))
@@ -1251,6 +1251,7 @@ def plot_real_protocol():
                      np.full((len(Numbers_of_frames_between_SSB)), r_a_oracle/1e9), label=f"Oracle")
             plt.ylabel('Average throughput, Gbps', fontsize=14)
             plt.xlabel("$N_f$, frames", fontsize=14)
+            plt.ylim(0, 2.25)
             # plt.yscale("log")
             # plt.ylim(0, 10)
             # plt.ylim(0.1e9, 1.6e9)
@@ -1277,7 +1278,7 @@ def plot_real_protocol():
     plt.ylabel('Average throughput, Gbps', fontsize=14)
     plt.xlabel("$N_f$, frames", fontsize=14)
     # plt.yscale("log")
-    # plt.ylim(0.1e9, 1.6e9)
+    plt.ylim(0, 2.25)
     plt.grid()
     plt.legend(prop={'size': 12})
     plt.yticks(fontsize=12)
