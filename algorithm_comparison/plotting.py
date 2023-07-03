@@ -1249,7 +1249,7 @@ def plot_real_protocol():
 
             plt.plot(Numbers_of_frames_between_SSB,
                      np.full((len(Numbers_of_frames_between_SSB)), r_a_oracle), label=f"Oracle")
-            plt.ylabel('Avarage throughput, bit/s', fontsize=14)
+            plt.ylabel('Average throughput, Gbps', fontsize=14)
             plt.xlabel("$N_f$, frames", fontsize=14)
             # plt.yscale("log")
             # plt.ylim(0, 10)
