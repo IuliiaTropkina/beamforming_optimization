@@ -418,7 +418,7 @@ class MultipathChannel(Env):
 
 
 class Contextual_bandit:
-    def __init__(self, alg_name, arms_number, iter_number, param, context_type, number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter, last_part_of_frame_iter, context_set=[[]], data_random=False,
+    def __init__(self, alg_name, arms_number, iter_number, param, context_type, number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter, last_part_of_frame_iter, max_number_of_recommended_beams, context_set=[[]], data_random=False,
                  random_data_with_CONTEXT=False):
         self.interval_between_SB_in_iterations = interval_between_SB_in_iterations
         self.last_part_of_frame_iter = last_part_of_frame_iter
@@ -447,21 +447,21 @@ class Contextual_bandit:
         if len(context_set)!=0:
             if alg_name == "UCB":
                 for _ in self.context_set:
-                    self.MAB.append(UCB(arms_number, param))
+                    self.MAB.append(UCB(arms_number, param, max_number_of_recommended_beams))
             elif alg_name == "EPS_greedy":
                 for _ in self.context_set:
-                    self.MAB.append(EPS_greedy(arms_number, param))
+                    self.MAB.append(EPS_greedy(arms_number, param, max_number_of_recommended_beams))
             elif alg_name == "THS":
                 for _ in self.context_set:
-                    self.MAB.append(ThompsonSampling(arms_number, param))
+                    self.MAB.append(ThompsonSampling(arms_number, param, max_number_of_recommended_beams))
 
     def add_context_space(self):
         if self.alg_name == "UCB":
-            self.MAB.append(UCB(self.arms_number, self.param))
+            self.MAB.append(UCB(self.arms_number, self.param, self.max_number_of_recommended_beams))
         elif self.alg_name == "EPS_greedy":
-            self.MAB.append(EPS_greedy(self.arms_number, self.param))
+            self.MAB.append(EPS_greedy(self.arms_number, self.param, self.max_number_of_recommended_beams))
         elif self.alg_name == "THS":
-            self.MAB.append(ThompsonSampling(self.arms_number, self.param))
+            self.MAB.append(ThompsonSampling(self.arms_number, self.param, self.max_number_of_recommended_beams))
 
     def add_context(self,context):
         try:
@@ -498,7 +498,7 @@ class Contextual_bandit:
                                     self.interval_between_SB_in_iterations, self.last_part_of_frame_iter):
 
 
-                        self.arm_num = self.MAB[context_number].get_arm()
+                        self.arm_num = self.MAB[context_number].get_arm()[0]
                         self.arm_SSB = copy.copy(self.arm_num)
                         obtained_reward = cir_cache.all_rewards[self.arm_num, int(i % np.size(cir_cache.all_rewards, 1))]
                         self.reward_exploiration.append(obtained_reward)
@@ -535,7 +535,7 @@ class Contextual_bandit:
 
 
             else:
-                self.arm_num = self.MAB[context_number].get_arm()
+                self.arm_num = self.MAB[context_number].get_arm()[0]
             self.chosen_beam_number.append(self.arm_num)
 
             obtained_reward = cir_cache.all_rewards[self.arm_num, int(i % np.size(cir_cache.all_rewards, 1))]
@@ -554,24 +554,37 @@ class Contextual_bandit:
 
 
 class UCB:
-    def __init__(self, arms_number, c):
+    def __init__(self, arms_number, c, max_number_of_recommended_beams = 1):
+        self.max_number_of_recommended_beams = max_number_of_recommended_beams
         self.arms_mean_reward = np.zeros(arms_number)
         self.arms_iter_count = np.ones(arms_number)
         self.c = c
         self.arms_number = arms_number
         self.all_iter_count = 0
         self.arm_exploitation = 0
+        self.recommended_beams = np.zeros(self.max_number_of_recommended_beams)
     # Update the action-value estimate
     def update(self, arm_num, obtained_reward):
         self.arms_iter_count[arm_num] += 1
         self.arms_mean_reward[arm_num] = (1 - 1.0 / self.arms_iter_count[arm_num]) * self.arms_mean_reward[
             arm_num] + 1.0 / self.arms_iter_count[arm_num] * obtained_reward
-    def update_arm_exploitation(self):
-        self.arm_exploitation = np.argmax(self.arms_mean_reward)
+    def update_recommended_beams(self):
+        parameters = copy.copy(self.arms_mean_reward)
+        self.arm_exploitation = np.argmax(self.arms_mean_reward) #FUTHER IT WILL BE DONE FROM OUTSIDE
+
+        for ar in range(self.max_number_of_recommended_beams):
+            self.recommended_beams[ar] = np.argmax(parameters)
+            self.parameters[self.recommended_beams[ar]] = 0
+
+
     def get_arm(self):
-        self.arm_exploitation = np.argmax(self.arms_mean_reward + self.c * np.sqrt(
-            (np.log(self.all_iter_count)) / self.arms_iter_count))
-        return self.arm_exploitation
+        parameters = self.arms_mean_reward + self.c * np.sqrt(
+            (np.log(self.all_iter_count)) / self.arms_iter_count)
+        for ar in range(self.max_number_of_recommended_beams):
+            self.recommended_beams[ar] = np.argmax(parameters)
+            parameters[self.recommended_beams[ar]] = 0
+
+        return self.recommended_beams[ar]
 
 
 
@@ -776,6 +789,8 @@ if __name__ == '__main__':
     # DUR_FEEDBACK = 66.67e-6
     DUR_SB = 66.67e-6
 
+
+
     SCENARIO_DURATION = 8
     NUM_CYCLE = 30
     frames_per_data_frame = 10000
@@ -792,7 +807,7 @@ if __name__ == '__main__':
 
 
 
-
+    NUMBER_OF_RECOMMENDED_BEAMS = 10
     folder_name = sys.argv[2]
     seed_number = sys.argv[1]
 
@@ -916,7 +931,7 @@ if __name__ == '__main__':
                 for p in pars:
                     if alg_name == "UCB" or alg_name == "EPS_greedy" or alg_name == "THS":
                         number_of_cycles = 1
-                        bandit = Contextual_bandit(alg_name, ARMS_NUMBER_CIR, ITER_NUMBER_CIR, p, con_type, number_of_frames_between_SB_burst,interval_between_SB_in_iterations , interval_feedback_iter, last_part_of_frame_iter, context_set=con_set)
+                        bandit = Contextual_bandit(alg_name, ARMS_NUMBER_CIR, ITER_NUMBER_CIR, p, con_type, number_of_frames_between_SB_burst,interval_between_SB_in_iterations , interval_feedback_iter, last_part_of_frame_iter, NUMBER_OF_RECOMMENDED_BEAMS, context_set=con_set)
                         reward, exloitation_iterations  = bandit.run_bandit()
 
                         pickle.dump(len(bandit.existing_contexts), open(

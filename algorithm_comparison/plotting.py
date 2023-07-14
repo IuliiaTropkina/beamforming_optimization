@@ -714,7 +714,7 @@ def plot_real_protocol():
 
     # BS_power_dBi = 25
     UE_power_dBi = 5
-    BAND_COEF = 0.036
+    BAND_COEF = 1 - 0.036
     BANDWIDTH = 100e6
     noize_dB = -120
     SUBDIVISION = 4
