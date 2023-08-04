@@ -694,8 +694,12 @@ def is_SB(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB
 
 
 
-def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter,number_of_SB_in_burst,
-                       last_part_of_frame_iter, trained_model = None, context_set = np.array([]), number_of_recommended_beams = 1, use_trained_model = False):
+def sequential_search( all_iters, scen_dur, number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter,number_of_SB_in_burst,
+                       last_part_of_frame_iter, trained_model = None, context_set = [], number_of_recommended_beams = 1, use_trained_model = False):
+    duration_of_one_sample = scen_dur / all_iters
+    iter_per_frame = np.floor(DUR_FRAME / duration_of_one_sample)
+    iter_per_DL = np.floor(DUR_DL/duration_of_one_sample)
+    dur_SB_in_iterations = np.floor(DUR_SB/duration_of_one_sample)
 
     SEARCH = True
 
@@ -713,13 +717,13 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
     sequential_search_reward = []
     chosen_beam_number_seq_search = []
     sequential_search_exploitation_itarations = []
-    search_true = np.zeros(ITER_NUMBER_CIR)
+    search_true = np.zeros(all_iters)
     #chosen_beam_number_seq_search = np.zeros((ARMS_NUMBER_CIR, ITER_NUMBER_CIR))
-    search_false = np.zeros(ITER_NUMBER_CIR)
+    search_false = np.zeros(all_iters)
     threshold_all = []
     iter_threshold = []
     recommended_beams = np.array([])
-    for i in range(0, ITER_NUMBER_CIR):
+    for i in range(0, all_iters):
 
         if use_trained_model:
             context_number = cir_cache.find_context_number_DOA(context_set,
@@ -844,10 +848,7 @@ if __name__ == '__main__':
 
 
 
-    duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_CIR
-    iter_per_frame = np.floor(DUR_FRAME / duration_of_one_sample)
-    iter_per_DL = np.floor(DUR_DL/duration_of_one_sample)
-    dur_SB_in_iterations = np.floor(DUR_SB/duration_of_one_sample)
+
 
 
 
@@ -918,6 +919,13 @@ if __name__ == '__main__':
 
 
     def calc(number_of_frames_between_SB_burst,number_of_SB_in_burst):
+
+        duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_CIR
+        iter_per_frame = np.floor(DUR_FRAME / duration_of_one_sample)
+        iter_per_DL = np.floor(DUR_DL / duration_of_one_sample)
+        dur_SB_in_iterations = np.floor(DUR_SB / duration_of_one_sample)
+
+
         print(f"number_of_frames_between_SB_burst {number_of_frames_between_SB_burst}, number_of_SB_in_burst {number_of_SB_in_burst}")
         data_iterations = iter_per_DL - dur_SB_in_iterations * number_of_SB_in_burst
         interval_between_SB_in_iterations = np.floor(
@@ -927,7 +935,7 @@ if __name__ == '__main__':
 
         interval_feedback_iter = np.floor((iter_per_frame - iter_per_DL) / 2)
 
-        sequential_search(number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter,number_of_SB_in_burst, last_part_of_frame_iter)
+        sequential_search(ITER_NUMBER_CIR, SCENARIO_DURATION, number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter,number_of_SB_in_burst, last_part_of_frame_iter)
 
 
 
@@ -979,18 +987,11 @@ if __name__ == '__main__':
                         reward, exloitation_iterations  = bandit.run_bandit()
 
 
-                        ITER_NUMBER_CIR = int(ITER_NUMBER_CIR / NUM_CYCLE)
-                        SCENARIO_DURATION = int(SCENARIO_DURATION / NUM_CYCLE)
 
 
-                        sequential_search(number_of_frames_between_SB_burst, interval_between_SB_in_iterations,
+
+                        sequential_search(int(ITER_NUMBER_CIR / NUM_CYCLE), int(SCENARIO_DURATION / NUM_CYCLE), number_of_frames_between_SB_burst, interval_between_SB_in_iterations,
                                           interval_feedback_iter, number_of_SB_in_burst, last_part_of_frame_iter, trained_model=bandit.MAB, context_set = bandit.context_set,number_of_recommended_beams=bandit.max_number_of_recommended_beams, use_trained_model=True)
-
-
-
-                        ITER_NUMBER_CIR = int(ITER_NUMBER_CIR * NUM_CYCLE)
-                        SCENARIO_DURATION = int(SCENARIO_DURATION * NUM_CYCLE)
-
 
 
 
