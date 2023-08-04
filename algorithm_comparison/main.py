@@ -356,7 +356,7 @@ class CIR_cache:
     def get_noise(self):
         return np.random.randn()
 
-    def choose_context_number(self, context, i_number):
+    def find_context_number_DOA(self, context, i_number):
 
         data_frame_num1 = i_number // self.frames_per_data_frame
         context_vector = vector_normalize(TX_locations[data_frame_num1] - RX_locations[data_frame_num1])
@@ -417,6 +417,8 @@ class MultipathChannel(Env):
         return self.state
 
 
+
+
 class Contextual_bandit:
     def __init__(self, alg_name, arms_number, iter_number, param, context_type, number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter, last_part_of_frame_iter, max_number_of_recommended_beams, context_set=[[]], data_random=False,
                  random_data_with_CONTEXT=False):
@@ -444,6 +446,7 @@ class Contextual_bandit:
         self.reward_exploiration = []
         self.context_number_exploration = []
         self.selected_arms = []
+        self.max_number_of_recommended_beams = max_number_of_recommended_beams
         if len(context_set)!=0:
             if alg_name == "UCB":
                 for _ in self.context_set:
@@ -463,13 +466,18 @@ class Contextual_bandit:
         elif self.alg_name == "THS":
             self.MAB.append(ThompsonSampling(self.arms_number, self.param, self.max_number_of_recommended_beams))
 
-    def add_context(self,context):
-        try:
-            context_number = np.where(np.all(self.existing_contexts == context, axis=1))[0][0]
-        except:
+    def find_context_number_location(self, context):
+        return np.where(np.all(self.existing_contexts == context, axis=1))[0][0]
+
+    def add_context_location(self,i, context):
+        if i == 0:
+            self.existing_contexts = np.array([context])
+            context_number = 0
+        else:
             self.existing_contexts = np.append(self.existing_contexts, np.array([context]), axis=0)
             context_number = len(self.existing_contexts) - 1
-            self.add_context_space()
+
+        self.add_context_space()
         return context_number
 
     def run_bandit(self):
@@ -481,14 +489,18 @@ class Contextual_bandit:
             else:
                 context = cir_cache.choose_context(int(i % np.size(cir_cache.all_rewards, 1)), self.context_type)
                 if self.context_type == "location":
-                    if i == 0:
-                        self.existing_contexts = np.array([context])
-                        context_number = 0
-                        self.add_context_space()
-                    else:
-                        context_number = self.add_context(context)
+
+                    try:
+                        context_number = self.find_context_number_location(context)
+                    except:
+                        context_number = self.add_context_location(i, context)
+
+
                 elif self.context_type == "DOA":
-                    context_number = cir_cache.choose_context_number(self.context_set, int(i % np.size(cir_cache.all_rewards, 1)))
+                    context_number = cir_cache.find_context_number_DOA(self.context_set, int(i % np.size(cir_cache.all_rewards, 1)))
+
+
+
             if REAL_PROTOCOL:
                 iter_from_begining_of_frame = i % (iter_per_frame * self.number_of_frames_between_SB_burst)
                 IS_DL = is_DL(iter_from_begining_of_frame, iter_per_DL)
@@ -498,7 +510,7 @@ class Contextual_bandit:
                                     self.interval_between_SB_in_iterations, self.last_part_of_frame_iter):
 
 
-                        self.arm_num = self.MAB[context_number].get_arm()[0]
+                        self.arm_num = self.MAB[context_number].get_arm()
                         self.arm_SSB = copy.copy(self.arm_num)
                         obtained_reward = cir_cache.all_rewards[self.arm_num, int(i % np.size(cir_cache.all_rewards, 1))]
                         self.reward_exploiration.append(obtained_reward)
@@ -535,7 +547,7 @@ class Contextual_bandit:
 
 
             else:
-                self.arm_num = self.MAB[context_number].get_arm()[0]
+                self.arm_num = self.MAB[context_number].get_arm()
             self.chosen_beam_number.append(self.arm_num)
 
             obtained_reward = cir_cache.all_rewards[self.arm_num, int(i % np.size(cir_cache.all_rewards, 1))]
@@ -570,21 +582,22 @@ class UCB:
             arm_num] + 1.0 / self.arms_iter_count[arm_num] * obtained_reward
     def update_recommended_beams(self):
         parameters = copy.copy(self.arms_mean_reward)
-        self.arm_exploitation = np.argmax(self.arms_mean_reward) #FUTHER IT WILL BE DONE FROM OUTSIDE
 
-        for ar in range(self.max_number_of_recommended_beams):
-            self.recommended_beams[ar] = np.argmax(parameters)
-            self.parameters[self.recommended_beams[ar]] = 0
-
-
-    def get_arm(self):
-        parameters = self.arms_mean_reward + self.c * np.sqrt(
-            (np.log(self.all_iter_count)) / self.arms_iter_count)
         for ar in range(self.max_number_of_recommended_beams):
             self.recommended_beams[ar] = np.argmax(parameters)
             parameters[self.recommended_beams[ar]] = 0
 
-        return self.recommended_beams[ar]
+    def get_recommended_beams(self):
+        return self.recommended_beams
+    def update_arm_exploitation(self):
+        self.arm_exploitation = np.argmax(self.arms_mean_reward)
+
+    def get_arm(self):
+        parameters = self.arms_mean_reward + self.c * np.sqrt(
+            (np.log(self.all_iter_count)) / self.arms_iter_count)
+        self.arm_exploitation = np.argmax(parameters)
+
+        return self.arm_exploitation
 
 
 
@@ -626,10 +639,22 @@ class EPS_greedy:
         self.EXPLOITATION = False
         self.arm_exploitation = 0
         self.arm_exploration = 0
+        self.recommended_beams = np.zeros(self.max_number_of_recommended_beams)
     def update(self, arm_num, obtained_reward):
         self.arms_iter_count[arm_num] += 1
         self.arms_mean_reward[arm_num] = (1 - 1.0 / self.arms_iter_count[arm_num]) * self.arms_mean_reward[
             arm_num] + 1.0 / self.arms_iter_count[arm_num] * obtained_reward
+
+
+    def update_recommended_beams(self):
+        parameters = copy.copy(self.arms_mean_reward)
+
+        for ar in range(self.max_number_of_recommended_beams):
+            self.recommended_beams[ar] = np.argmax(parameters)
+            parameters[self.recommended_beams[ar]] = 0
+
+    def get_recommended_beams(self):
+        return self.recommended_beams
 
     def update_arm_exploitation(self):
         self.arm_exploitation = np.argmax(self.arms_mean_reward)
@@ -669,10 +694,18 @@ def is_SB(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB
 
 
 
-def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter,number_of_SB_in_burst, last_part_of_frame_iter):
+def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in_iterations , interval_feedback_iter,number_of_SB_in_burst,
+                       last_part_of_frame_iter, trained_model = None, context_set = np.array([]), number_of_recommended_beams = 1, use_trained_model = False):
 
     SEARCH = True
-    max_reward_search = np.zeros(ARMS_NUMBER_CIR)
+
+    if number_of_recommended_beams == 1:
+        number_of_beams_to_try = ARMS_NUMBER_CIR
+    else:
+        number_of_beams_to_try = number_of_recommended_beams
+
+
+    max_reward_search = np.zeros(number_of_beams_to_try)
     beam_number_count = 0
     chosen_max_beam_number = 0
     threshold = 0
@@ -685,17 +718,28 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
     search_false = np.zeros(ITER_NUMBER_CIR)
     threshold_all = []
     iter_threshold = []
+    recommended_beams = np.array([])
     for i in range(0, ITER_NUMBER_CIR):
+
+        if use_trained_model:
+            context_number = cir_cache.find_context_number_DOA(context_set,
+                                                                   int(i % np.size(cir_cache.all_rewards, 1)))
+            recommended_beams = trained_model[context_number].get_recommended_beams()
+
         iter_from_begining_of_frame = i % (iter_per_frame * number_of_frames_between_SB_burst)
         IS_DL = is_DL(iter_from_begining_of_frame, iter_per_DL)
+
 
         if SEARCH:
             if IS_DL and (iter_from_begining_of_frame < iter_per_frame):
 
                 if is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations, last_part_of_frame_iter):
 
+                    if not use_trained_model:
+                        trying_beam_number = copy.copy(beam_number_count)
+                    else:
+                        trying_beam_number = recommended_beams[beam_number_count]
 
-                    trying_beam_number = copy.copy(beam_number_count)
                     chosen_reward = cir_cache.all_rewards[trying_beam_number, int(i % np.size(cir_cache.all_rewards, 1))]
                     max_reward_search[beam_number_count] = chosen_reward
                     sequential_search_exploitation_itarations.append(i)
@@ -727,7 +771,7 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
         sequential_search_reward.append(chosen_reward)
         chosen_beam_number_seq_search.append(trying_beam_number)
 
-        if beam_number_count == ARMS_NUMBER_CIR:
+        if beam_number_count == number_of_beams_to_try:
             threshold = max(max_reward_search) / 2
             threshold_all.append(threshold)
             iter_threshold.append(i)
@@ -745,36 +789,36 @@ def sequential_search( number_of_frames_between_SB_burst, interval_between_SB_in
 
     pickle.dump(sequential_search_reward,
                 open(
-                    f"{figures_path}/seq_search_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
+                    f"{figures_path}/seq_search_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}_it_number{ITER_NUMBER_CIR}_recom_beam{number_of_recommended_beams}.pickle",
                     'wb'))
     pickle.dump(threshold_all,
                 open(
-                    f"{figures_path}/threshold_all_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
+                    f"{figures_path}/threshold_all_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}_it_number{ITER_NUMBER_CIR}_recom_beam{number_of_recommended_beams}.pickle",
                     'wb'))
     pickle.dump(iter_threshold,
                 open(
-                    f"{figures_path}/iter_threshold_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
+                    f"{figures_path}/iter_threshold_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}_it_number{ITER_NUMBER_CIR}_recom_beam{number_of_recommended_beams}.pickle",
                     'wb'))
 
     pickle.dump(search_true,
                 open(
-                    f"{figures_path}/search_true_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
+                    f"{figures_path}/search_true_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}_it_number{ITER_NUMBER_CIR}_recom_beam{number_of_recommended_beams}.pickle",
                     'wb'))
 
 
     pickle.dump(search_false,
                 open(
-                    f"{figures_path}/search_false_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
+                    f"{figures_path}/search_false_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}_it_number{ITER_NUMBER_CIR}_recom_beam{number_of_recommended_beams}.pickle",
                     'wb'))
 
 
     pickle.dump(sequential_search_exploitation_itarations,
                 open(
-                    f"{figures_path}/sequential_search_exploitation_itarations_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
+                    f"{figures_path}/sequential_search_exploitation_itarations_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}_it_number{ITER_NUMBER_CIR}_recom_beam{number_of_recommended_beams}.pickle",
                     'wb'))
     pickle.dump(chosen_beam_number_seq_search,
                 open(
-                    f"{figures_path}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
+                    f"{figures_path}/chosen_beam_number_seq_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}_it_number{ITER_NUMBER_CIR}_recom_beam{number_of_recommended_beams}.pickle",
                     'wb'))
     # pickle.dump(seq_search_exploitation_it_num,
     #             open(
@@ -933,6 +977,23 @@ if __name__ == '__main__':
                         number_of_cycles = 1
                         bandit = Contextual_bandit(alg_name, ARMS_NUMBER_CIR, ITER_NUMBER_CIR, p, con_type, number_of_frames_between_SB_burst,interval_between_SB_in_iterations , interval_feedback_iter, last_part_of_frame_iter, NUMBER_OF_RECOMMENDED_BEAMS, context_set=con_set)
                         reward, exloitation_iterations  = bandit.run_bandit()
+
+
+                        ITER_NUMBER_CIR = int(ITER_NUMBER_CIR / NUM_CYCLE)
+                        SCENARIO_DURATION = int(SCENARIO_DURATION / NUM_CYCLE)
+
+
+                        sequential_search(number_of_frames_between_SB_burst, interval_between_SB_in_iterations,
+                                          interval_feedback_iter, number_of_SB_in_burst, last_part_of_frame_iter, trained_model=bandit.MAB, context_set = bandit.context_set,number_of_recommended_beams=bandit.max_number_of_recommended_beams, use_trained_model=True)
+
+
+
+                        ITER_NUMBER_CIR = int(ITER_NUMBER_CIR * NUM_CYCLE)
+                        SCENARIO_DURATION = int(SCENARIO_DURATION * NUM_CYCLE)
+
+
+
+
 
                         pickle.dump(len(bandit.existing_contexts), open(
                             f"{figures_path}/number_of_contexts_cont_par{cont_param}_SSBperiod{number_of_frames_between_SB_burst}_consSSB{number_of_SB_in_burst}.pickle",
@@ -1097,8 +1158,7 @@ if __name__ == '__main__':
             f"{PATH_json}/max_reward_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
             'wb'))
 
-    ITER_NUMBER_CIR = ITER_NUMBER_CIR*NUM_CYCLE
-    SCENARIO_DURATION = SCENARIO_DURATION* NUM_CYCLE
+
 
     if PLOT_ALL_REWARDS:
         cir_cache.plot_all_rewards()
@@ -1137,9 +1197,24 @@ if __name__ == '__main__':
         best_beam[i] = np.argmax(cir_cache.all_rewards[:, int(i % np.size(cir_cache.all_rewards, 1))])
 
     pickle.dump(oracle, open(
-        f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+        f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}_it_number{ITER_NUMBER_CIR}.pickle", 'wb'))
     pickle.dump(best_beam, open(
-        f"{figures_path}/best_beam_arms{int(ARMS_NUMBER_CIR)}.pickle", 'wb'))
+        f"{figures_path}/best_beam_arms{int(ARMS_NUMBER_CIR)}it_number{ITER_NUMBER_CIR}.pickle", 'wb'))
+
+
+    ITER_NUMBER_CIR = ITER_NUMBER_CIR*NUM_CYCLE
+    SCENARIO_DURATION = SCENARIO_DURATION*NUM_CYCLE
+
+    oracle = []
+    best_beam = np.zeros(ITER_NUMBER_CIR)
+    for i in range(ITER_NUMBER_CIR):
+        oracle.append(max(cir_cache.all_rewards[:, int(i % np.size(cir_cache.all_rewards, 1))]))
+        best_beam[i] = np.argmax(cir_cache.all_rewards[:, int(i % np.size(cir_cache.all_rewards, 1))])
+
+    pickle.dump(oracle, open(
+        f"{figures_path}/oracle_arms{int(ARMS_NUMBER_CIR)}_it_number{ITER_NUMBER_CIR}.pickle", 'wb'))
+    pickle.dump(best_beam, open(
+        f"{figures_path}/best_beam_arms{int(ARMS_NUMBER_CIR)}it_number{ITER_NUMBER_CIR}.pickle", 'wb'))
 
 
 
@@ -1147,6 +1222,9 @@ if __name__ == '__main__':
         f"{figures_path}/TX_locations.pickle", 'wb'))
     pickle.dump(RX_locations, open(
         f"{figures_path}/RX_locations.pickle", 'wb'))
+
+
+
     for N_f in Numbers_of_frames_between_SSB:
         for n_b in NUMBERs_OF_CONS_SSB:
 
