@@ -482,6 +482,11 @@ class Contextual_bandit:
 
     def run_bandit(self):
         rewards = np.empty(self.iter_number)
+        duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_CIR
+        iter_per_frame = np.floor(DUR_FRAME / duration_of_one_sample)
+        iter_per_DL = np.floor(DUR_DL / duration_of_one_sample)
+        dur_SB_in_iterations = np.floor(DUR_SB / duration_of_one_sample)
+
 
         for i in range(self.iter_number):
             if self.data_random:
@@ -506,7 +511,7 @@ class Contextual_bandit:
                 IS_DL = is_DL(iter_from_begining_of_frame, iter_per_DL)
                 if IS_DL and (iter_from_begining_of_frame < iter_per_frame):
 
-                    if is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations,
+                    if is_SSB_start(iter_per_DL, iter_from_begining_of_frame, dur_SB_in_iterations,
                                     self.interval_between_SB_in_iterations, self.last_part_of_frame_iter):
 
 
@@ -673,7 +678,7 @@ def is_DL(iter_from_begining_of_frame, iter_per_DL):
     if iter_from_begining_of_frame < iter_per_DL:
         return True
     return False
-def is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations, last_part_of_frame_iter):
+def is_SSB_start(iter_per_DL, iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations, last_part_of_frame_iter):
     if iter_from_begining_of_frame % (dur_SB_in_iterations+ interval_between_SB_in_iterations) == 0 and (iter_from_begining_of_frame < iter_per_DL - last_part_of_frame_iter):
 
         return True
@@ -737,7 +742,7 @@ def sequential_search( all_iters, scen_dur, number_of_frames_between_SB_burst, i
         if SEARCH:
             if IS_DL and (iter_from_begining_of_frame < iter_per_frame):
 
-                if is_SSB_start(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations, last_part_of_frame_iter):
+                if is_SSB_start(iter_per_DL, iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations, last_part_of_frame_iter):
 
                     if not use_trained_model:
                         trying_beam_number = copy.copy(beam_number_count)
