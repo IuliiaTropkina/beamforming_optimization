@@ -747,7 +747,7 @@ def sequential_search( all_iters, scen_dur, number_of_frames_between_SB_burst, i
                     if not use_trained_model:
                         trying_beam_number = copy.copy(beam_number_count)
                     else:
-                        trying_beam_number = recommended_beams[beam_number_count]
+                        trying_beam_number = int(recommended_beams[beam_number_count])
 
                     chosen_reward = cir_cache.all_rewards[trying_beam_number, int(i % np.size(cir_cache.all_rewards, 1))]
                     max_reward_search[beam_number_count] = chosen_reward
