@@ -525,7 +525,7 @@ class Contextual_bandit:
                         self.MAB[context_number].update(self.arm_num, obtained_reward)
                         self.MAB[context_number].all_iter_count += 1
 
-                    elif not is_SB(iter_from_begining_of_frame, dur_SB_in_iterations,
+                    elif not is_SB(iter_per_DL, iter_from_begining_of_frame, dur_SB_in_iterations,
                                    self.interval_between_SB_in_iterations, self.last_part_of_frame_iter):
                         self.arm_num = copy.copy(self.MAB[context_number].arm_exploitation)
 
@@ -690,7 +690,7 @@ def is_feedback(iter_from_begining_of_frame, iter_per_DL, interval_feedback_iter
     return False
 
 
-def is_SB(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations, last_part_of_frame_iter):
+def is_SB(iter_per_DL, iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations, last_part_of_frame_iter):
     if iter_from_begining_of_frame % (dur_SB_in_iterations+ interval_between_SB_in_iterations) < dur_SB_in_iterations and (iter_from_begining_of_frame < iter_per_DL - last_part_of_frame_iter):
         return True
     return False
@@ -755,7 +755,7 @@ def sequential_search( all_iters, scen_dur, number_of_frames_between_SB_burst, i
 
                     beam_number_count += 1
 
-                elif not is_SB(iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations,last_part_of_frame_iter):
+                elif not is_SB(iter_per_DL, iter_from_begining_of_frame, dur_SB_in_iterations, interval_between_SB_in_iterations,last_part_of_frame_iter):
                     trying_beam_number = copy.copy(chosen_max_beam_number)
                 else:
                     trying_beam_number = copy.copy(beam_number_count)
