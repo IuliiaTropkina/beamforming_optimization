@@ -749,7 +749,7 @@ def plot_real_protocol():
 
     #algorithm_legend_names = ["$\epsilon$-Greedy", "UCB"]
     algorithm_legend_names = ["UCB"]
-
+    number_of_recommended_beams_array = [1, 10]
 
     #param_signs = ["$\epsilon$","c"]
     param_signs = ["c"]
@@ -885,10 +885,10 @@ def plot_real_protocol():
 
 
     threshold_all = pickle.load(open(
-        f"{PATH}/threshold_all_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}.pickle",
+        f"{PATH}/threshold_all_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}_it_number{ITER_NUMBER_CIR}_recom_beam1.pickle",
         "rb"))
     iter_threshold = pickle.load(open(
-        f"{PATH}/iter_threshold_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}.pickle",
+        f"{PATH}/iter_threshold_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}_it_number{ITER_NUMBER_CIR}_recom_beam1.pickle",
         "rb"))
 
 
@@ -1007,7 +1007,7 @@ def plot_real_protocol():
         (len(NUMBERs_OF_CONS_SSB), len(Numbers_of_frames_between_SSB)))
     for n_b_i, n_b in enumerate(NUMBERs_OF_CONS_SSB):
         print(f"n_b {n_b}")
-        fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{n_b}"
+        fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{n_b}_it_number{ITER_NUMBER_CIR}"
         plt.figure(fig_name)
         its = np.linspace(0, ITER_NUMBER_CIR - 1, ITER_NUMBER_CIR)
         oracle = np.array(oracle)
@@ -1020,67 +1020,67 @@ def plot_real_protocol():
             #     f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
             #     "rb"))
 
+            for number_of_recommended_beams in number_of_recommended_beams_array:
+
+
+                #
+                # seq_search_exploitation_it_num = pickle.load(open(
+                #     f"{PATH}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{N_f}_consSSB{n_b}.pickle",
+                #     "rb"))
+                sequential_search_reward = pickle.load(open(
+                    f"{PATH}/seq_search_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{N_f}_consSSB{n_b}_it_number{ITER_NUMBER_CIR}_recom_beam{number_of_recommended_beams}.pickle",
+                    "rb"))
+
+                # oracle_for_seq = oracle[np.array(seq_search_exploitation_it_num)]
+                #oracle_for_seq_average = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
+                # if PLOT_WINDOW:
+                #     oracle_for_seq_average_cum_win = cumulative_window(oracle_for_seq, window_size)
+
+                if PLOT_WINDOW:
+                    oracle_for_seq = cumulative_window(oracle, window_size)
+                oracle_for_seq_av = np.cumsum(np.array(oracle)) / (np.arange(len(oracle)) + 1)
+
+                sequential_search_reward = sequential_search_reward * max_reward *10** (UE_power_dBi/10)
+                #seq_search_exploitation_reward = cumulative_window(seq_search_exploitation_reward, window_size)
+                seq_search_exploitation_reward_av = np.cumsum(np.array(sequential_search_reward)) / (np.arange(len(sequential_search_reward)) + 1)
+
+                # plt.plot(np.array(seq_search_exploitation_it_num[
+                #                   window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
+                #          seq_search_exploitation_reward, label=f"SSB period = {SSB_p}")
+                #
+                # # for el_num,el in enumerate(seq_search_exploitation_reward):
+                # #     if el==0:
+                # #         print(f"it_num, {el_num* duration_of_one_sample}")
+                # plt.plot(np.array(seq_search_exploitation_it_num[
+                #                   window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
+                #          oracle_for_seq, label=f"oracle, SSB period = {SSB_p}")
+                oracle_for_seq_dBm = 10 * np.log10(oracle_for_seq_av / (10 ** (-3)))
+                seq_search_exploitation_reward_dBm = 10 * np.log10(seq_search_exploitation_reward_av / (10 ** (-3)))
+
+                exloitation_iterations_seq =  pickle.load(open(
+                    f"{PATH}/sequential_search_exploitation_itarations_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{N_f}_consSSB{n_b}_it_number{ITER_NUMBER_CIR}_recom_beam{number_of_recommended_beams}.pickle",
+                    "rb"))
+
+                diff_seq_search = oracle_for_seq_dBm - seq_search_exploitation_reward_dBm
+                print(f"exloitation_iterations_seq {len(exloitation_iterations_seq)}")
+                r_a_seq_ser = calculate_act_throughput(sequential_search_reward, exloitation_iterations_seq, BAND_COEF, BANDWIDTH, noize_dB)
+                r_act_seq[n_b_i, nfi] = r_a_seq_ser
+
+                # seq_search_exploitation_reward_average = np.cumsum(seq_search_exploitation_reward) / (
+                #             np.arange(len(seq_search_exploitation_reward)) + 1)
+                if PLOT_WINDOW:
+                    seq_search_exploitation_reward_cum_wind = cumulative_window(sequential_search_reward, window_size)
+                if PLOT_WINDOW:
+                    diff_seq_search_window = 10 * np.log10(oracle_for_seq / (10 ** (-3))) - 10 * np.log10(seq_search_exploitation_reward_cum_wind/ (10 ** (-3)))
 
 
 
-            #
-            # seq_search_exploitation_it_num = pickle.load(open(
-            #     f"{PATH}/seq_search_exploitation_it_num_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{N_f}_consSSB{n_b}.pickle",
-            #     "rb"))
-            sequential_search_reward = pickle.load(open(
-                f"{PATH}/seq_search_reward_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{N_f}_consSSB{n_b}.pickle",
-                "rb"))
-
-            # oracle_for_seq = oracle[np.array(seq_search_exploitation_it_num)]
-            #oracle_for_seq_average = np.cumsum(np.array(oracle_for_seq)) / (np.arange(len(oracle_for_seq)) + 1)
-            # if PLOT_WINDOW:
-            #     oracle_for_seq_average_cum_win = cumulative_window(oracle_for_seq, window_size)
-
-            if PLOT_WINDOW:
-                oracle_for_seq = cumulative_window(oracle, window_size)
-            oracle_for_seq_av = np.cumsum(np.array(oracle)) / (np.arange(len(oracle)) + 1)
-
-            sequential_search_reward = sequential_search_reward * max_reward *10** (UE_power_dBi/10)
-            #seq_search_exploitation_reward = cumulative_window(seq_search_exploitation_reward, window_size)
-            seq_search_exploitation_reward_av = np.cumsum(np.array(sequential_search_reward)) / (np.arange(len(sequential_search_reward)) + 1)
-
-            # plt.plot(np.array(seq_search_exploitation_it_num[
-            #                   window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
-            #          seq_search_exploitation_reward, label=f"SSB period = {SSB_p}")
-            #
-            # # for el_num,el in enumerate(seq_search_exploitation_reward):
-            # #     if el==0:
-            # #         print(f"it_num, {el_num* duration_of_one_sample}")
-            # plt.plot(np.array(seq_search_exploitation_it_num[
-            #                   window_size - 1:len(seq_search_exploitation_it_num)]) * duration_of_one_sample,
-            #          oracle_for_seq, label=f"oracle, SSB period = {SSB_p}")
-            oracle_for_seq_dBm = 10 * np.log10(oracle_for_seq_av / (10 ** (-3)))
-            seq_search_exploitation_reward_dBm = 10 * np.log10(seq_search_exploitation_reward_av / (10 ** (-3)))
-
-            exloitation_iterations_seq =  pickle.load(open(
-                f"{PATH}/sequential_search_exploitation_itarations_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{N_f}_consSSB{n_b}.pickle",
-                "rb"))
-
-            diff_seq_search = oracle_for_seq_dBm - seq_search_exploitation_reward_dBm
-            print(f"exloitation_iterations_seq {len(exloitation_iterations_seq)}")
-            r_a_seq_ser = calculate_act_throughput(sequential_search_reward, exloitation_iterations_seq, BAND_COEF, BANDWIDTH, noize_dB)
-            r_act_seq[n_b_i, nfi] = r_a_seq_ser
-
-            # seq_search_exploitation_reward_average = np.cumsum(seq_search_exploitation_reward) / (
-            #             np.arange(len(seq_search_exploitation_reward)) + 1)
-            if PLOT_WINDOW:
-                seq_search_exploitation_reward_cum_wind = cumulative_window(sequential_search_reward, window_size)
-            if PLOT_WINDOW:
-                diff_seq_search_window = 10 * np.log10(oracle_for_seq / (10 ** (-3))) - 10 * np.log10(seq_search_exploitation_reward_cum_wind/ (10 ** (-3)))
+                #!!diff_seq_search_new = cumulative_window(diff_seq_search, window_size)
 
 
 
-            #!!diff_seq_search_new = cumulative_window(diff_seq_search, window_size)
-
-
-
-            #plt.plot(np.array(seq_search_exploitation_it_num[window_size-1:len(seq_search_exploitation_it_num)])*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
-            plt.plot(len_or * duration_of_one_sample, diff_seq_search, label=f"$N_f$ = {N_f}")
+                #plt.plot(np.array(seq_search_exploitation_it_num[window_size-1:len(seq_search_exploitation_it_num)])*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
+                plt.plot(len_or * duration_of_one_sample, diff_seq_search, label=f"$N_f$ = {N_f}")
 
         #plt.plot(oracle_for_seq_average, label=f"Oracle, SSB period = {SSB_p}")
 
