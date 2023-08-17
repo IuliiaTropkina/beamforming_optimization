@@ -1085,6 +1085,9 @@ def plot_real_protocol():
         #plt.plot(oracle_for_seq_average, label=f"Oracle, SSB period = {SSB_p}")
 
 
+
+
+
         line_3dB = np.full(len(len_or), 3)
         plt.plot(len_or * duration_of_one_sample, line_3dB,
                  label=f"loss of 3dB", color="r")
