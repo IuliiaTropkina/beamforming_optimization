@@ -864,7 +864,7 @@ def plot_real_protocol():
     except:
         print(f"Folder {figures_path}/window exists!")
 
-    BURST_calib = 4
+    BURST_calib = 64
     PERIOD_calib = 16
 
 
