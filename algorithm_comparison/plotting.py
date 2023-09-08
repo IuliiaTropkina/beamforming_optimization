@@ -1061,7 +1061,7 @@ def plot_real_protocol():
                     f"{PATH}/sequential_search_exploitation_itarations_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{N_f}_consSSB{n_b}_it_number{ITER_NUMBER_CIR}_recom_beam{number_of_recommended_beams}.pickle",
                     "rb"))
 
-                diff_seq_search = oracle_for_seq_dBm - seq_search_exploitation_reward_dBm
+                diff_seq_search = oracle_for_seq_dBm[0:len(seq_search_exploitation_reward_dBm)] - seq_search_exploitation_reward_dBm
                 print(f"exloitation_iterations_seq {len(exloitation_iterations_seq)}")
                 r_a_seq_ser = calculate_act_throughput(sequential_search_reward, exloitation_iterations_seq, BAND_COEF, BANDWIDTH, noize_dB)
                 r_act_seq[n_b_i, nfi] = r_a_seq_ser
