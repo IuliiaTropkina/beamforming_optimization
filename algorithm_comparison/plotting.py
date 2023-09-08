@@ -1080,7 +1080,7 @@ def plot_real_protocol():
 
 
                 #plt.plot(np.array(seq_search_exploitation_it_num[window_size-1:len(seq_search_exploitation_it_num)])*duration_of_one_sample,diff_seq_search, label=f"SSB period = {SSB_p}")
-                plt.plot(len_or * duration_of_one_sample, diff_seq_search, label=f"$N_f$ = {N_f}")
+                plt.plot(len_or[0:len(diff_seq_search)] * duration_of_one_sample, diff_seq_search, label=f"$N_f$ = {N_f}")
 
         #plt.plot(oracle_for_seq_average, label=f"Oracle, SSB period = {SSB_p}")
 
@@ -1089,7 +1089,7 @@ def plot_real_protocol():
 
 
         line_3dB = np.full(len(len_or), 3)
-        plt.plot(len_or * duration_of_one_sample, line_3dB,
+        plt.plot(len_or[0:len(diff_seq_search)] * duration_of_one_sample, line_3dB[0:len(diff_seq_search)],
                  label=f"loss of 3dB", color="r")
         plt.title("Sequential search, $I_{SB}$ = " + f"{n_b}",fontsize=14)
         plt.ylabel('Power loss, dB',fontsize=14)
