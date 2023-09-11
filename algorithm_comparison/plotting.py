@@ -1005,22 +1005,24 @@ def plot_real_protocol():
 
     r_act_seq = np.zeros(
         (len(NUMBERs_OF_CONS_SSB), len(Numbers_of_frames_between_SSB)))
+
     for n_b_i, n_b in enumerate(NUMBERs_OF_CONS_SSB):
         print(f"n_b {n_b}")
-        fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{n_b}_it_number{ITER_NUMBER_CIR}"
-        plt.figure(fig_name)
-        its = np.linspace(0, ITER_NUMBER_CIR - 1, ITER_NUMBER_CIR)
-        oracle = np.array(oracle)
-        # plt.plot(avarage_oracle, label="Oracle")
-        len_or = np.linspace(0, len(oracle) - 1, len(oracle))
 
-        for nfi, N_f in enumerate(Numbers_of_frames_between_SSB):
-            print(f"N_f {N_f}")
-            # sequential_search_reward = pickle.load(open(
-            #     f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
-            #     "rb"))
+        for number_of_recommended_beams in number_of_recommended_beams_array:
+            fig_name = f"sequential_seqrch_{test_name}_arms{ARMS_NUMBER_CIR}_numCons{n_b}_it_number{ITER_NUMBER_CIR}_recom_beam{number_of_recommended_beams}"
+            plt.figure(fig_name)
+            its = np.linspace(0, ITER_NUMBER_CIR - 1, ITER_NUMBER_CIR)
+            oracle = np.array(oracle)
+            # plt.plot(avarage_oracle, label="Oracle")
+            len_or = np.linspace(0, len(oracle) - 1, len(oracle))
+            for nfi, N_f in enumerate(Numbers_of_frames_between_SSB):
+                print(f"N_f {N_f}")
+                # sequential_search_reward = pickle.load(open(
+                #     f"{figures_path}/cumulative_avarage_sequential_search_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{SSB_p}_consSSB{NUMBER_OF_CONS_SSB}.pickle",
+                #     "rb"))
 
-            for number_of_recommended_beams in number_of_recommended_beams_array:
+
 
 
                 #
@@ -1104,7 +1106,7 @@ def plot_real_protocol():
             f"{figures_path}/{fig_name}.pdf",
             dpi=700, bbox_inches='tight')
         if PLOT_WINDOW:
-            fig_name2 = f"sequential_search_windows_arms{ARMS_NUMBER_CIR}_numCons{n_b}"
+            fig_name2 = f"sequential_search_windows_arms{ARMS_NUMBER_CIR}_numCons{n_b}_recom_beam{number_of_recommended_beams}"
             plt.figure(fig_name2)
             plt.plot(np.array(len_or[
                               window_size - 1:len(len_or)]) * duration_of_one_sample,
