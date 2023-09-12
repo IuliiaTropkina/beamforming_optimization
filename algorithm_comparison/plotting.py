@@ -1268,29 +1268,27 @@ def plot_real_protocol():
                 f"{figures_path}/window/{fig_name2}.pdf",
                 dpi=700, bbox_inches='tight')
 
-
-
-
-    fig_name28= f"throughput_seq_search_arms{ARMS_NUMBER_CIR}_cycle3"
-    plt.figure(fig_name28)
-    for n_b_i in range(0, len(NUMBERs_OF_CONS_SSB)):
+    for number_of_recommended_beams in number_of_recommended_beams_array:
+        fig_name28= f"throughput_seq_search_arms{ARMS_NUMBER_CIR}_cycle3_recom_beam{number_of_recommended_beams}"
+        plt.figure(fig_name28)
+        for n_b_i in range(0, len(NUMBERs_OF_CONS_SSB)):
+            plt.plot(Numbers_of_frames_between_SSB,
+                     r_act_seq[n_b_i, :]/1e9, label=f"Number of SB = {NUMBERs_OF_CONS_SSB[n_b_i]}")
         plt.plot(Numbers_of_frames_between_SSB,
-                 r_act_seq[n_b_i, :]/1e9, label=f"Number of SB = {NUMBERs_OF_CONS_SSB[n_b_i]}")
-    plt.plot(Numbers_of_frames_between_SSB,
-             np.full((len(Numbers_of_frames_between_SSB)), r_a_oracle/1e9), label=f"Oracle")
-    # plt.plot(Numbers_of_frames_between_SSB,
-    #          np.full((len(Numbers_of_frames_between_SSB)), r_a_or), label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
-    plt.ylabel('Average throughput, Gbps', fontsize=14)
-    plt.xlabel("$N_f$, frames", fontsize=14)
-    # plt.yscale("log")
-    plt.ylim(0, 2.25)
-    plt.grid()
-    plt.legend(prop={'size': 12})
-    plt.yticks(fontsize=12)
-    plt.xticks(fontsize=12)
-    plt.savefig(
-        f"{figures_path}/window/{fig_name28}.pdf",
-        dpi=700, bbox_inches='tight')
+                 np.full((len(Numbers_of_frames_between_SSB)), r_a_oracle/1e9), label=f"Oracle")
+        # plt.plot(Numbers_of_frames_between_SSB,
+        #          np.full((len(Numbers_of_frames_between_SSB)), r_a_or), label=f"Burst len = {NUMBERs_OF_CONS_SSB[n_b_i]}")
+        plt.ylabel('Average throughput, Gbps', fontsize=14)
+        plt.xlabel("$N_f$, frames", fontsize=14)
+        # plt.yscale("log")
+        plt.ylim(0, 2.25)
+        plt.grid()
+        plt.legend(prop={'size': 12})
+        plt.yticks(fontsize=12)
+        plt.xticks(fontsize=12)
+        plt.savefig(
+            f"{figures_path}/window/{fig_name28}.pdf",
+            dpi=700, bbox_inches='tight')
 
     #
     # test_name = f"real_protocol_SSB_period"
