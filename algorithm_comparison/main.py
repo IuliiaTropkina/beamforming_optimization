@@ -279,8 +279,8 @@ class CIR_cache:
             self.get_power_based_on_dataset(frame_num, directions_of_arrival_RX_for_antenna, Power)
 
         for it_num in range(ITER_NUMBER_CIR):
-            if it_num % 100 == 0:
-                print(f"Reward is calculated {it_num/ITER_NUMBER_CIR *100 }")
+            # if it_num % 100 == 0:
+            #     print(f"Reward is calculated {it_num/ITER_NUMBER_CIR *100 }")
             data_frame_num1 = it_num // self.frames_per_data_frame
             data_frame_num2 = data_frame_num1 + 1
             # data1 = self.binned_rays_by_frame[data_frame_num1] + self.get_noise()
