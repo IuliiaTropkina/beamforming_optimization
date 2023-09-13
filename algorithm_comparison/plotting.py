@@ -887,15 +887,31 @@ def plot_real_protocol():
         threshold_all = pickle.load(open(
             f"{PATH}/threshold_all_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}_it_number{ITER_NUMBER_CIR}_recom_beam1.pickle",
             "rb"))
-    except:
-        print("Cant find file")
-
-    try:
         iter_threshold = pickle.load(open(
             f"{PATH}/iter_threshold_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}_it_number{ITER_NUMBER_CIR}_recom_beam1.pickle",
             "rb"))
+
+        fig_name3 = f"threshold_seq_search_arms{ARMS_NUMBER_CIR}_dBm"
+        plt.figure(fig_name3)
+        print(iter_threshold[start_it:start_it + leng])
+        plt.plot(np.array(iter_threshold[start_it:start_it + leng]) * duration_of_one_sample, 10 * np.log10(
+            np.array(threshold_all[start_it:start_it + leng]) * max_reward * 10 ** (UE_power_dBi / 10)), ".")
+
+        plt.ylabel('Threshold, dB', fontsize=14)
+        plt.xlabel("Time, sec", fontsize=14)
+        # plt.yscale("log")
+        # plt.ylim(0, ARMS_NUMBER_CIR + 3)
+        plt.grid()
+        plt.legend(prop={'size': 12})
+        plt.yticks(fontsize=12)
+        plt.xticks(fontsize=12)
+        plt.savefig(
+            f"{figures_path}/{fig_name3}.png",
+            dpi=700, bbox_inches='tight')
+
     except:
         print("Cant find file")
+
 
 
 
@@ -917,23 +933,7 @@ def plot_real_protocol():
     #     f"{figures_path}/{fig_name3}.png",
     #     dpi=700, bbox_inches='tight')
 
-    fig_name3 = f"threshold_seq_search_arms{ARMS_NUMBER_CIR}_dBm"
-    plt.figure(fig_name3)
-    print(iter_threshold[start_it:start_it+leng])
-    plt.plot(np.array(iter_threshold[start_it:start_it+leng]) * duration_of_one_sample, 10* np.log10(np.array(threshold_all[start_it:start_it+ leng]) * max_reward*10**(UE_power_dBi/10)), ".")
 
-
-    plt.ylabel('Threshold, dB', fontsize=14)
-    plt.xlabel("Time, sec", fontsize=14)
-    # plt.yscale("log")
-    # plt.ylim(0, ARMS_NUMBER_CIR + 3)
-    plt.grid()
-    plt.legend(prop={'size': 12})
-    plt.yticks(fontsize=12)
-    plt.xticks(fontsize=12)
-    plt.savefig(
-        f"{figures_path}/{fig_name3}.png",
-        dpi=700, bbox_inches='tight')
 
 
     fig_name3 = f"oracle_{test_name}_arms{ARMS_NUMBER_CIR}_dB"

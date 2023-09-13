@@ -1157,23 +1157,23 @@ if __name__ == '__main__':
 
     cir_cache = CIR_cache(PATH, FRAME_NUMBER, frames_per_data_frame=frames_per_data_frame)
 
-    try:
-        cir_cache.all_rewards = pickle.load(open(
-            f"{PATH_json}/reward_antenna_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
-            "rb"))
-        cir_cache.max_reward = pickle.load(open(
-            f"{PATH_json}/max_reward_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
-            "rb"))
-    except:
-        cir_cache.get_all_rewards()
-        pickle.dump(cir_cache.all_rewards, open(
-            f"{PATH_json}/reward_antenna_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
-            'wb'))
-        pickle.dump(np.array([cir_cache.max_reward]), open(
-            f"{PATH_json}/max_reward_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
-            'wb'))
+    # try:
+    #     cir_cache.all_rewards = pickle.load(open(
+    #         f"{PATH_json}/reward_antenna_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
+    #         "rb"))
+    #     cir_cache.max_reward = pickle.load(open(
+    #         f"{PATH_json}/max_reward_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
+    #         "rb"))
+    # except:
+    cir_cache.get_all_rewards()
+    pickle.dump(cir_cache.all_rewards, open(
+        f"{PATH_json}/reward_antenna_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
+        'wb'))
+    pickle.dump(np.array([cir_cache.max_reward]), open(
+        f"{PATH_json}/max_reward_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
+        'wb'))
 
-
+    exit()
 
     if PLOT_ALL_REWARDS:
         cir_cache.plot_all_rewards()
