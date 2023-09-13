@@ -199,18 +199,27 @@ class CIR_cache:
         self.dirs_sorted_power = np.zeros((num_rt_frames_total, len(beam_directions)))
 
     def get_power(self, frame_number):
+
+        print("New")
         power = np.zeros(ARMS_NUMBER_CIR)
 
         dir = TX_locations[frame_number] - RX_locations[frame_number]
-
+        print("dir", dir)
         beam_number_nearest = spatial.KDTree(beam_directions).query(dir)[1]
         # print(f"dir {dir}, {beam_number_nearest}")
+        print("beam_directions[beam_number_nearest]", beam_directions[beam_number_nearest])
         angle = find_angle_between_vectors(beam_directions[beam_number_nearest], dir) #radians
+
+        print("angle", angle)
         antenna_gain = self.antenna_pattern_3D[90+int(np.round(angle*180/math.pi)),int(np.round(angle*180/math.pi))]
+
+        print("antenna_gain", antenna_gain)
         # print(f"antenna gain, {frame_number}, {antenna_gain}dBi, {10**(antenna_gain/10)}")
         dist = norm(dir)
         c = 299792458
         power[beam_number_nearest] = ((c/carrier_frequency) / (4 * math.pi * dist)) ** 2 * 10**(antenna_gain/10)
+
+        print("power[beam_number_nearest]", power[beam_number_nearest])
         power[0] = (((c/carrier_frequency) / (4 * math.pi * dist)) ** 2   * 10**(antenna_gain/10) )/20
         power[1] = (((c / carrier_frequency) / (4 * math.pi * dist) )** 2 * 10 ** (antenna_gain / 10) )/ 8
 
@@ -885,7 +894,7 @@ if __name__ == '__main__':
 
 
 
-    SUBDIVISION = 4
+    SUBDIVISION = 2
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
     #beam_directions = np.array([np.array(icosphere.vertices)[1], np.array(icosphere.vertices)[8]])
@@ -893,7 +902,7 @@ if __name__ == '__main__':
     ARMS_NUMBER_CIR = len(beam_directions)
     SUBDIVISION_2 = 2
     icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
-    ANTENNA_TYPE = 3
+    ANTENNA_TYPE = 2
 
 
     NUMBERs_OF_CONS_SSB = np.array([64]) #[4,8,64]
