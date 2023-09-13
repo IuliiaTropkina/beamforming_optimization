@@ -883,13 +883,19 @@ def plot_real_protocol():
         f"{PATH}/search_false_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}.pickle",
         "rb"))
 
+    try:
+        threshold_all = pickle.load(open(
+            f"{PATH}/threshold_all_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}_it_number{ITER_NUMBER_CIR}_recom_beam1.pickle",
+            "rb"))
+    except:
+        print("Cant find file")
 
-    threshold_all = pickle.load(open(
-        f"{PATH}/threshold_all_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}_it_number{ITER_NUMBER_CIR}_recom_beam1.pickle",
-        "rb"))
-    iter_threshold = pickle.load(open(
-        f"{PATH}/iter_threshold_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}_it_number{ITER_NUMBER_CIR}_recom_beam1.pickle",
-        "rb"))
+    try:
+        iter_threshold = pickle.load(open(
+            f"{PATH}/iter_threshold_arms{int(ARMS_NUMBER_CIR)}_SSBperiod{PERIOD_calib}_consSSB{BURST_calib}_it_number{ITER_NUMBER_CIR}_recom_beam1.pickle",
+            "rb"))
+    except:
+        print("Cant find file")
 
 
 
