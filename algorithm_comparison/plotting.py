@@ -765,7 +765,7 @@ def plot_real_protocol():
     window_size = 5000
 
 
-    ANTENNA_TYPE = 3
+    ANTENNA_TYPE = 2
     number_of_cycles = 1
     folder_name_figures = "scenario_LOS_28_calib2"
     # figures_path = f"C:/Users/1.LAPTOP-1DGAKGFF/Desktop/Project_materials/beamforming/FIGURES/{folder_name_figures}"
@@ -969,6 +969,47 @@ def plot_real_protocol():
     plt.savefig(
         f"{figures_path}/{fig_name3}.png",
         dpi=700, bbox_inches='tight')
+
+
+
+    fig_name3 = f"oracle_plus_best_beam_{test_name}_arms{ARMS_NUMBER_CIR}_dB"
+    plt.figure(fig_name3)
+
+    # define colors to use
+    col1 = 'steelblue'
+    col2 = 'sandybrown'
+
+    # define subplots
+    fig, ax = plt.subplots()
+
+    # add first line to plot
+    ax.plot(its[start_it:start_it + leng] * duration_of_one_sample, oracle_dB[start_it:start_it + leng], color=col1)
+
+    # add x-axis label
+    ax.set_xlabel('Time, sec', fontsize=14)
+
+    # add y-axis label
+    ax.set_ylabel('Power, dB', color=col1, fontsize=14)
+
+    # define second y-axis that shares x-axis with current plot
+    ax2 = ax.twinx()
+
+    # add second line to plot
+    ax2.plot(its[start_it:start_it + leng] * duration_of_one_sample, best_beam[start_it:start_it + leng], color=col2)
+
+    # add second y-axis label
+    ax2.set_ylabel('Beam number', color=col2, fontsize=14)
+
+    plt.grid()
+    plt.legend(prop={'size': 12})
+    plt.yticks(fontsize=12)
+    plt.xticks(fontsize=12)
+    plt.savefig(
+        f"{figures_path}/{fig_name3}.pdf",
+        dpi=700, bbox_inches='tight')
+
+
+    exit()
 
     try:
         os.makedirs(f"{figures_path}/sel_beams")
