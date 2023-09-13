@@ -717,7 +717,7 @@ def plot_real_protocol():
     BAND_COEF = 1 - 0.036
     BANDWIDTH = 100e6
     noize_dB = -120
-    SUBDIVISION = 3
+    SUBDIVISION = 2
 
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
