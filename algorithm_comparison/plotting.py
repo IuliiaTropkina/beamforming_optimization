@@ -681,7 +681,7 @@ def calculate_act_throughput(reward, exp_iterations, BAND_COEF,BANDWIDTH, noize_
 
     inst_throughput = BANDWIDTH*np.log2(1 + np.array(reward)/(10**(noize_dB/10)))
     inst_throughput_exploration = inst_throughput[exp_iterations]
-    actual_throughput = sum(inst_throughput_exploration) *BAND_COEF
+    actual_throughput = sum(inst_throughput_exploration)*BAND_COEF
     inst_throughput[exp_iterations] = 0
     actual_throughput += sum(inst_throughput)
     return actual_throughput/len(inst_throughput)
@@ -717,7 +717,7 @@ def plot_real_protocol():
     BAND_COEF = 1 - 0.036
     BANDWIDTH = 100e6
     noize_dB = -120
-    SUBDIVISION = 4
+    SUBDIVISION = 3
 
     icosphere = trimesh.creation.icosphere(subdivisions=SUBDIVISION, radius=1.0, color=None)
     beam_directions = np.array(icosphere.vertices)
