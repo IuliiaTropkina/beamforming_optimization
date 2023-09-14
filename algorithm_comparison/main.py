@@ -269,7 +269,7 @@ class CIR_cache:
         fig_name3 = f"antenna_pattern"
         plt.figure(fig_name3)
 
-        plt.plot(np.linspace(0,180-1,180), self.antenna_pattern_3D[:, 0], ".")
+        plt.plot(np.linspace(0,181-1,181), self.antenna_pattern_3D[:, 0], ".")
         plt.ylabel('Gain, dB', fontsize=14)
         plt.xlabel("Angle, degree", fontsize=14)
         # # plt.yscale("log")
