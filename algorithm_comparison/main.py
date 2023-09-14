@@ -151,9 +151,14 @@ def find_angle_between_vectors(v1, v2):
     return math.acos((v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]) / (norm(v1)*norm(v2))) #radians
 
 
-
-
-
+def calc_beam_wide(ico_subdivision):
+    icosphere = trimesh.creation.icosphere(subdivisions=ico_subdivision, radius=1.0, color=None)
+    # triangle_size = norm(icosphere.vertices[icosphere.edges[0][0]] - icosphere.vertices[icosphere.edges[0][1]])
+    # cone_angle = math.acos((2 - (triangle_size) ** 2) / 2)
+    # print(cone_angle*180/math.pi, "o")
+    # print(len(np.array(icosphere.vertices)))
+    an = find_angle_between_vectors(icosphere.vertices[icosphere.edges[0][0]], icosphere.vertices[icosphere.edges[0][1]])
+    print(f"angle between angle = ", an * 180/math.pi)
 
 # def transform_reward(min_limit_power, max_limit_power, min_limit_reward, max_limit_reward):
 
@@ -275,7 +280,7 @@ class CIR_cache:
         plt.xlabel("Angle, degree", fontsize=14)
         # # plt.yscale("log")
         plt.ylim(30, -40)
-        plt.xlim(-40, 40)
+        plt.xlim(40, -40)
         plt.grid()
         plt.legend(prop={'size': 12})
         plt.yticks(fontsize=12)
@@ -1193,7 +1198,7 @@ if __name__ == '__main__':
     pickle.dump(np.array([cir_cache.max_reward]), open(
         f"{PATH_json}/max_reward_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
         'wb'))
-
+    calc_beam_wide(2)
     exit()
 
     if PLOT_ALL_REWARDS:
