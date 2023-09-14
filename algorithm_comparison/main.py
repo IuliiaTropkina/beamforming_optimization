@@ -265,6 +265,24 @@ class CIR_cache:
     def get_all_rewards(self):
         antenna_data = loadmat(f'antenna_pattern28GHz_type{ANTENNA_TYPE}.mat')
         self.antenna_pattern_3D = antenna_data['a']
+
+        fig_name3 = f"antenna_pattern"
+        plt.figure(fig_name3)
+
+        plt.plot(np.linspace(0,180-1,1), self.antenna_pattern_3D[90, :], ".")
+        plt.ylabel('Gain, dB', fontsize=14)
+        plt.xlabel("Angle, degree", fontsize=14)
+        # # plt.yscale("log")
+        # plt.ylim(550, 700)
+        plt.grid()
+        plt.legend(prop={'size': 12})
+        plt.yticks(fontsize=12)
+        plt.xticks(fontsize=12)
+        plt.savefig(
+            f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/output_type{ANTENNA_TYPE}/figures_zoom/{fig_name3}.png",
+            dpi=700, bbox_inches='tight')
+
+
         for frame_num in range(self.num_rt_frames_total):
             file_name = f"{PATH}/CIR_scene_frame{frame_num + 1}_grid_step{grid_step}_voxel_size{voxel_size}_freq{carrier_frequency}"
             data = pickle.load(open(f"{file_name}.pickle", "rb"))
