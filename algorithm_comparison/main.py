@@ -240,6 +240,7 @@ class CIR_cache:
 
 
         for i in range(0, len(beam_directions)):
+
             power_for_dir = []
             indexes = []
             try:
@@ -249,17 +250,19 @@ class CIR_cache:
                     indexes.append(ind)
                 ray_direction_for_antenna = ray_dirs[indexes[np.argmax(np.array(power_for_dir))]]
                 angle = find_angle_between_vectors(beam_directions[i], ray_direction_for_antenna)
-                antenna_gain = self.antenna_pattern_3D[
-                    90 + int(np.round(angle * 180 / math.pi)), int(np.round(angle * 180 / math.pi))]
+                antenna_gain = self.antenna_pattern_3D[90 + int(np.round(angle * 180 / math.pi)), int(np.round(angle * 180 / math.pi))]
 
                 self.dirs_sorted_power[frame_num, i] = max(power_for_dir) * 10 ** (antenna_gain / 10)
 
                 if max(power_for_dir) != max_power:
-                    self.dirs_sorted_power[frame_num, i] = self.dirs_sorted_power[i] * 10
+                    self.dirs_sorted_power[frame_num, i] = self.dirs_sorted_power[frame_num, i] * 10
 
             except:
                 self.dirs_sorted_power[frame_num, i] = 0
-
+            try:
+                print(f"frame_num = {frame_num}, i = {i}, angle = {angle}, antenna_gain = {antenna_gain}, max(power_for_dir) = {max(power_for_dir)}, 10 ** (antenna_gain / 10) = {10 ** (antenna_gain / 10)}, self.dirs_sorted_power[frame_num, i] = {self.dirs_sorted_power[frame_num, i]}")
+            except:
+                print("fail")
 
     def get_all_rewards(self):
         antenna_data = loadmat(f'antenna_pattern28GHz_type{ANTENNA_TYPE}.mat')
