@@ -261,8 +261,8 @@ class CIR_cache:
 
                 if max(power_for_dir) != max_power:
                     self.dirs_sorted_power[frame_num, i] = self.dirs_sorted_power[frame_num, i] * 10
-                print(
-                    f"frame_num = {frame_num}, i = {i}, angle = {angle * 180 / math.pi}, antenna_gain = {antenna_gain}, max(power_for_dir) = {max(power_for_dir)}, 10 ** (antenna_gain / 10) = {10 ** (antenna_gain / 10)}, self.dirs_sorted_power[frame_num, i] = {self.dirs_sorted_power[frame_num, i]}")
+                # print(
+                #     f"frame_num = {frame_num}, i = {i}, angle = {angle * 180 / math.pi}, antenna_gain = {antenna_gain}, max(power_for_dir) = {max(power_for_dir)}, 10 ** (antenna_gain / 10) = {10 ** (antenna_gain / 10)}, self.dirs_sorted_power[frame_num, i] = {self.dirs_sorted_power[frame_num, i]}")
             except:
                 self.dirs_sorted_power[frame_num, i] = 0
 
