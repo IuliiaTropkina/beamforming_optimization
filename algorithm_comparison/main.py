@@ -261,7 +261,7 @@ class CIR_cache:
 
                 if max(power_for_dir) != max_power:
                     self.dirs_sorted_power[frame_num, i] = self.dirs_sorted_power[frame_num, i] * 10
-                # print(
+                        # print(
                 #     f"frame_num = {frame_num}, i = {i}, angle = {angle * 180 / math.pi}, antenna_gain = {antenna_gain}, max(power_for_dir) = {max(power_for_dir)}, 10 ** (antenna_gain / 10) = {10 ** (antenna_gain / 10)}, self.dirs_sorted_power[frame_num, i] = {self.dirs_sorted_power[frame_num, i]}")
             except:
                 self.dirs_sorted_power[frame_num, i] = 0
@@ -279,8 +279,8 @@ class CIR_cache:
         plt.ylabel('Gain, dB', fontsize=14)
         plt.xlabel("Angle, degree", fontsize=14)
         # # plt.yscale("log")
-        plt.ylim(-40, 30)
-        plt.xlim(-40, 40)
+        plt.ylim(10, 25)
+        plt.xlim(-30, 30)
         plt.grid()
         plt.legend(prop={'size': 12})
         plt.yticks(fontsize=12)
@@ -1151,11 +1151,33 @@ if __name__ == '__main__':
     PATH_json = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/{folder_name}"
     RX_locations = []
     TX_locations = []
+    angles_between_adjacent_slots = []
     for fr in range(1,50):
         with open(f"{PATH_json}/scene_frame{fr}.json") as json_file:
             info = json.load(json_file)
         RX_locations.append(info["RX_location"][0])
         TX_locations.append(info["TX_location"][0])
+        if fr != 1:
+            a = find_angle_between_vectors((RX_locations[len(RX_locations)] - TX_locations[len(RX_locations)]), (RX_locations[len(RX_locations)-1] - TX_locations[len(RX_locations)-1]))
+            angles_between_adjacent_slots.append(a*180/math.pi)
+
+    fig_name3 = f"angle_between_adj_slots"
+    plt.figure(fig_name3)
+    frames = frames_per_data_frame * np.linspace(0, FRAME_NUMBER - 1, FRAME_NUMBER)
+    duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_RANDOM
+    plt.plot(frames * duration_of_one_sample, angles_between_adjacent_slots, "*")
+    plt.ylabel('Angle, degree', fontsize=14)
+    plt.xlabel("Time, sec", fontsize=14)
+    # # plt.yscale("log")
+    # plt.ylim(10, 25)
+    # plt.xlim(-30, 30)
+    plt.grid()
+    plt.legend(prop={'size': 12})
+    plt.yticks(fontsize=12)
+    plt.xticks(fontsize=12)
+    plt.savefig(
+        f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/output_type{ANTENNA_TYPE}/figures_zoom/{fig_name3}.png",
+        dpi=700, bbox_inches='tight')
     TX_locations = np.array(TX_locations)
 
     RX_locations = np.array(RX_locations)
