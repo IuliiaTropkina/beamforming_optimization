@@ -1158,7 +1158,11 @@ if __name__ == '__main__':
         RX_locations.append(info["RX_location"][0])
         TX_locations.append(info["TX_location"][0])
         if fr != 1:
-            a = find_angle_between_vectors(RX_locations[len(RX_locations)] - TX_locations[len(RX_locations)], RX_locations[len(RX_locations)-1] - TX_locations[len(RX_locations)-1])
+            print(len(RX_locations))
+            print(len(TX_locations))
+            print(RX_locations[len(RX_locations)] - TX_locations[len(TX_locations)])
+
+            a = find_angle_between_vectors(RX_locations[len(RX_locations)] - TX_locations[len(TX_locations)], RX_locations[len(RX_locations)-1] - TX_locations[len(TX_locations)-1])
             angles_between_adjacent_slots.append(a*180/math.pi)
 
     fig_name3 = f"angle_between_adj_slots"
