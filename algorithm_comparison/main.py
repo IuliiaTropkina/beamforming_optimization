@@ -1160,7 +1160,7 @@ if __name__ == '__main__':
         if fr != 1:
 
 
-            a = find_angle_between_vectors(RX_locations[len(RX_locations)-1] - TX_locations[len(TX_locations)-1], RX_locations[len(RX_locations)-2] - TX_locations[len(TX_locations)-2])
+            a = find_angle_between_vectors(np.array(RX_locations[len(RX_locations)-1] - TX_locations[len(TX_locations)-1]), np.array(RX_locations[len(RX_locations)-2] - TX_locations[len(TX_locations)-2]))
             angles_between_adjacent_slots.append(a*180/math.pi)
 
     fig_name3 = f"angle_between_adj_slots"
