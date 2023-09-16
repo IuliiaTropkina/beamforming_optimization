@@ -1152,7 +1152,7 @@ if __name__ == '__main__':
     RX_locations = []
     TX_locations = []
     angles_between_adjacent_slots = []
-    for fr in range(1,50):
+    for fr in range(1,38):
         with open(f"{PATH_json}/scene_frame{fr}.json") as json_file:
             info = json.load(json_file)
         RX_locations.append(info["RX_location"][0])
