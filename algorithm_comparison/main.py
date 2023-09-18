@@ -261,7 +261,7 @@ class CIR_cache:
 
                 if max(power_for_dir) != max_power:
                     self.dirs_sorted_power[frame_num, i] = self.dirs_sorted_power[frame_num, i] * 10
-                        # print(
+                # print(
                 #     f"frame_num = {frame_num}, i = {i}, angle = {angle * 180 / math.pi}, antenna_gain = {antenna_gain}, max(power_for_dir) = {max(power_for_dir)}, 10 ** (antenna_gain / 10) = {10 ** (antenna_gain / 10)}, self.dirs_sorted_power[frame_num, i] = {self.dirs_sorted_power[frame_num, i]}")
             except:
                 self.dirs_sorted_power[frame_num, i] = 0
@@ -881,7 +881,7 @@ if __name__ == '__main__':
 
     SCENARIO_DURATION = 8
     NUM_CYCLE = 30
-    frames_per_data_frame = 10000
+    frames_per_data_frame = 100
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
