@@ -1221,7 +1221,7 @@ if __name__ == '__main__':
         f"{PATH_json}/max_reward_type{ANTENNA_TYPE}_arms{int(ARMS_NUMBER_CIR)}_it{ITER_NUMBER_CIR}.pickle",
         'wb'))
     calc_beam_wide(2)
-    exit()
+
 
     if PLOT_ALL_REWARDS:
         cir_cache.plot_all_rewards()
@@ -1286,7 +1286,7 @@ if __name__ == '__main__':
     pickle.dump(RX_locations, open(
         f"{figures_path}/RX_locations.pickle", 'wb'))
 
-
+    exit()
 
     for N_f in Numbers_of_frames_between_SSB:
         for n_b in NUMBERs_OF_CONS_SSB:
