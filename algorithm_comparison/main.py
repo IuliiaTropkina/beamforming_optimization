@@ -288,7 +288,7 @@ class CIR_cache:
             f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/output_type{ANTENNA_TYPE}/figures_zoom/{fig_name3}.png",
             dpi=700, bbox_inches='tight')
 
-
+        oracle = []
         for frame_num in range(self.num_rt_frames_total):
             file_name = f"{PATH}/CIR_scene_frame{frame_num + 1}_grid_step{grid_step}_voxel_size{voxel_size}_freq{carrier_frequency}"
             data = pickle.load(open(f"{file_name}.pickle", "rb"))
@@ -302,6 +302,32 @@ class CIR_cache:
             #d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, Power)
             #d = bin_rays_by_direction(beam_directions, directions_of_arrival_RX_for_antenna, E)
             self.get_power_based_on_dataset(frame_num, directions_of_arrival_RX_for_antenna, Power)
+
+            oracle.append(max(self.dirs_sorted_power[frame_num]))
+
+        fig_name3 = f"oracle_test_arms{ARMS_NUMBER_CIR}_dB"
+        plt.figure(fig_name3)
+
+
+        frames = frames_per_data_frame * np.linspace(0, self.num_rt_frames_total - 1, self.num_rt_frames_total)
+        duration_of_one_sample = SCENARIO_DURATION /  ITER_NUMBER_CIR
+        oracle_dB = 10 * np.log10(oracle)
+        plt.plot(frames * duration_of_one_sample, oracle_dB, "*")
+
+
+        plt.ylabel('Power, dB', fontsize=14)
+        plt.xlabel("Time, sec", fontsize=14)
+        # plt.yscale("log")
+        # plt.ylim(0,10)
+        plt.grid()
+        plt.legend(prop={'size': 12})
+        plt.yticks(fontsize=12)
+        plt.xticks(fontsize=12)
+        PATH = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/output_type{ANTENNA_TYPE}"
+        figures_path = f"{PATH}/figures_zoom"
+        plt.savefig(
+            f"{figures_path}/{fig_name3}.pdf",
+            dpi=700, bbox_inches='tight')
 
         for it_num in range(ITER_NUMBER_CIR):
             # if it_num % 100 == 0:

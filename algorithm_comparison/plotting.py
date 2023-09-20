@@ -817,7 +817,7 @@ def plot_real_protocol():
         n +=1
     fig_name4 = f"Distance"
     plt.figure(fig_name4)
-    frames = frames_per_data_frame* np.linspace(0,FRAME_NUMBER-1,FRAME_NUMBER)
+    frames = frames_per_data_frame * np.linspace(0,FRAME_NUMBER-1,FRAME_NUMBER)
     plt.plot(frames*duration_of_one_sample, Dist[0:FRAME_NUMBER], "*")
     plt.ylabel('Distance, m',fontsize=14)
     plt.xlabel("Time, sec",fontsize=14)
@@ -941,7 +941,7 @@ def plot_real_protocol():
 
     its = np.linspace(0,ITER_NUMBER_CIR-1,ITER_NUMBER_CIR)
     print(f"length, {ITER_NUMBER_CIR}")
-    plt.plot(its[start_it:start_it + leng] * duration_of_one_sample, oracle_dB[start_it:start_it + leng], "*")
+    plt.plot(its[start_it:start_it + leng] * duration_of_one_sample, oracle_dB[start_it:start_it + leng])
 
 
     plt.ylabel('Power, dB',fontsize=14)
