@@ -255,6 +255,7 @@ class CIR_cache:
                 ray_direction_for_antenna = ray_dirs[indexes[np.argmax(np.array(power_for_dir))]]
                 angle = find_angle_between_vectors(beam_directions[i], ray_direction_for_antenna)
                 antenna_gain = self.antenna_pattern_3D[90 + int(np.round(angle * 180 / math.pi)), int(np.round(angle * 180 / math.pi))]
+                antenna_gain = 1
                 self.dirs_sorted_power[frame_num, i] = max(power_for_dir) * 10 ** (antenna_gain / 10)
 
                 if max(power_for_dir) != max_power:
@@ -305,7 +306,7 @@ class CIR_cache:
             oracle.append(max(self.dirs_sorted_power[frame_num]))
 
         figures_path = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/"
-        fig_name3 = f"oracle_test_2_arms{ARMS_NUMBER_CIR}_dB"
+        fig_name3 = f"oracle_test_3_arms{ARMS_NUMBER_CIR}_dB"
 
         pickle.dump(oracle, open(
             f"{figures_path}/{fig_name3}.pickle", 'wb'))
