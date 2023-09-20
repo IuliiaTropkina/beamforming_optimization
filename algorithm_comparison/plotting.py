@@ -991,7 +991,7 @@ def plot_real_protocol():
     fig, ax = plt.subplots()
     labs = ["Antenna 8x8", "Antenna 16x16", "Omnidirectional"]
     for i in range(1,4):
-        figures_path_test = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/"
+        figures_path_test = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2"
         fig_name3_test = f"oracle_test_{i}_arms{ARMS_NUMBER_CIR}_dB"
 
         oracle_dB_test = pickle.load(open(
