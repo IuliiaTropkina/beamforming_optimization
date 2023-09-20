@@ -980,7 +980,7 @@ def plot_real_protocol():
 
 
 
-    fig_name3 = f"oracle_plus_best_beam_{test_name}_arms{ARMS_NUMBER_CIR}_dB"
+    fig_name3 = f"oracle_plus_best_beam_{test_name}_arms{ARMS_NUMBER_CIR}_dB_x3"
 
     plt.figure(fig_name3)
     # define colors to use
