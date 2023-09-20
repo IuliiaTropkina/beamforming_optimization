@@ -304,7 +304,7 @@ class CIR_cache:
 
             oracle.append(max(self.dirs_sorted_power[frame_num]))
 
-        fig_name3 = f"oracle_test_plus_pattern_arms{ARMS_NUMBER_CIR}_dB"
+        fig_name3 = f"oracle_test_plus_pattern_antenna8x8_arms{ARMS_NUMBER_CIR}_dB"
         plt.figure(fig_name3)
 
 
@@ -951,7 +951,7 @@ if __name__ == '__main__':
     ARMS_NUMBER_CIR = len(beam_directions)
     SUBDIVISION_2 = 2
     icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
-    ANTENNA_TYPE = 2
+    ANTENNA_TYPE = 4
 
 
     NUMBERs_OF_CONS_SSB = np.array([64]) #[4,8,64]
