@@ -305,7 +305,7 @@ class CIR_cache:
             oracle.append(max(self.dirs_sorted_power[frame_num]))
 
         figures_path = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/"
-        fig_name3 = f"oracle_test_1_arms{ARMS_NUMBER_CIR}_dB"
+        fig_name3 = f"oracle_test_2_arms{ARMS_NUMBER_CIR}_dB"
 
         pickle.dump(oracle, open(
             f"{figures_path}/{fig_name3}.pickle", 'wb'))
@@ -958,7 +958,7 @@ if __name__ == '__main__':
     ARMS_NUMBER_CIR = len(beam_directions)
     SUBDIVISION_2 = 2
     icosphere_context = trimesh.creation.icosphere(subdivisions=SUBDIVISION_2, radius=1.0, color=None)
-    ANTENNA_TYPE = 4
+    ANTENNA_TYPE = 2
 
 
     NUMBERs_OF_CONS_SSB = np.array([64]) #[4,8,64]

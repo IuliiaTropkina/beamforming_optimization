@@ -997,18 +997,11 @@ def plot_real_protocol():
         oracle_dB_test = pickle.load(open(
             f"{figures_path_test}/{fig_name3_test}.pickle.pickle",
             "rb"))
-
-
         frames = frames_per_data_frame * np.linspace(0, FRAME_NUMBER - 1, FRAME_NUMBER)
         duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_CIR
         oracle_dB_test = 10 * np.log10(oracle_dB_test)
-        plt.plot(frames * duration_of_one_sample, oracle_dB_test, label = labs[i-1])
-
-
-
-
         # add first line to plot
-        ax.plot(frames * duration_of_one_sample, oracle_dB_test)
+        ax.plot(frames * duration_of_one_sample, oracle_dB_test, label = labs[i-1])
 
     # add x-axis label
     ax.set_xlabel('Time, sec', fontsize=12)
