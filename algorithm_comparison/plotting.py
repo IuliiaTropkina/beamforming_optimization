@@ -978,24 +978,43 @@ def plot_real_protocol():
 
 
 
-    fig_name3 = f"oracle_plus_best_beam_{test_name}_arms{ARMS_NUMBER_CIR}_dB"
-    plt.figure(fig_name3)
 
+
+    fig_name3 = f"oracle_plus_best_beam_{test_name}_arms{ARMS_NUMBER_CIR}_dB"
+
+    plt.figure(fig_name3)
     # define colors to use
     col1 = 'steelblue'
     col2 = 'sandybrown'
 
     # define subplots
     fig, ax = plt.subplots()
+    labs = ["Antenna 8x8", "Antenna 16x16", "Omnidirectional"]
+    for i in range(1,4):
+        figures_path_test = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/"
+        fig_name3_test = f"oracle_test_{i}_arms{ARMS_NUMBER_CIR}_dB"
 
-    # add first line to plot
-    ax.plot(its[start_it:start_it + leng] * duration_of_one_sample, oracle_dB[start_it:start_it + leng], color=col1)
+        oracle_dB_test = pickle.load(open(
+            f"{figures_path_test}/{fig_name3_test}.pickle.pickle",
+            "rb"))
+
+
+        frames = frames_per_data_frame * np.linspace(0, FRAME_NUMBER - 1, FRAME_NUMBER)
+        duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_CIR
+        oracle_dB_test = 10 * np.log10(oracle_dB_test)
+        plt.plot(frames * duration_of_one_sample, oracle_dB_test, label = labs[i-1])
+
+
+
+
+        # add first line to plot
+        ax.plot(frames * duration_of_one_sample, oracle_dB_test)
 
     # add x-axis label
-    ax.set_xlabel('Time, sec', fontsize=14)
+    ax.set_xlabel('Time, sec', fontsize=12)
 
     # add y-axis label
-    ax.set_ylabel('Power, dB', color=col1, fontsize=14)
+    ax.set_ylabel('Power, dB',  fontsize=12)
 
     # define second y-axis that shares x-axis with current plot
     ax2 = ax.twinx()
@@ -1004,7 +1023,7 @@ def plot_real_protocol():
     ax2.plot(its[start_it:start_it + leng] * duration_of_one_sample, best_beam[start_it:start_it + leng], color=col2)
 
     # add second y-axis label
-    ax2.set_ylabel('Beam number', color=col2, fontsize=14)
+    ax2.set_ylabel('Beam number', color=col2, fontsize=12)
 
     plt.grid()
     plt.legend(prop={'size': 12})
