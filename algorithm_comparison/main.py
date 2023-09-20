@@ -284,7 +284,7 @@ class CIR_cache:
         plt.yticks(fontsize=12)
         plt.xticks(fontsize=12)
         plt.savefig(
-            f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/output_type{ANTENNA_TYPE}/figures_zoom/{fig_name3}.png",
+            f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/output_type{ANTENNA_TYPE}/{fig_name3}.png",
             dpi=700, bbox_inches='tight')
 
         oracle = []
@@ -322,7 +322,7 @@ class CIR_cache:
         plt.legend(prop={'size': 12})
         plt.yticks(fontsize=12)
         plt.xticks(fontsize=12)
-        figures_path = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/output_type{ANTENNA_TYPE}/figures_zoom"
+        figures_path = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/output_type{ANTENNA_TYPE}"
         plt.savefig(
             f"{figures_path}/{fig_name3}.pdf",
             dpi=700, bbox_inches='tight')
@@ -1199,7 +1199,7 @@ if __name__ == '__main__':
     plt.yticks(fontsize=12)
     plt.xticks(fontsize=12)
     plt.savefig(
-        f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/output_type{ANTENNA_TYPE}/figures_zoom/{fig_name3}.png",
+        f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/output_type{ANTENNA_TYPE}/{fig_name3}.png",
         dpi=700, bbox_inches='tight')
     TX_locations = np.array(TX_locations)
 
