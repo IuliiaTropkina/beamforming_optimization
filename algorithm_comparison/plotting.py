@@ -995,7 +995,7 @@ def plot_real_protocol():
         fig_name3_test = f"oracle_test_{i}_arms{ARMS_NUMBER_CIR}_dB"
 
         oracle_dB_test = pickle.load(open(
-            f"{figures_path_test}/{fig_name3_test}.pickle.pickle",
+            f"{figures_path_test}/{fig_name3_test}.pickle",
             "rb"))
         frames = frames_per_data_frame * np.linspace(0, FRAME_NUMBER - 1, FRAME_NUMBER)
         duration_of_one_sample = SCENARIO_DURATION / ITER_NUMBER_CIR
