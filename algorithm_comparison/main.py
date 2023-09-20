@@ -323,8 +323,7 @@ class CIR_cache:
         plt.legend(prop={'size': 12})
         plt.yticks(fontsize=12)
         plt.xticks(fontsize=12)
-        PATH = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/output_type{ANTENNA_TYPE}"
-        figures_path = f"{PATH}/figures_zoom"
+        figures_path = f"/home/hciutr/project_voxel_engine/voxel_engine/draft_engine/narvi/scenario_LOS_28_calib2/output_type{ANTENNA_TYPE}/figures_zoom"
         plt.savefig(
             f"{figures_path}/{fig_name3}.pdf",
             dpi=700, bbox_inches='tight')
