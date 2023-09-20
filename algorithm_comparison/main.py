@@ -881,7 +881,7 @@ if __name__ == '__main__':
 
     SCENARIO_DURATION = 8
     NUM_CYCLE = 30
-    frames_per_data_frame = 100
+    frames_per_data_frame = 1
     FRAME_NUMBER = 38
     ITER_NUMBER_CIR = frames_per_data_frame * FRAME_NUMBER
     ITER_NUMBER_RANDOM = ITER_NUMBER_CIR
