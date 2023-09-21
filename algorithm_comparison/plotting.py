@@ -1002,7 +1002,7 @@ def plot_real_protocol():
         oracle_dB_test = 10 * np.log10(oracle_dB_test)
         # add first line to plot
         ax.plot(frames * duration_of_one_sample, oracle_dB_test, label = labs[i-1])
-
+    ax.legend()
     # add x-axis label
     ax.set_xlabel('Time, sec', fontsize=12)
 
@@ -1018,8 +1018,11 @@ def plot_real_protocol():
     # add second y-axis label
     ax2.set_ylabel('Beam number', color=col2, fontsize=12)
 
+    # ax2.legend()
+
+
     plt.grid()
-    plt.legend(prop={'size': 12})
+    #plt.legend(prop={'size': 12})
     plt.yticks(fontsize=12)
     plt.xticks(fontsize=12)
     plt.savefig(
