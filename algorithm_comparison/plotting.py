@@ -1378,7 +1378,7 @@ def calc_beam_wide(ico_subdivision):
     icosphere = trimesh.creation.icosphere(subdivisions=ico_subdivision, radius=1.0, color=None)
     triangle_size = norm(icosphere.vertices[icosphere.edges[0][0]] - icosphere.vertices[icosphere.edges[0][1]])
     cone_angle = math.acos((2 - (triangle_size) ** 2) / 2)
-    print(cone_angle*180/math.pi, "o")
+    print(cone_angle * 180/math.pi, "o")
     print(len(np.array(icosphere.vertices)))
 
 

@@ -49,8 +49,6 @@ def vector_normalize(v: np.ndarray) -> np.ndarray:
     n = norm(v)
     if n == 0:
         raise ValueError("Vector has null length")
-
-
     return v / norm(v)
 
 
